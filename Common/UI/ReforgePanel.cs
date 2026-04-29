@@ -26,9 +26,9 @@ namespace ARPGItemSystem.Common.UI
         {
             _panel = new UIPanel();
             _panel.Width.Set(320, 0f);
-            _panel.Height.Set(420, 0f);
-            _panel.HAlign = 0.5f;
-            _panel.VAlign = 0.5f;
+            _panel.Height.Set(300, 0f);
+            _panel.Left.Set(20, 0f);
+            _panel.Top.Set(220, 0f);
             Append(_panel);
 
             var titleText = new UIText(Language.GetText("Mods.ARPGItemSystem.UI.ReforgePanel.Title"));

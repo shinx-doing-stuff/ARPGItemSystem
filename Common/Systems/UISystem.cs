@@ -13,7 +13,6 @@ namespace ARPGItemSystem.Common.Systems
         private UserInterface _reforgeInterface;
         internal ReforgePanel Panel;
         private GameTime _lastGameTime = new GameTime();
-        private bool _reforgeWasOpen;
 
         public override void Load()
         {
@@ -38,30 +37,18 @@ namespace ARPGItemSystem.Common.Systems
             int inventoryIndex = layers.FindIndex(l => l.Name == "Vanilla: Inventory");
             if (inventoryIndex < 0) return;
 
-            // Before inventory draws: save InReforgeMenu state and suppress it
-            // so the vanilla reforge slot/button don't render
-            layers.Insert(inventoryIndex, new LegacyGameInterfaceLayer(
-                "ARPGItemSystem: Suppress Vanilla Reforge",
-                () =>
-                {
-                    _reforgeWasOpen = Main.InReforgeMenu;
-                    if (_reforgeWasOpen) Main.InReforgeMenu = false;
-                    return true;
-                },
-                InterfaceScaleType.UI
-            ));
-
-            // After inventory draws: restore InReforgeMenu (so vanilla close/ESC
-            // logic still works next frame) and draw our panel
-            layers.Insert(inventoryIndex + 2, new LegacyGameInterfaceLayer(
+            // Draw our panel after inventory so it renders on top of vanilla's reforge UI.
+            // We do NOT suppress Main.InReforgeMenu — that caused vanilla's close logic
+            // to misfire and required two ESC presses to exit.
+            // Instead, our UIPanel physically covers vanilla's reforge slot/button area,
+            // and UIReforgeSlot suppresses mouse state in DrawSelf so vanilla's slot
+            // underneath cannot steal clicks.
+            layers.Insert(inventoryIndex + 1, new LegacyGameInterfaceLayer(
                 "ARPGItemSystem: Reforge Panel",
                 () =>
                 {
-                    if (_reforgeWasOpen)
-                    {
-                        Main.InReforgeMenu = true;
+                    if (Main.InReforgeMenu)
                         _reforgeInterface.Draw(Main.spriteBatch, _lastGameTime);
-                    }
                     return true;
                 },
                 InterfaceScaleType.UI
