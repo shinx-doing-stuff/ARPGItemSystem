@@ -234,6 +234,7 @@ namespace ARPGItemSystem.Common.GlobalItems.Accessory
                 modifierList.Add(new AccessoryModifier(ModifierType.Prefix, prefixMagnitudeList[i], prefixTooltipList[i], (PrefixType)prefixIDList[i], SuffixType.None, prefixTierList[i]));
             for (int i = 0; i < suffixIDList.Count; i++)
                 modifierList.Add(new AccessoryModifier(ModifierType.Suffix, suffixMagnitudeList[i], suffixTooltipList[i], PrefixType.None, (SuffixType)suffixIDList[i], suffixTierList[i]));
+            _initialized = true;
         }
 
         private void SerializeData(

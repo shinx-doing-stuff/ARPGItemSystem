@@ -299,6 +299,7 @@ namespace ARPGItemSystem.Common.GlobalItems.Weapon
                 modifierList.Add(new WeaponModifier(ModifierType.Prefix, prefixMagnitudeList[i], prefixTooltipList[i], (PrefixType)prefixIDList[i], SuffixType.None, prefixTierList[i]));
             for (int i = 0; i < suffixIDList.Count; i++)
                 modifierList.Add(new WeaponModifier(ModifierType.Suffix, suffixMagnitudeList[i], suffixTooltipList[i], PrefixType.None, (SuffixType)suffixIDList[i], suffixTierList[i]));
+            _initialized = true;
         }
 
         private void SerializeData(
