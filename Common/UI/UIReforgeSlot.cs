@@ -12,7 +12,7 @@ namespace ARPGItemSystem.Common.UI
 
         // Persistent single-element array so the array overload of ItemSlot.Draw
         // (which handles clicks) can be used without allocating each frame.
-        private readonly Item[] _arr = new Item[1] { new Item() };
+        private Item[] _arr = new Item[1] { new Item() };
 
         public UIReforgeSlot()
         {
