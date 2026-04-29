@@ -1,8 +1,6 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Terraria;
-using Terraria.Audio;
-using Terraria.ID;
 using Terraria.UI;
 
 namespace ARPGItemSystem.Common.UI
@@ -24,19 +22,16 @@ namespace ARPGItemSystem.Common.UI
                 Main.LocalPlayer.mouseInterface = true;
         }
 
-        // LeftMouseDown fires when button goes DOWN on this element — same timing
-        // as vanilla's item slot interaction in DrawInventory.
         public override void LeftMouseDown(UIMouseEvent evt)
         {
-            base.LeftMouseDown(evt);
+            // evt.Target == this prevents firing when a child element was clicked
+            if (evt.Target != this) return;
             if (!Main.mouseItem.IsAir && Main.mouseItem.maxStack > 1) return;
 
-            Item temp = Main.mouseItem;
-            Main.mouseItem = SlotItem;
-            SlotItem = temp;
-            SoundEngine.PlaySound(SoundID.Grab);
+            // ItemSlot.Handle is the correct tModLoader API for slot interaction
+            ItemSlot.Handle(ref SlotItem, ItemSlot.Context.InventoryItem);
 
-            // Consume so DrawInventory doesn't also process a slot at this position.
+            // Consume so DrawInventory doesn't also process an inventory slot here
             Main.mouseLeft = false;
             Main.mouseLeftRelease = false;
         }
