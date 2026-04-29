@@ -22,7 +22,26 @@ namespace ARPGItemSystem.Common.Systems
                 Panel.Activate();
                 _reforgeInterface = new UserInterface();
                 _reforgeInterface.SetState(Panel);
+
+                // Suppress vanilla reforge slot/button rendering only for the duration
+                // of DrawInventory. This is atomic: ESC handling runs in the update phase
+                // (before draw) and always sees Main.InReforgeMenu = true, so one ESC
+                // still closes the menu correctly.
+                On.Terraria.Main.DrawInventory += HideVanillaReforge;
             }
+        }
+
+        public override void Unload()
+        {
+            On.Terraria.Main.DrawInventory -= HideVanillaReforge;
+        }
+
+        private static void HideVanillaReforge(On.Terraria.Main.orig_DrawInventory orig, Main self)
+        {
+            bool wasReforge = Main.InReforgeMenu;
+            if (wasReforge) Main.InReforgeMenu = false;
+            orig(self);
+            if (wasReforge) Main.InReforgeMenu = true;
         }
 
         public override void UpdateUI(GameTime gameTime)
@@ -37,12 +56,6 @@ namespace ARPGItemSystem.Common.Systems
             int inventoryIndex = layers.FindIndex(l => l.Name == "Vanilla: Inventory");
             if (inventoryIndex < 0) return;
 
-            // Draw our panel after inventory so it renders on top of vanilla's reforge UI.
-            // We do NOT suppress Main.InReforgeMenu — that caused vanilla's close logic
-            // to misfire and required two ESC presses to exit.
-            // Instead, our UIPanel physically covers vanilla's reforge slot/button area,
-            // and UIReforgeSlot suppresses mouse state in DrawSelf so vanilla's slot
-            // underneath cannot steal clicks.
             layers.Insert(inventoryIndex + 1, new LegacyGameInterfaceLayer(
                 "ARPGItemSystem: Reforge Panel",
                 () =>
