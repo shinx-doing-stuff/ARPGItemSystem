@@ -114,6 +114,30 @@ namespace ARPGItemSystem.Common.UI
 
         public void ClearSlot()
         {
+            if (!_slot.SlotItem.IsAir)
+            {
+                // Main.reforgeItem is synced to _slot.SlotItem each frame.
+                // If vanilla already returned and cleared Main.reforgeItem (new Item()),
+                // the references diverge — reforgeItem.IsAir=true, SlotItem still has the weapon.
+                // In that case vanilla already handled the return; we just clear visually.
+                // If reforgeItem still has the weapon, vanilla didn't return it — we do it now.
+                if (!Main.reforgeItem.IsAir)
+                {
+                    if (Main.mouseItem.IsAir)
+                        Main.mouseItem = _slot.SlotItem;
+                    else
+                    {
+                        for (int i = 0; i < Main.LocalPlayer.inventory.Length; i++)
+                        {
+                            if (Main.LocalPlayer.inventory[i].IsAir)
+                            {
+                                Main.LocalPlayer.inventory[i] = _slot.SlotItem;
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
             _slot.SlotItem = new Item();
             Main.reforgeItem = new Item();
             ClearAffixLines();
