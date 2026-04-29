@@ -33,7 +33,7 @@ namespace ARPGItemSystem.Common.UI
             // and is the overload that definitively handles click interaction.
             _arr[0] = SlotItem;
             var pos = GetDimensions().Position();
-            ItemSlot.Draw(spriteBatch, _arr, ItemSlot.Context.InventoryItem, 0, pos);
+            ItemSlot.Draw(spriteBatch, ref _arr, ItemSlot.Context.InventoryItem, 0, pos);
             SlotItem = _arr[0];
         }
     }
