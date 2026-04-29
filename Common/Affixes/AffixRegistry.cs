@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Terraria.ModLoader;
@@ -369,6 +370,11 @@ namespace ARPGItemSystem.Common.Affixes
                     AllowedDamageClasses = magicOnly
                 }
             };
+
+            foreach (var def in defs)
+                foreach (var (cat, list) in def.Tiers)
+                    if (list.Count != 10)
+                        throw new Exception($"AffixDef {def.Id} category {cat} has {list.Count} tier entries, expected 10");
 
             return defs.ToDictionary(d => d.Id);
         }

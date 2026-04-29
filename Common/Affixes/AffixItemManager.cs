@@ -77,14 +77,15 @@ namespace ARPGItemSystem.Common.Affixes
                     "CommonItemTooltip.UsesMana", Main.LocalPlayer.GetManaCost(item));
             }
 
-            foreach (var affix in Affixes)
+            for (int i = 0; i < Affixes.Count; i++)
             {
+                var affix = Affixes[i];
                 var def = AffixRegistry.Get(affix.Id);
                 var text = string.Format(def.TooltipFormat, affix.Magnitude);
                 var color = def.Kind == AffixKind.Prefix
-                    ? Color.LightGreen
-                    : Color.DeepSkyBlue;
-                tooltips.Add(new TooltipLine(Mod, "CustomAffix", text) { OverrideColor = color });
+                    ? Microsoft.Xna.Framework.Color.LightGreen
+                    : Microsoft.Xna.Framework.Color.DeepSkyBlue;
+                tooltips.Add(new TooltipLine(Mod, $"Affix_{affix.Id}", text) { OverrideColor = color });
             }
         }
 
@@ -127,6 +128,8 @@ namespace ARPGItemSystem.Common.Affixes
             Affixes.Clear();
             for (int i = 0; i < ids.Count; i++)
                 Affixes.Add(new Affix((AffixId)ids[i], magnitudes[i], tiers[i]));
+
+            Affixes.RemoveAll(a => a.Id == AffixId.None || !AffixRegistry.All.ContainsKey(a.Id));
 
             if (Affixes.Count == 0 && (RollPrefixCount() > 0 || RollSuffixCount() > 0))
                 Initialized = false;
