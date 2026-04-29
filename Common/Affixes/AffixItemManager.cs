@@ -81,7 +81,8 @@ namespace ARPGItemSystem.Common.Affixes
             {
                 var affix = Affixes[i];
                 var def = AffixRegistry.Get(affix.Id);
-                var text = string.Format(def.TooltipFormat, affix.Magnitude);
+                var text = Language.GetTextValue(
+                    $"Mods.ARPGItemSystem.Affixes.{affix.Id}", affix.Magnitude);
                 var color = def.Kind == AffixKind.Prefix
                     ? Microsoft.Xna.Framework.Color.LightGreen
                     : Microsoft.Xna.Framework.Color.DeepSkyBlue;
