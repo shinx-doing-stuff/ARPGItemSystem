@@ -57,7 +57,7 @@ namespace ARPGItemSystem.Common.UI
         {
             if (_isPending || Main.reforgeItem.IsAir) return;
 
-            SoundEngine.PlaySound(SoundID.Item4);
+            SoundEngine.PlaySound(SoundID.Item37);
 
             var item = Main.reforgeItem;
             var cat = ReforgePacketHandler.GetItemCategory(item);
