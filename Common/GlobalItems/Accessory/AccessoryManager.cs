@@ -131,131 +131,105 @@ namespace ARPGItemSystem.Common.GlobalItems.Accessory
         }
         public override void SaveData(Item item, TagCompound tag)
         {
-            List<int> prefixIDList, prefixMagnitudeList, suffixIDList, suffixMagnitudeList;
-            List<string> prefixTooltipList, suffixTooltipList;
-            SerializeData(out prefixIDList, out prefixMagnitudeList, out prefixTooltipList, out suffixIDList, out suffixMagnitudeList, out suffixTooltipList);
+            List<int> prefixIDList, prefixMagnitudeList, prefixTierList;
+            List<string> prefixTooltipList;
+            List<int> suffixIDList, suffixMagnitudeList, suffixTierList;
+            List<string> suffixTooltipList;
+            SerializeData(out prefixIDList, out prefixMagnitudeList, out prefixTooltipList, out prefixTierList,
+                          out suffixIDList, out suffixMagnitudeList, out suffixTooltipList, out suffixTierList);
 
-            tag["PrefixIDList"] = prefixIDList;
-            tag["PrefixMagnitudeList"] = prefixMagnitudeList;
-            tag["PrefixTooltipList"] = prefixTooltipList;
-
-            tag["SuffixIDList"] = suffixIDList;
-            tag["SuffixMagnitudeList"] = suffixMagnitudeList;
-            tag["SuffixTooltipList"] = suffixTooltipList;
+            tag["PrefixIDList"] = prefixIDList; tag["PrefixMagnitudeList"] = prefixMagnitudeList;
+            tag["PrefixTooltipList"] = prefixTooltipList; tag["PrefixTierList"] = prefixTierList;
+            tag["SuffixIDList"] = suffixIDList; tag["SuffixMagnitudeList"] = suffixMagnitudeList;
+            tag["SuffixTooltipList"] = suffixTooltipList; tag["SuffixTierList"] = suffixTierList;
         }
 
         public override void LoadData(Item item, TagCompound tag)
         {
-            List<int> prefixIDList = (List<int>)tag.GetList<int>("PrefixIDList");
-            List<int> prefixMagnitudeList = (List<int>)tag.GetList<int>("PrefixMagnitudeList");
-            List<string> prefixTooltipList = (List<string>)tag.GetList<string>("PrefixTooltipList");
+            var prefixIDList = tag.GetList<int>("PrefixIDList").ToList();
+            var prefixMagnitudeList = tag.GetList<int>("PrefixMagnitudeList").ToList();
+            var prefixTooltipList = tag.GetList<string>("PrefixTooltipList").ToList();
+            var prefixTierList = tag.ContainsKey("PrefixTierList")
+                ? tag.GetList<int>("PrefixTierList").ToList()
+                : Enumerable.Repeat(9, prefixIDList.Count).ToList();
 
-            List<int> suffixIDList = (List<int>)tag.GetList<int>("SuffixIDList");
-            List<int> suffixMagnitudeList = (List<int>)tag.GetList<int>("SuffixMagnitudeList");
-            List<string> suffixTooltipList = (List<string>)tag.GetList<string>("SuffixTooltipList");
+            var suffixIDList = tag.GetList<int>("SuffixIDList").ToList();
+            var suffixMagnitudeList = tag.GetList<int>("SuffixMagnitudeList").ToList();
+            var suffixTooltipList = tag.GetList<string>("SuffixTooltipList").ToList();
+            var suffixTierList = tag.ContainsKey("SuffixTierList")
+                ? tag.GetList<int>("SuffixTierList").ToList()
+                : Enumerable.Repeat(9, suffixIDList.Count).ToList();
 
+            modifierList.Clear();
             for (int i = 0; i < prefixIDList.Count; i++)
-            {
-                modifierList.Add(new AccessoryModifier(ModifierType.Prefix, prefixMagnitudeList[i], prefixTooltipList[i], (PrefixType)prefixIDList[i], SuffixType.None));
-            }
+                modifierList.Add(new AccessoryModifier(ModifierType.Prefix, prefixMagnitudeList[i], prefixTooltipList[i], (PrefixType)prefixIDList[i], SuffixType.None, prefixTierList[i]));
             for (int i = 0; i < suffixIDList.Count; i++)
-            {
-                modifierList.Add(new AccessoryModifier(ModifierType.Suffix, suffixMagnitudeList[i], suffixTooltipList[i], PrefixType.None, (SuffixType)suffixIDList[i]));
-            }
+                modifierList.Add(new AccessoryModifier(ModifierType.Suffix, suffixMagnitudeList[i], suffixTooltipList[i], PrefixType.None, (SuffixType)suffixIDList[i], suffixTierList[i]));
         }
 
         public override void NetSend(Item item, BinaryWriter writer)
         {
-            List<int> prefixIDList, prefixMagnitudeList, suffixIDList, suffixMagnitudeList;
-            List<string> prefixTooltipList, suffixTooltipList;
-            SerializeData(out prefixIDList, out prefixMagnitudeList, out prefixTooltipList, out suffixIDList, out suffixMagnitudeList, out suffixTooltipList);
+            List<int> prefixIDList, prefixMagnitudeList, prefixTierList;
+            List<string> prefixTooltipList;
+            List<int> suffixIDList, suffixMagnitudeList, suffixTierList;
+            List<string> suffixTooltipList;
+            SerializeData(out prefixIDList, out prefixMagnitudeList, out prefixTooltipList, out prefixTierList,
+                          out suffixIDList, out suffixMagnitudeList, out suffixTooltipList, out suffixTierList);
 
             writer.Write(prefixIDList.Count);
-            foreach (var prefixID in prefixIDList)
-            {
-                writer.Write(prefixID);
-            }
+            foreach (var v in prefixIDList) writer.Write(v);
             writer.Write(prefixMagnitudeList.Count);
-            foreach (var prefixMagnitude in prefixMagnitudeList)
-            {
-                writer.Write(prefixMagnitude);
-            }
+            foreach (var v in prefixMagnitudeList) writer.Write(v);
             writer.Write(prefixTooltipList.Count);
-            foreach (var prefixTooltip in prefixTooltipList)
-            {
-                writer.Write(prefixTooltip);
-            }
+            foreach (var v in prefixTooltipList) writer.Write(v);
+            writer.Write(prefixTierList.Count);
+            foreach (var v in prefixTierList) writer.Write(v);
+
             writer.Write(suffixIDList.Count);
-            foreach (var suffixID in suffixIDList)
-            {
-                writer.Write(suffixID);
-            }
+            foreach (var v in suffixIDList) writer.Write(v);
             writer.Write(suffixMagnitudeList.Count);
-            foreach (var suffixMagnitude in suffixMagnitudeList)
-            {
-                writer.Write(suffixMagnitude);
-            }
+            foreach (var v in suffixMagnitudeList) writer.Write(v);
             writer.Write(suffixTooltipList.Count);
-            foreach (var suffixTooltip in suffixTooltipList)
-            {
-                writer.Write(suffixTooltip);
-            }
+            foreach (var v in suffixTooltipList) writer.Write(v);
+            writer.Write(suffixTierList.Count);
+            foreach (var v in suffixTierList) writer.Write(v);
         }
         public override void NetReceive(Item item, BinaryReader reader)
         {
-            List<int> prefixIDList = new List<int>(), prefixMagnitudeList = new List<int>(), suffixIDList = new List<int>(), suffixMagnitudeList = new List<int>();
-            List<string> prefixTooltipList = new List<string>(), suffixTooltipList = new List<string>();
+            var prefixIDList = new List<int>(); var prefixMagnitudeList = new List<int>();
+            var prefixTooltipList = new List<string>(); var prefixTierList = new List<int>();
+            var suffixIDList = new List<int>(); var suffixMagnitudeList = new List<int>();
+            var suffixTooltipList = new List<string>(); var suffixTierList = new List<int>();
 
-            var prefixIDListCount = reader.ReadInt32();
-            for (int i = 0; i < prefixIDListCount; i++)
-            {
-                prefixIDList.Add(reader.ReadInt32());
-            }
-            var prefixMagnitudeListCount = reader.ReadInt32();
-            for (int i = 0; i < prefixMagnitudeListCount; i++)
-            {
-                prefixMagnitudeList.Add(reader.ReadInt32());
-            }
-            var prefixTooltipListCount = reader.ReadInt32();
-            for (int i = 0; i < prefixTooltipListCount; i++)
-            {
-                prefixTooltipList.Add(reader.ReadString());
-            }
-            var suffixIDListCount = reader.ReadInt32();
-            for (int i = 0; i < suffixIDListCount; i++)
-            {
-                suffixIDList.Add(reader.ReadInt32());
-            }
-            var suffixMagnitudeListCount = reader.ReadInt32();
-            for (int i = 0; i < suffixMagnitudeListCount; i++)
-            {
-                suffixMagnitudeList.Add(reader.ReadInt32());
-            }
-            var suffixTooltipListCount = reader.ReadInt32();
-            for (int i = 0; i < suffixTooltipListCount; i++)
-            {
-                suffixTooltipList.Add(reader.ReadString());
-            }
+            int c;
+            c = reader.ReadInt32(); for (int i = 0; i < c; i++) prefixIDList.Add(reader.ReadInt32());
+            c = reader.ReadInt32(); for (int i = 0; i < c; i++) prefixMagnitudeList.Add(reader.ReadInt32());
+            c = reader.ReadInt32(); for (int i = 0; i < c; i++) prefixTooltipList.Add(reader.ReadString());
+            c = reader.ReadInt32(); for (int i = 0; i < c; i++) prefixTierList.Add(reader.ReadInt32());
 
+            c = reader.ReadInt32(); for (int i = 0; i < c; i++) suffixIDList.Add(reader.ReadInt32());
+            c = reader.ReadInt32(); for (int i = 0; i < c; i++) suffixMagnitudeList.Add(reader.ReadInt32());
+            c = reader.ReadInt32(); for (int i = 0; i < c; i++) suffixTooltipList.Add(reader.ReadString());
+            c = reader.ReadInt32(); for (int i = 0; i < c; i++) suffixTierList.Add(reader.ReadInt32());
+
+            modifierList.Clear();
             for (int i = 0; i < prefixIDList.Count; i++)
-            {
-                modifierList.Add(new AccessoryModifier(ModifierType.Prefix, prefixMagnitudeList[i], prefixTooltipList[i], (PrefixType)prefixIDList[i], SuffixType.None));
-            }
+                modifierList.Add(new AccessoryModifier(ModifierType.Prefix, prefixMagnitudeList[i], prefixTooltipList[i], (PrefixType)prefixIDList[i], SuffixType.None, prefixTierList[i]));
             for (int i = 0; i < suffixIDList.Count; i++)
-            {
-                modifierList.Add(new AccessoryModifier(ModifierType.Suffix, suffixMagnitudeList[i], suffixTooltipList[i], PrefixType.None, (SuffixType)suffixIDList[i]));
-            }
-
+                modifierList.Add(new AccessoryModifier(ModifierType.Suffix, suffixMagnitudeList[i], suffixTooltipList[i], PrefixType.None, (SuffixType)suffixIDList[i], suffixTierList[i]));
         }
 
-        private void SerializeData(out List<int> prefixIDList, out List<int> prefixMagnitudeList, out List<string> prefixTooltipList, out List<int> suffixIDList, out List<int> suffixMagnitudeList, out List<string> suffixTooltipList)
+        private void SerializeData(
+            out List<int> prefixIDList, out List<int> prefixMagnitudeList,
+            out List<string> prefixTooltipList, out List<int> prefixTierList,
+            out List<int> suffixIDList, out List<int> suffixMagnitudeList,
+            out List<string> suffixTooltipList, out List<int> suffixTierList)
         {
-            prefixIDList = new List<int>();
-            prefixMagnitudeList = new List<int>();
-            prefixTooltipList = new List<string>();
-            suffixIDList = new List<int>();
-            suffixMagnitudeList = new List<int>();
-            suffixTooltipList = new List<string>();
+            prefixIDList = new List<int>(); prefixMagnitudeList = new List<int>();
+            prefixTooltipList = new List<string>(); prefixTierList = new List<int>();
+            suffixIDList = new List<int>(); suffixMagnitudeList = new List<int>();
+            suffixTooltipList = new List<string>(); suffixTierList = new List<int>();
+
             foreach (var modifier in modifierList)
             {
                 if (modifier.modifierType == ModifierType.Prefix)
@@ -263,12 +237,14 @@ namespace ARPGItemSystem.Common.GlobalItems.Accessory
                     prefixIDList.Add((int)modifier.prefixType);
                     prefixMagnitudeList.Add(modifier.magnitude);
                     prefixTooltipList.Add(modifier.tooltip);
+                    prefixTierList.Add(modifier.tier);
                 }
                 else
                 {
                     suffixIDList.Add((int)modifier.suffixType);
                     suffixMagnitudeList.Add(modifier.magnitude);
                     suffixTooltipList.Add(modifier.tooltip);
+                    suffixTierList.Add(modifier.tier);
                 }
             }
         }
