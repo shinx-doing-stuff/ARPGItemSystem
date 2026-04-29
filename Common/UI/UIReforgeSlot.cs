@@ -16,17 +16,22 @@ namespace ARPGItemSystem.Common.UI
 
         public override void LeftClick(UIMouseEvent evt)
         {
-            Main.NewText($"[ReforgeSlot] LeftClick: mouse={Main.mouseItem.Name} reforge={Main.reforgeItem.Name}", Microsoft.Xna.Framework.Color.Yellow);
-
             if (!Main.mouseItem.IsAir && Main.mouseItem.maxStack > 1) return;
 
-            Item held = Main.reforgeItem;
-            Main.reforgeItem = Main.mouseItem;
-            Main.mouseItem = held;
-            SoundEngine.PlaySound(SoundID.Grab);
+            if (!Main.mouseItem.IsAir)
+            {
+                // Place cursor item into slot — clone to avoid any reference aliasing
+                Main.reforgeItem = Main.mouseItem.Clone();
+                Main.mouseItem = new Item();
+            }
+            else if (!Main.reforgeItem.IsAir)
+            {
+                // Pick slot item up to cursor
+                Main.mouseItem = Main.reforgeItem.Clone();
+                Main.reforgeItem = new Item();
+            }
 
-            // Consume the click so DrawInventory (draw phase) doesn't also process
-            // the inventory slot that happens to be at the same screen position.
+            SoundEngine.PlaySound(SoundID.Grab);
             Main.mouseLeft = false;
             Main.mouseLeftRelease = false;
         }
@@ -35,7 +40,7 @@ namespace ARPGItemSystem.Common.UI
         {
             if (Main.reforgeItem.IsAir || !Main.mouseItem.IsAir) return;
 
-            Main.mouseItem = Main.reforgeItem;
+            Main.mouseItem = Main.reforgeItem.Clone();
             Main.reforgeItem = new Item();
             SoundEngine.PlaySound(SoundID.Grab);
             Main.mouseRight = false;
