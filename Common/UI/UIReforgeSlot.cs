@@ -22,6 +22,11 @@ namespace ARPGItemSystem.Common.UI
             Main.reforgeItem = Main.mouseItem;
             Main.mouseItem = held;
             SoundEngine.PlaySound(SoundID.Grab);
+
+            // Consume the click so DrawInventory (draw phase) doesn't also process
+            // the inventory slot that happens to be at the same screen position.
+            Main.mouseLeft = false;
+            Main.mouseLeftRelease = false;
         }
 
         public override void RightClick(UIMouseEvent evt)
@@ -31,6 +36,8 @@ namespace ARPGItemSystem.Common.UI
             Main.mouseItem = Main.reforgeItem;
             Main.reforgeItem = new Item();
             SoundEngine.PlaySound(SoundID.Grab);
+            Main.mouseRight = false;
+            Main.mouseRightRelease = false;
         }
 
         protected override void DrawSelf(SpriteBatch spriteBatch)
