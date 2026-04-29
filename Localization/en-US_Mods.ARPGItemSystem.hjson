@@ -2,6 +2,7 @@ UI: {
 	ReforgePanel: {
 		Title: Modifier Reforge
 		Placeholder: Place an item to begin
+
 		Currency: {
 			Platinum: p
 			Gold: g
