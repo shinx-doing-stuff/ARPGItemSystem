@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using ARPGItemSystem.Common.UI;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Input;
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
@@ -37,7 +38,23 @@ namespace ARPGItemSystem.Common.Systems
                 Panel.ClearSlot();
 
             if (Main.InReforgeMenu)
-                _reforgeInterface?.Update(gameTime);
+            {
+                // Intercept ESC: vanilla's first ESC only closes the NPC talk state,
+                // leaving playerInventory=true so our panel stays open a second frame.
+                // We detect ESC ourselves and force-close everything in one press.
+                bool escJustPressed = Main.keyState.IsKeyDown(Keys.Escape)
+                                   && !Main.oldKeyState.IsKeyDown(Keys.Escape);
+                if (escJustPressed)
+                {
+                    Panel?.ClearSlot();
+                    Main.InReforgeMenu = false;
+                    Main.playerInventory = false;
+                }
+                else
+                {
+                    _reforgeInterface?.Update(gameTime);
+                }
+            }
         }
 
         public override void ModifyInterfaceLayers(List<GameInterfaceLayer> layers)
