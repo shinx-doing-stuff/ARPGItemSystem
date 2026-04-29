@@ -13,7 +13,6 @@ namespace ARPGItemSystem.Common.Systems
         private UserInterface _reforgeInterface;
         internal ReforgePanel Panel;
         private GameTime _lastGameTime = new GameTime();
-        private bool _reforgeWasOpen;
 
         public override void Load()
         {
@@ -29,30 +28,8 @@ namespace ARPGItemSystem.Common.Systems
         public override void UpdateUI(GameTime gameTime)
         {
             _lastGameTime = gameTime;
-            if (!Main.InReforgeMenu) return;
-
-            // Update first so UIElement dimensions are recalculated.
-            _reforgeInterface?.Update(gameTime);
-
-            // Handle slot click HERE — before the draw phase — so DrawInventory
-            // cannot steal the click from the inventory slot at the same screen position.
-            if (Panel == null) return;
-            var slotBounds = Panel.GetSlotBounds();
-            if (slotBounds == Rectangle.Empty) return;
-
-            if (slotBounds.Contains(Main.mouseX, Main.mouseY)
-                && Main.mouseLeft && Main.mouseLeftRelease
-                && (Main.mouseItem.IsAir || Main.mouseItem.maxStack == 1))
-            {
-                Main.LocalPlayer.mouseInterface = true;
-                var temp = Main.mouseItem;
-                Main.mouseItem = Main.reforgeItem;
-                Main.reforgeItem = temp;
-                Terraria.Audio.SoundEngine.PlaySound(Terraria.ID.SoundID.Grab);
-                // Consume the click so DrawInventory doesn't also process it.
-                Main.mouseLeft = false;
-                Main.mouseLeftRelease = false;
-            }
+            if (Main.InReforgeMenu)
+                _reforgeInterface?.Update(gameTime);
         }
 
         public override void ModifyInterfaceLayers(List<GameInterfaceLayer> layers)
@@ -60,54 +37,14 @@ namespace ARPGItemSystem.Common.Systems
             int inventoryIndex = layers.FindIndex(l => l.Name == "Vanilla: Inventory");
             if (inventoryIndex < 0) return;
 
-            // Suppress vanilla reforge slot/button for the inventory draw only.
-            layers.Insert(inventoryIndex, new LegacyGameInterfaceLayer(
-                "ARPGItemSystem: Suppress Vanilla Reforge",
-                () =>
-                {
-                    _reforgeWasOpen = Main.InReforgeMenu;
-                    if (_reforgeWasOpen) Main.InReforgeMenu = false;
-                    return true;
-                },
-                InterfaceScaleType.UI
-            ));
-
-            layers.Insert(inventoryIndex + 2, new LegacyGameInterfaceLayer(
+            // Draw our affix panel after the inventory layer.
+            // Vanilla handles the reforge item slot and all item interaction.
+            layers.Insert(inventoryIndex + 1, new LegacyGameInterfaceLayer(
                 "ARPGItemSystem: Reforge Panel",
                 () =>
                 {
-                    if (!_reforgeWasOpen) return true;
-
-                    if (Main.playerInventory)
-                    {
-                        Main.InReforgeMenu = true;
+                    if (Main.InReforgeMenu)
                         _reforgeInterface.Draw(Main.spriteBatch, _lastGameTime);
-                    }
-                    else
-                    {
-                        // Return held item when menu closes (ESC / NPC walked away).
-                        // If vanilla already returned it, reforgeItem.IsAir is true and we skip.
-                        if (!Main.reforgeItem.IsAir)
-                        {
-                            if (Main.mouseItem.IsAir)
-                            {
-                                Main.mouseItem = Main.reforgeItem;
-                            }
-                            else
-                            {
-                                for (int i = 0; i < Main.LocalPlayer.inventory.Length; i++)
-                                {
-                                    if (Main.LocalPlayer.inventory[i].IsAir)
-                                    {
-                                        Main.LocalPlayer.inventory[i] = Main.reforgeItem;
-                                        break;
-                                    }
-                                }
-                            }
-                            Main.reforgeItem = new Item();
-                        }
-                        Main.InReforgeMenu = false;
-                    }
                     return true;
                 },
                 InterfaceScaleType.UI
