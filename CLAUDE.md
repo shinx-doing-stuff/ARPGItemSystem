@@ -76,7 +76,6 @@ Applied each frame via:
 new AffixDef {
     Id = AffixId.YourNewAffix,
     Kind = AffixKind.Prefix,           // or Suffix
-    TooltipFormat = "{0}% Your Text",
     Tiers = new Dictionary<ItemCategory, List<Tier>>
     {
         [ItemCategory.Weapon] = new List<Tier> {   // add only the categories that can roll it
@@ -90,14 +89,24 @@ new AffixDef {
 
 The `BuildRegistry()` validation loop will throw a clear error on load if you supply a tier list that isn't exactly 10 entries.
 
-**Step 3 — stat-apply hook:** Add a `case AffixId.YourNewAffix:` in the appropriate manager:
+**Step 3 — `Localization/en-US_Mods.ARPGItemSystem.hjson`:** Add the tooltip text under `Affixes`:
+
+```
+Affixes: {
+    YourNewAffix: "{0}% Your Tooltip Text"
+}
+```
+
+The key must exactly match the `AffixId` enum name. `{0}` is replaced with the rolled magnitude at draw time.
+
+**Step 4 — stat-apply hook:** Add a `case AffixId.YourNewAffix:` in the appropriate manager:
 - Weapons → `WeaponManager.cs` (pick the right hook: `ModifyWeaponDamage`, `ModifyWeaponCrit`, `ModifyHitNPC`, etc.)
 - Armor → `ArmorManager.UpdateEquip`
 - Accessories → `AccessoryManager.UpdateAccessory`
 
-**Step 4 (projectiles only):** Add a case in `ProjectileManager.ModifyHitNPC`.
+**Step 5 (projectiles only):** Add a case in `ProjectileManager.ModifyHitNPC`.
 
-That's it. The new affix automatically enters the roll pool, gets correct tooltips at draw time, saves/loads by ID, and syncs over the network — no other files to touch.
+That's it. The new affix automatically enters the roll pool, saves/loads by ID, and syncs over the network — no other files to touch.
 
 ## UI Architecture (Reforge Panel)
 
