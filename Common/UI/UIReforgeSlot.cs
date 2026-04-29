@@ -14,11 +14,15 @@ namespace ARPGItemSystem.Common.UI
 
         protected override void DrawSelf(SpriteBatch spriteBatch)
         {
-            // Let ItemSlot.Draw handle drawing AND interaction natively.
-            // No custom click handling — vanilla's ItemSlot.Draw is battle-tested
-            // for all the cursor state management we've been fighting with.
+            // Interaction is handled in UISystem.UpdateUI (update phase) before
+            // DrawInventory can steal the click. This method is purely visual.
             var pos = GetDimensions().Position();
+            int mx = Main.mouseX, my = Main.mouseY;
+            Main.mouseX = -9999;
+            Main.mouseY = -9999;
             ItemSlot.Draw(spriteBatch, ref Main.reforgeItem, ItemSlot.Context.InventoryItem, pos);
+            Main.mouseX = mx;
+            Main.mouseY = my;
         }
     }
 }

@@ -16,6 +16,7 @@ namespace ARPGItemSystem.Common.UI
     public class ReforgePanel : UIState
     {
         private UIPanel _panel;
+        private UIReforgeSlot _slot;
         private UIText _itemName;
         private UIText _placeholder;
         private readonly List<AffixLine> _affixLines = new();
@@ -41,10 +42,10 @@ namespace ARPGItemSystem.Common.UI
             title.Append(titleText);
             _panel.Append(title);
 
-            var slot = new UIReforgeSlot();
-            slot.HAlign = 0.5f;
-            slot.Top.Set(24, 0f);
-            _panel.Append(slot);
+            _slot = new UIReforgeSlot();
+            _slot.HAlign = 0.5f;
+            _slot.Top.Set(24, 0f);
+            _panel.Append(_slot);
 
             _itemName = new UIText("", 0.9f);
             _itemName.HAlign = 0.5f;
@@ -82,6 +83,9 @@ namespace ARPGItemSystem.Common.UI
             _placeholder.TextColor = hasItem ? Color.Transparent : Color.Gray;
             _itemName.SetText(hasItem ? Main.reforgeItem.Name : "");
         }
+
+        public Rectangle GetSlotBounds() =>
+            _slot?.GetDimensions().ToRectangle() ?? Rectangle.Empty;
 
         public void RefreshAffix(int index)
         {

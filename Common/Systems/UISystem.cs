@@ -29,8 +29,30 @@ namespace ARPGItemSystem.Common.Systems
         public override void UpdateUI(GameTime gameTime)
         {
             _lastGameTime = gameTime;
-            if (Main.InReforgeMenu)
-                _reforgeInterface?.Update(gameTime);
+            if (!Main.InReforgeMenu) return;
+
+            // Update first so UIElement dimensions are recalculated.
+            _reforgeInterface?.Update(gameTime);
+
+            // Handle slot click HERE — before the draw phase — so DrawInventory
+            // cannot steal the click from the inventory slot at the same screen position.
+            if (Panel == null) return;
+            var slotBounds = Panel.GetSlotBounds();
+            if (slotBounds == Rectangle.Empty) return;
+
+            if (slotBounds.Contains(Main.mouseX, Main.mouseY)
+                && Main.mouseLeft && Main.mouseLeftRelease
+                && (Main.mouseItem.IsAir || Main.mouseItem.maxStack == 1))
+            {
+                Main.LocalPlayer.mouseInterface = true;
+                var temp = Main.mouseItem;
+                Main.mouseItem = Main.reforgeItem;
+                Main.reforgeItem = temp;
+                Terraria.Audio.SoundEngine.PlaySound(Terraria.ID.SoundID.Grab);
+                // Consume the click so DrawInventory doesn't also process it.
+                Main.mouseLeft = false;
+                Main.mouseLeftRelease = false;
+            }
         }
 
         public override void ModifyInterfaceLayers(List<GameInterfaceLayer> layers)
