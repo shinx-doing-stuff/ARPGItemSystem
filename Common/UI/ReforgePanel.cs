@@ -110,6 +110,15 @@ namespace ARPGItemSystem.Common.UI
             ClearAffixLines();
         }
 
+        public bool SlotIsEmpty => _slot.SlotItem.IsAir;
+
+        public void ClearSlot()
+        {
+            _slot.SlotItem = new Item();
+            Main.reforgeItem = new Item();
+            ClearAffixLines();
+        }
+
         public void RefreshAffix(int index)
         {
             if (index >= 0 && index < _affixLines.Count)

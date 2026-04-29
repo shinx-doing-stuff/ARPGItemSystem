@@ -29,6 +29,13 @@ namespace ARPGItemSystem.Common.Systems
         public override void UpdateUI(GameTime gameTime)
         {
             _lastGameTime = gameTime;
+
+            // When vanilla closes the menu (ESC, NPC walked away, etc.) it returns
+            // Main.reforgeItem to the player's inventory but never touches our
+            // _slot.SlotItem. Detect the close here and clear the slot.
+            if (!Main.InReforgeMenu && Panel != null && !Panel.SlotIsEmpty)
+                Panel.ClearSlot();
+
             if (Main.InReforgeMenu)
                 _reforgeInterface?.Update(gameTime);
         }
