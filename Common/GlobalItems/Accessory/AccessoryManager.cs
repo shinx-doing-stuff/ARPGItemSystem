@@ -21,6 +21,7 @@ namespace ARPGItemSystem.Common.GlobalItems.Accessory
     public class AccessoryManager : GlobalItem
     {
         public List<AccessoryModifier> modifierList = new List<AccessoryModifier>();
+        private bool _initialized;
         public override bool InstancePerEntity => true;
 
         // This is needed to make sure reference types are cloned properly to new instances
@@ -43,17 +44,25 @@ namespace ARPGItemSystem.Common.GlobalItems.Accessory
             return lateInstantiation && entity.accessory;
         }
 
-        // Roll modifiers on item creation
         public override void OnCreated(Item item, ItemCreationContext context)
         {
             Reroll(item);
+            _initialized = true;
         }
 
         public override bool OnPickup(Item item, Player player)
         {
             if (modifierList.Count == 0)
                 Reroll(item);
+            _initialized = true;
             return true;
+        }
+
+        public override void UpdateInventory(Item item, Player player)
+        {
+            if (_initialized) return;
+            Reroll(item);
+            _initialized = true;
         }
 
         public void Reroll(Item item)
@@ -172,6 +181,7 @@ namespace ARPGItemSystem.Common.GlobalItems.Accessory
                 modifierList.Add(new AccessoryModifier(ModifierType.Prefix, prefixMagnitudeList[i], prefixTooltipList[i], (PrefixType)prefixIDList[i], SuffixType.None, prefixTierList[i]));
             for (int i = 0; i < suffixIDList.Count; i++)
                 modifierList.Add(new AccessoryModifier(ModifierType.Suffix, suffixMagnitudeList[i], suffixTooltipList[i], PrefixType.None, (SuffixType)suffixIDList[i], suffixTierList[i]));
+            _initialized = true;
         }
 
         public override void NetSend(Item item, BinaryWriter writer)

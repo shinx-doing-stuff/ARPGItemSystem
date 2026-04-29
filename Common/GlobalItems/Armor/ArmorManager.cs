@@ -21,6 +21,7 @@ namespace ARPGItemSystem.Common.GlobalItems.Armor
     public class ArmorManager : GlobalItem
     {
         public List<ArmorModifier> modifierList = new List<ArmorModifier>();
+        private bool _initialized;
         public override bool InstancePerEntity => true;
 
         // This is needed to make sure reference types are cloned properly to new instances
@@ -43,17 +44,25 @@ namespace ARPGItemSystem.Common.GlobalItems.Armor
             return lateInstantiation && entity.damage < 1 && entity.maxStack == 1 && !entity.accessory && !entity.vanity;
         }
 
-        // Roll modifiers on item creation
         public override void OnCreated(Item item, ItemCreationContext context)
         {
             Reroll(item);
+            _initialized = true;
         }
 
         public override bool OnPickup(Item item, Player player)
         {
             if (modifierList.Count == 0)
                 Reroll(item);
+            _initialized = true;
             return true;
+        }
+
+        public override void UpdateInventory(Item item, Player player)
+        {
+            if (_initialized) return;
+            Reroll(item);
+            _initialized = true;
         }
 
         public void Reroll(Item item)
@@ -124,28 +133,6 @@ namespace ARPGItemSystem.Common.GlobalItems.Armor
             }
         }
 
-        public override void UpdateInventory(Item item, Player player)
-        {
-            foreach (var modifier in modifierList)
-            {
-                switch (modifier.prefixType)
-                {
-                    // Apply first to create pseudo "increased" multiplier
-                    case PrefixType.FlatDefenseIncrease:
-                        item.defense = (int)(item.OriginalDefense * (1 + modifier.magnitude / 100f));
-                        break;
-                    // Apply after flat defense to create pseudo "more" multiplier
-                    case PrefixType.PercentageDefenseIncrease:
-                        item.defense = (int)(item.OriginalDefense * (1 + modifier.magnitude / 100f));
-                        break;
-                }
-                switch (modifier.suffixType)
-                {
-
-                }
-            }
-        }
-
         public override void ModifyTooltips(Item item, List<TooltipLine> tooltips)
         {
             var useManaTip = tooltips.FirstOrDefault(tip => tip.Name == "UseMana" && tip.Mod == "Terraria");
@@ -198,6 +185,7 @@ namespace ARPGItemSystem.Common.GlobalItems.Armor
                 modifierList.Add(new ArmorModifier(ModifierType.Prefix, prefixMagnitudeList[i], prefixTooltipList[i], (PrefixType)prefixIDList[i], SuffixType.None, prefixTierList[i]));
             for (int i = 0; i < suffixIDList.Count; i++)
                 modifierList.Add(new ArmorModifier(ModifierType.Suffix, suffixMagnitudeList[i], suffixTooltipList[i], PrefixType.None, (SuffixType)suffixIDList[i], suffixTierList[i]));
+            _initialized = true;
         }
 
         public override void NetSend(Item item, BinaryWriter writer)
