@@ -3,7 +3,7 @@ Affixes: {
 	FlatDamageIncrease: "{0}% Increased Base Damage"
 	PercentageDamageIncrease: "{0}% Increased Damage"
 	FlatArmorPen: "{0} Added Armor Penetration"
-	PercentageArmorPen: "Ignore {0}% of Target Defense"
+	PercentageArmorPen: Ignore {0}% of Target Defense
 	AttackSpeedIncrease: "{0}% Increased Attack Speed"
 	KnockbackIncrease: "{0}% Increased Knockback"
 	// Weapon suffixes
@@ -13,9 +13,9 @@ Affixes: {
 	// Armor prefix
 	PercentageDefenseIncrease: "{0}% Increased Defense"
 	// Armor + Accessory prefixes
-	FlatLifeIncrease: "+{0} Maximum Life"
-	FlatDefenseIncrease: "+{0} Additional Defense"
-	FlatManaIncrease: "+{0} Maximum Mana"
+	FlatLifeIncrease: +{0} Maximum Life
+	FlatDefenseIncrease: +{0} Additional Defense
+	FlatManaIncrease: +{0} Maximum Mana
 	// Armor + Accessory suffixes
 	PercentageGenericDamageIncrease: "{0}% Increased Damage"
 	PercentageMeleeDamageIncrease: "{0}% Increased Melee Damage"
