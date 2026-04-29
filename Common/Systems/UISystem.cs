@@ -34,14 +34,10 @@ namespace ARPGItemSystem.Common.Systems
 
         public override void ModifyInterfaceLayers(List<GameInterfaceLayer> layers)
         {
-            int index = layers.FindIndex(l => l.Name == "Vanilla: Reforge Menu");
-            if (index < 0)
-            {
-                Mod.Logger.Warn("[ARPGItemSystem] Could not find 'Vanilla: Reforge Menu' interface layer.");
-                return;
-            }
+            int index = layers.FindIndex(l => l.Name == "Vanilla: Inventory");
+            if (index < 0) return;
 
-            layers[index] = new LegacyGameInterfaceLayer(
+            layers.Insert(index + 1, new LegacyGameInterfaceLayer(
                 "ARPGItemSystem: Reforge Panel",
                 () =>
                 {
@@ -50,7 +46,7 @@ namespace ARPGItemSystem.Common.Systems
                     return true;
                 },
                 InterfaceScaleType.UI
-            );
+            ));
         }
     }
 }
