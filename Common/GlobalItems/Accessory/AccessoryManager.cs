@@ -49,6 +49,13 @@ namespace ARPGItemSystem.Common.GlobalItems.Accessory
             Reroll(item);
         }
 
+        public override bool OnPickup(Item item, Player player)
+        {
+            if (modifierList.Count == 0)
+                Reroll(item);
+            return true;
+        }
+
         public void Reroll(Item item)
         {
             modifierList.Clear();
@@ -146,6 +153,12 @@ namespace ARPGItemSystem.Common.GlobalItems.Accessory
 
         public override void LoadData(Item item, TagCompound tag)
         {
+            if (!tag.ContainsKey("PrefixIDList"))
+            {
+                Reroll(item);
+                return;
+            }
+
             var prefixIDList = tag.GetList<int>("PrefixIDList").ToList();
             var prefixMagnitudeList = tag.GetList<int>("PrefixMagnitudeList").ToList();
             var prefixTooltipList = tag.GetList<string>("PrefixTooltipList").ToList();

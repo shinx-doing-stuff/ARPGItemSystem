@@ -75,10 +75,6 @@ namespace ARPGItemSystem.Common.UI
 
             if (hasItem && (currentType != _lastItemType || currentNetID != _lastItemNetID))
             {
-                // Auto-roll affixes for items that have none (e.g. pre-existing
-                // items from saves or chests that missed OnCreated).
-                EnsureAffixes(_slot.SlotItem);
-
                 RefreshAffixLines();
                 _lastItemType = currentType;
                 _lastItemNetID = currentNetID;
@@ -125,28 +121,6 @@ namespace ARPGItemSystem.Common.UI
         {
             foreach (var line in _affixLines)
                 line.SetPending(pending);
-        }
-
-        private static void EnsureAffixes(Item item)
-        {
-            if (item.damage > 0 && item.maxStack == 1)
-            {
-                var manager = item.GetGlobalItem<WeaponManager>();
-                if (manager.modifierList.Count == 0)
-                    manager.Reroll(item);
-            }
-            else if (item.accessory)
-            {
-                var manager = item.GetGlobalItem<AccessoryManager>();
-                if (manager.modifierList.Count == 0)
-                    manager.Reroll(item);
-            }
-            else if (!item.vanity && item.maxStack == 1)
-            {
-                var manager = item.GetGlobalItem<ArmorManager>();
-                if (manager.modifierList.Count == 0)
-                    manager.Reroll(item);
-            }
         }
 
         private void RefreshAffixLines()
