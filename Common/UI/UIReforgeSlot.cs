@@ -14,53 +14,40 @@ namespace ARPGItemSystem.Common.UI
             Height.Set(52, 0f);
         }
 
+        public override void LeftClick(UIMouseEvent evt)
+        {
+            if (!Main.mouseItem.IsAir && Main.mouseItem.maxStack > 1) return;
+
+            Item held = Main.reforgeItem;
+            Main.reforgeItem = Main.mouseItem;
+            Main.mouseItem = held;
+            SoundEngine.PlaySound(SoundID.Grab);
+        }
+
+        public override void RightClick(UIMouseEvent evt)
+        {
+            if (Main.reforgeItem.IsAir || !Main.mouseItem.IsAir) return;
+
+            Main.mouseItem = Main.reforgeItem;
+            Main.reforgeItem = new Item();
+            SoundEngine.PlaySound(SoundID.Grab);
+        }
+
         protected override void DrawSelf(SpriteBatch spriteBatch)
         {
-            var dim = GetDimensions();
-            var pos = dim.Position();
+            var pos = GetDimensions().Position();
 
-            // Handle interaction here (single execution point).
-            // UIElement.LeftClick fires in the update phase with no override = no-op.
-            // ItemSlot.Draw fires in the draw phase — we suppress its mouse checks below.
-            // Doing the swap here, between the two, means it runs exactly once per click.
-            if (dim.ToRectangle().Contains(Main.mouseX, Main.mouseY))
-            {
-                Main.LocalPlayer.mouseInterface = true;
-
-                if (Main.mouseLeftRelease && (Main.mouseItem.IsAir || Main.mouseItem.maxStack == 1))
-                {
-                    Item held = Main.reforgeItem;
-                    Main.reforgeItem = Main.mouseItem;
-                    Main.mouseItem = held;
-                    SoundEngine.PlaySound(SoundID.Grab);
-                    // Consume the click so nothing else processes it this frame
-                    Main.mouseLeft = false;
-                    Main.mouseLeftRelease = false;
-                }
-                else if (Main.mouseRightRelease && !Main.reforgeItem.IsAir && Main.mouseItem.IsAir)
-                {
-                    Main.mouseItem = Main.reforgeItem;
-                    Main.reforgeItem = new Item();
-                    SoundEngine.PlaySound(SoundID.Grab);
-                    Main.mouseRight = false;
-                    Main.mouseRightRelease = false;
-                }
-            }
-
-            // Suppress ALL mouse state for ItemSlot.Draw so it is purely visual:
-            // no click handling, no hover sounds, no tooltip from it.
-            bool ml = Main.mouseLeft, mlr = Main.mouseLeftRelease;
-            bool mr = Main.mouseRight, mrr = Main.mouseRightRelease;
-            int savedMouseX = Main.mouseX, savedMouseY = Main.mouseY;
-            Main.mouseLeft = false; Main.mouseLeftRelease = false;
-            Main.mouseRight = false; Main.mouseRightRelease = false;
-            Main.mouseX = -9999; Main.mouseY = -9999;
+            // Push mouse coords out of range so ItemSlot.Draw is purely visual:
+            // it won't detect hover (no sounds) and won't process clicks (no double-swap).
+            // Interaction is handled by LeftClick/RightClick above.
+            int mx = Main.mouseX, my = Main.mouseY;
+            Main.mouseX = -9999;
+            Main.mouseY = -9999;
 
             ItemSlot.Draw(spriteBatch, ref Main.reforgeItem, ItemSlot.Context.BankItem, pos);
 
-            Main.mouseLeft = ml; Main.mouseLeftRelease = mlr;
-            Main.mouseRight = mr; Main.mouseRightRelease = mrr;
-            Main.mouseX = savedMouseX; Main.mouseY = savedMouseY;
+            Main.mouseX = mx;
+            Main.mouseY = my;
         }
     }
 }
