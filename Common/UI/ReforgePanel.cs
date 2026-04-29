@@ -6,7 +6,6 @@ using Microsoft.Xna.Framework;
 using Accessory = ARPGItemSystem.Common.GlobalItems.Accessory;
 using Armor = ARPGItemSystem.Common.GlobalItems.Armor;
 using Weapon = ARPGItemSystem.Common.GlobalItems.Weapon;
-using Microsoft.Xna.Framework.Graphics;
 using Terraria;
 using Terraria.GameContent.UI.Elements;
 using Terraria.Localization;
@@ -17,7 +16,6 @@ namespace ARPGItemSystem.Common.UI
     public class ReforgePanel : UIState
     {
         private UIPanel _panel;
-        private UIText _itemName;
         private UIText _placeholder;
         private readonly List<AffixLine> _affixLines = new();
         private int _lastItemType = -1;
@@ -26,36 +24,17 @@ namespace ARPGItemSystem.Common.UI
         public override void OnInitialize()
         {
             _panel = new UIPanel();
-            _panel.Width.Set(320, 0f);
-            _panel.Height.Set(420, 0f);
-            _panel.HAlign = 0.5f;
-            _panel.VAlign = 0.5f;
+            _panel.Width.Set(280, 0f);
+            _panel.Height.Set(400, 0f);
+            // Position to the right of the vanilla inventory area
+            _panel.Left.Set(510, 0f);
+            _panel.Top.Set(180, 0f);
             Append(_panel);
-
-            var titleText = new UIText(Language.GetText("Mods.ARPGItemSystem.UI.ReforgePanel.Title"));
-            var title = new UIPanel();
-            title.Width.Set(0, 1f);
-            title.Height.Set(30, 0f);
-            title.Top.Set(-12, 0f);
-            titleText.HAlign = 0.5f;
-            titleText.VAlign = 0.5f;
-            title.Append(titleText);
-            _panel.Append(title);
-
-            var slot = new UIReforgeSlot();
-            slot.HAlign = 0.5f;
-            slot.Top.Set(24, 0f);
-            _panel.Append(slot);
-
-            _itemName = new UIText("", 0.9f);
-            _itemName.HAlign = 0.5f;
-            _itemName.Top.Set(84, 0f);
-            _panel.Append(_itemName);
 
             _placeholder = new UIText(Language.GetText("Mods.ARPGItemSystem.UI.ReforgePanel.Placeholder"), 0.85f);
             _placeholder.TextColor = Color.Gray;
             _placeholder.HAlign = 0.5f;
-            _placeholder.Top.Set(120, 0f);
+            _placeholder.Top.Set(10, 0f);
             _panel.Append(_placeholder);
         }
 
@@ -79,7 +58,6 @@ namespace ARPGItemSystem.Common.UI
             }
 
             _placeholder.TextColor = hasItem ? Color.Transparent : Color.Gray;
-            _itemName.SetText(hasItem ? Main.reforgeItem.Name : "");
         }
 
         public void RefreshAffix(int index)
@@ -101,7 +79,7 @@ namespace ARPGItemSystem.Common.UI
             var item = Main.reforgeItem;
             var lines = GetModifierLines(item);
 
-            float yOffset = 110f;
+            float yOffset = 10f;
             foreach (var (text, tier, index, isPrefix) in lines)
             {
                 var line = new AffixLine(text, tier, index, isPrefix);

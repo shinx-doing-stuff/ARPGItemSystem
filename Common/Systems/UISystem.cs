@@ -13,7 +13,6 @@ namespace ARPGItemSystem.Common.Systems
         private UserInterface _reforgeInterface;
         internal ReforgePanel Panel;
         private GameTime _lastGameTime = new GameTime();
-        private bool _reforgeWasOpen;
 
         public override void Load()
         {
@@ -38,28 +37,12 @@ namespace ARPGItemSystem.Common.Systems
             int inventoryIndex = layers.FindIndex(l => l.Name == "Vanilla: Inventory");
             if (inventoryIndex < 0) return;
 
-            // Suppress vanilla reforge panel before inventory draws
-            layers.Insert(inventoryIndex, new LegacyGameInterfaceLayer(
-                "ARPGItemSystem: Suppress Vanilla Reforge",
-                () =>
-                {
-                    _reforgeWasOpen = Main.InReforgeMenu;
-                    if (_reforgeWasOpen) Main.InReforgeMenu = false;
-                    return true;
-                },
-                InterfaceScaleType.UI
-            ));
-
-            // Our panel draws after inventory (inventoryIndex+1 shifted by our insert above)
-            layers.Insert(inventoryIndex + 2, new LegacyGameInterfaceLayer(
+            layers.Insert(inventoryIndex + 1, new LegacyGameInterfaceLayer(
                 "ARPGItemSystem: Reforge Panel",
                 () =>
                 {
-                    if (_reforgeWasOpen)
-                    {
-                        Main.InReforgeMenu = true; // restore for next-frame game logic
+                    if (Main.InReforgeMenu)
                         _reforgeInterface.Draw(Main.spriteBatch, _lastGameTime);
-                    }
                     return true;
                 },
                 InterfaceScaleType.UI
