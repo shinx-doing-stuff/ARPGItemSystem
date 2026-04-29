@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using Terraria;
 using Terraria.DataStructures;
 using Terraria.ModLoader;
@@ -46,21 +46,23 @@ namespace ARPGItemSystem.Common.GlobalItems.Accessory
         public PrefixType prefixType = PrefixType.None;
         public SuffixType suffixType = SuffixType.None;
         public int magnitude = 0;
+        public int tier = 9;
         public string tooltip = "";
 
-        public AccessoryModifier(ModifierType type, int magnitude, string tooltip, PrefixType prefixType = PrefixType.None, SuffixType suffixType = SuffixType.None)
+        // Used when deserializing (SaveData/LoadData/NetReceive)
+        public AccessoryModifier(ModifierType type, int magnitude, string tooltip, PrefixType prefixType = PrefixType.None, SuffixType suffixType = SuffixType.None, int tier = 9)
         {
-            // Indicate if a prefix or suffix is being generated
             modifierType = type;
             this.magnitude = magnitude;
             this.tooltip = tooltip;
             this.prefixType = prefixType;
             this.suffixType = suffixType;
+            this.tier = tier;
         }
 
+        // Used when generating a new modifier
         public AccessoryModifier(ModifierType type, List<int> excludeList, int tier = 0)
         {
-            // Indicate if a prefix or suffix is being generated
             modifierType = type;
             GenerateModifier(modifierType, excludeList, tier);
         }
@@ -73,28 +75,21 @@ namespace ARPGItemSystem.Common.GlobalItems.Accessory
             if (type == ModifierType.Prefix)
             {
                 IDs.AddRange(Enumerable.Range(1, Enum.GetNames(typeof(PrefixType)).Length - 1));
-                // Exclude modifiers that already on the item
                 IDs = IDs.Where(val => !excludeList.Contains(val)).ToList();
-                // Generate random prefix
                 prefixType = (PrefixType)IDs[random.Next(0, IDs.Count)];
-                // Get magnitude based on tier
                 magnitude = random.Next(TierDatabase.modifierTierDatabase[prefixType][tier].minValue, TierDatabase.modifierTierDatabase[prefixType][tier].maxValue + 1);
-                // Get display tooltip
                 tooltip = TooltipDatabase.modifierTooltipDatabase[prefixType];
+                this.tier = tier;
             }
             if (type == ModifierType.Suffix)
             {
                 IDs.AddRange(Enumerable.Range(1, Enum.GetNames(typeof(SuffixType)).Length - 1));
-                // Exclude modifiers that already on the item
                 IDs = IDs.Where(val => !excludeList.Contains(val)).ToList();
-                // Generate random suffix
                 suffixType = (SuffixType)IDs[random.Next(0, IDs.Count)];
-                // Get magnitude based on tier
                 magnitude = random.Next(TierDatabase.modifierTierDatabase[suffixType][tier].minValue, TierDatabase.modifierTierDatabase[suffixType][tier].maxValue + 1);
-                // Get display tooltip
                 tooltip = TooltipDatabase.modifierTooltipDatabase[suffixType];
+                this.tier = tier;
             }
         }
-
     }
 }
