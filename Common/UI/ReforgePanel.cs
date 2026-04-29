@@ -51,9 +51,11 @@ namespace ARPGItemSystem.Common.UI
             _itemName.Top.Set(84, 0f);
             _panel.Append(_itemName);
 
-            _placeholder = new UIText(Language.GetText("Mods.ARPGItemSystem.UI.ReforgePanel.Placeholder"), 0.85f);
-            _placeholder.TextColor = Color.Gray;
-            _placeholder.HAlign = 0.5f;
+            _placeholder = new UIText(Language.GetText("Mods.ARPGItemSystem.UI.ReforgePanel.Placeholder"), 0.85f)
+            {
+                TextColor = Color.Gray,
+                HAlign = 0.5f
+            };
             _placeholder.Top.Set(110, 0f);
             _panel.Append(_placeholder);
         }
