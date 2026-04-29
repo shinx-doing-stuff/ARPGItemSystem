@@ -21,7 +21,7 @@ namespace ARPGItemSystem.Common.GlobalItems.Accessory
     public class AccessoryManager : GlobalItem
     {
         public List<AccessoryModifier> modifierList = new List<AccessoryModifier>();
-        private bool _initialized;
+        internal bool _initialized;
         public override bool InstancePerEntity => true;
 
         // This is needed to make sure reference types are cloned properly to new instances

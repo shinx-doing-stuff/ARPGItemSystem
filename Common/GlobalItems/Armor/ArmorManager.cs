@@ -21,7 +21,7 @@ namespace ARPGItemSystem.Common.GlobalItems.Armor
     public class ArmorManager : GlobalItem
     {
         public List<ArmorModifier> modifierList = new List<ArmorModifier>();
-        private bool _initialized;
+        internal bool _initialized;
         public override bool InstancePerEntity => true;
 
         // This is needed to make sure reference types are cloned properly to new instances

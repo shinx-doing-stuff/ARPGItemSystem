@@ -20,7 +20,7 @@ namespace ARPGItemSystem.Common.GlobalItems.Weapon
     public class WeaponManager : GlobalItem
     {
         public List<WeaponModifier> modifierList = new List<WeaponModifier>();
-        private bool _initialized;
+        internal bool _initialized;
         public override bool InstancePerEntity => true;
 
         // This is needed to make sure reference types are cloned properly to new instances
