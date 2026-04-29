@@ -19,7 +19,8 @@ namespace ARPGItemSystem.Common.GlobalItems
                 && !itemSource.Item.consumable
                 && !(itemSource.Item.fishingPole > 0))
             {
-                Affixes = itemSource.Item.GetGlobalItem<WeaponManager>().Affixes.ToList();
+                if (itemSource.Item.TryGetGlobalItem<WeaponManager>(out var wm))
+                    Affixes = wm.Affixes.ToList();
             }
         }
 

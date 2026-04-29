@@ -123,7 +123,8 @@ namespace ARPGItemSystem.Common.Affixes
             var ids = tag.GetList<int>("AffixIds").ToList();
             var magnitudes = tag.GetList<int>("Magnitudes").ToList();
             var tiers = tag.GetList<int>("Tiers").ToList();
-            _ = tag.GetList<byte>("Kinds").ToList();
+            // Kinds written by SaveData for future-proofing; registry is authoritative for kind on load.
+            _ = tag.GetList<byte>("Kinds");
 
             Affixes.Clear();
             for (int i = 0; i < ids.Count; i++)
