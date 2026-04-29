@@ -198,7 +198,7 @@ namespace ARPGItemSystem.Common.UI
             {
                 var a = mgr.Affixes[i];
                 var def = AffixRegistry.Get(a.Id);
-                string text = string.Format(def.TooltipFormat, a.Magnitude);
+                string text = Language.GetTextValue($"Mods.ARPGItemSystem.Affixes.{a.Id}", a.Magnitude);
                 bool isPrefix = def.Kind == AffixKind.Prefix;
                 result.Add((text, a.Tier, i, isPrefix));
             }

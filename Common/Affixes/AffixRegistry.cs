@@ -56,7 +56,6 @@ namespace ARPGItemSystem.Common.Affixes
                 new AffixDef {
                     Id = AffixId.FlatDamageIncrease,
                     Kind = AffixKind.Prefix,
-                    TooltipFormat = "{0}% Increased Base Damage",
                     Tiers = new Dictionary<ItemCategory, List<Tier>>
                     {
                         [ItemCategory.Weapon] = new List<Tier> {
@@ -69,7 +68,6 @@ namespace ARPGItemSystem.Common.Affixes
                 new AffixDef {
                     Id = AffixId.PercentageDamageIncrease,
                     Kind = AffixKind.Prefix,
-                    TooltipFormat = "{0}% Increased Damage",
                     Tiers = new Dictionary<ItemCategory, List<Tier>>
                     {
                         [ItemCategory.Weapon] = new List<Tier> {
@@ -82,7 +80,6 @@ namespace ARPGItemSystem.Common.Affixes
                 new AffixDef {
                     Id = AffixId.FlatArmorPen,
                     Kind = AffixKind.Prefix,
-                    TooltipFormat = "{0} Added Armor Penetration",
                     Tiers = new Dictionary<ItemCategory, List<Tier>>
                     {
                         [ItemCategory.Weapon] = new List<Tier> {
@@ -95,7 +92,6 @@ namespace ARPGItemSystem.Common.Affixes
                 new AffixDef {
                     Id = AffixId.PercentageArmorPen,
                     Kind = AffixKind.Prefix,
-                    TooltipFormat = "Ignore {0}% of target defense",
                     Tiers = new Dictionary<ItemCategory, List<Tier>>
                     {
                         [ItemCategory.Weapon] = new List<Tier> {
@@ -108,7 +104,6 @@ namespace ARPGItemSystem.Common.Affixes
                 new AffixDef {
                     Id = AffixId.AttackSpeedIncrease,
                     Kind = AffixKind.Prefix,
-                    TooltipFormat = "{0}% Increased Attack Speed",
                     Tiers = new Dictionary<ItemCategory, List<Tier>>
                     {
                         [ItemCategory.Weapon] = new List<Tier> {
@@ -121,7 +116,6 @@ namespace ARPGItemSystem.Common.Affixes
                 new AffixDef {
                     Id = AffixId.KnockbackIncrease,
                     Kind = AffixKind.Prefix,
-                    TooltipFormat = "{0}% Increased Knockback",
                     Tiers = new Dictionary<ItemCategory, List<Tier>>
                     {
                         [ItemCategory.Weapon] = new List<Tier> {
@@ -136,7 +130,6 @@ namespace ARPGItemSystem.Common.Affixes
                 new AffixDef {
                     Id = AffixId.PercentageCritChance,
                     Kind = AffixKind.Suffix,
-                    TooltipFormat = "{0}% Increased Critical Strike Chance",
                     Tiers = new Dictionary<ItemCategory, List<Tier>>
                     {
                         [ItemCategory.Weapon] = new List<Tier> {
@@ -149,7 +142,6 @@ namespace ARPGItemSystem.Common.Affixes
                 new AffixDef {
                     Id = AffixId.CritMultiplier,
                     Kind = AffixKind.Suffix,
-                    TooltipFormat = "{0}% Increased Critical Strike Damage",
                     Tiers = new Dictionary<ItemCategory, List<Tier>>
                     {
                         [ItemCategory.Weapon] = new List<Tier> {
@@ -162,7 +154,6 @@ namespace ARPGItemSystem.Common.Affixes
                 new AffixDef {
                     Id = AffixId.VelocityIncrease,
                     Kind = AffixKind.Suffix,
-                    TooltipFormat = "{0}% Increased Projectile Velocity",
                     Tiers = new Dictionary<ItemCategory, List<Tier>>
                     {
                         [ItemCategory.Weapon] = new List<Tier> {
@@ -177,7 +168,6 @@ namespace ARPGItemSystem.Common.Affixes
                 new AffixDef {
                     Id = AffixId.PercentageDefenseIncrease,
                     Kind = AffixKind.Prefix,
-                    TooltipFormat = "{0}% Increased Defense",
                     Tiers = new Dictionary<ItemCategory, List<Tier>>
                     {
                         [ItemCategory.Armor] = new List<Tier> {
@@ -192,7 +182,6 @@ namespace ARPGItemSystem.Common.Affixes
                 new AffixDef {
                     Id = AffixId.FlatLifeIncrease,
                     Kind = AffixKind.Prefix,
-                    TooltipFormat = "+{0} Maximum Life",
                     Tiers = new Dictionary<ItemCategory, List<Tier>>
                     {
                         [ItemCategory.Armor] = new List<Tier> {
@@ -209,7 +198,6 @@ namespace ARPGItemSystem.Common.Affixes
                 new AffixDef {
                     Id = AffixId.FlatDefenseIncrease,
                     Kind = AffixKind.Prefix,
-                    TooltipFormat = "+{0} Additional Defense",
                     Tiers = new Dictionary<ItemCategory, List<Tier>>
                     {
                         [ItemCategory.Armor] = new List<Tier> {
@@ -226,7 +214,6 @@ namespace ARPGItemSystem.Common.Affixes
                 new AffixDef {
                     Id = AffixId.FlatManaIncrease,
                     Kind = AffixKind.Prefix,
-                    TooltipFormat = "+{0} Maximum Mana",
                     Tiers = new Dictionary<ItemCategory, List<Tier>>
                     {
                         [ItemCategory.Armor] = new List<Tier> {
@@ -243,7 +230,6 @@ namespace ARPGItemSystem.Common.Affixes
                 new AffixDef {
                     Id = AffixId.PercentageGenericDamageIncrease,
                     Kind = AffixKind.Suffix,
-                    TooltipFormat = "{0}% Increased Damage",
                     Tiers = new Dictionary<ItemCategory, List<Tier>>
                     {
                         [ItemCategory.Armor] = new List<Tier> {
@@ -260,7 +246,6 @@ namespace ARPGItemSystem.Common.Affixes
                 new AffixDef {
                     Id = AffixId.PercentageMeleeDamageIncrease,
                     Kind = AffixKind.Suffix,
-                    TooltipFormat = "{0}% Increased Melee Damage",
                     Tiers = new Dictionary<ItemCategory, List<Tier>>
                     {
                         [ItemCategory.Armor] = new List<Tier> {
@@ -277,7 +262,6 @@ namespace ARPGItemSystem.Common.Affixes
                 new AffixDef {
                     Id = AffixId.PercentageRangedDamageIncrease,
                     Kind = AffixKind.Suffix,
-                    TooltipFormat = "{0}% Increased Ranged Damage",
                     Tiers = new Dictionary<ItemCategory, List<Tier>>
                     {
                         [ItemCategory.Armor] = new List<Tier> {
@@ -294,7 +278,6 @@ namespace ARPGItemSystem.Common.Affixes
                 new AffixDef {
                     Id = AffixId.PercentageMagicDamageIncrease,
                     Kind = AffixKind.Suffix,
-                    TooltipFormat = "{0}% Increased Magic Damage",
                     Tiers = new Dictionary<ItemCategory, List<Tier>>
                     {
                         [ItemCategory.Armor] = new List<Tier> {
@@ -311,7 +294,6 @@ namespace ARPGItemSystem.Common.Affixes
                 new AffixDef {
                     Id = AffixId.PercentageSummonDamageIncrease,
                     Kind = AffixKind.Suffix,
-                    TooltipFormat = "{0}% Increased Summon Damage",
                     Tiers = new Dictionary<ItemCategory, List<Tier>>
                     {
                         [ItemCategory.Armor] = new List<Tier> {
@@ -330,7 +312,6 @@ namespace ARPGItemSystem.Common.Affixes
                 new AffixDef {
                     Id = AffixId.FlatCritChance,
                     Kind = AffixKind.Suffix,
-                    TooltipFormat = "{0}% Additional Critical Strike Chance",
                     Tiers = new Dictionary<ItemCategory, List<Tier>>
                     {
                         [ItemCategory.Weapon] = new List<Tier> {
@@ -351,7 +332,6 @@ namespace ARPGItemSystem.Common.Affixes
                 new AffixDef {
                     Id = AffixId.ManaCostReduction,
                     Kind = AffixKind.Suffix,
-                    TooltipFormat = "{0}% Reduced Mana Cost",
                     Tiers = new Dictionary<ItemCategory, List<Tier>>
                     {
                         [ItemCategory.Weapon] = new List<Tier> {

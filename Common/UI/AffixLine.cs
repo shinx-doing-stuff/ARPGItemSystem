@@ -13,6 +13,7 @@ using Terraria.Audio;
 using Terraria.GameContent;
 using Terraria.GameContent.UI.Elements;
 using Terraria.ID;
+using Terraria.Localization;
 using Terraria.ModLoader;
 using Terraria.UI;
 
@@ -100,7 +101,7 @@ namespace ARPGItemSystem.Common.UI
 
             var a = mgr.Affixes[_modifierIndex];
             var def = AffixRegistry.Get(a.Id);
-            string displayText = string.Format(def.TooltipFormat, a.Magnitude);
+            string displayText = Language.GetTextValue($"Mods.ARPGItemSystem.Affixes.{a.Id}", a.Magnitude);
 
             _affixText.SetText(displayText);
             _costDisplay.Cost = ReforgeConfig.CalculateCost(item.value, a.Tier);
