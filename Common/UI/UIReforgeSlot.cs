@@ -20,7 +20,7 @@ namespace ARPGItemSystem.Common.UI
             // Wrap Main.reforgeItem in a one-element array, let ItemSlot.LeftClick do the swap,
             // then write back. This handles all hidden state (netID, cursor icon, etc.) correctly.
             Item[] arr = { Main.reforgeItem };
-            ItemSlot.LeftClick(arr, ItemSlot.Context.BankItem, 0);
+            ItemSlot.LeftClick(arr, ItemSlot.Context.InventoryItem, 0);
             Main.reforgeItem = arr[0];
 
             // Consume the click so DrawInventory doesn't also process an inventory slot
@@ -34,7 +34,7 @@ namespace ARPGItemSystem.Common.UI
             if (Main.reforgeItem.IsAir || !Main.mouseItem.IsAir) return;
 
             Item[] arr = { Main.reforgeItem };
-            ItemSlot.RightClick(arr, ItemSlot.Context.BankItem, 0);
+            ItemSlot.RightClick(arr, ItemSlot.Context.InventoryItem, 0);
             Main.reforgeItem = arr[0];
 
             Main.mouseRight = false;
@@ -50,7 +50,7 @@ namespace ARPGItemSystem.Common.UI
             Main.mouseX = -9999;
             Main.mouseY = -9999;
 
-            ItemSlot.Draw(spriteBatch, ref Main.reforgeItem, ItemSlot.Context.BankItem, pos);
+            ItemSlot.Draw(spriteBatch, ref Main.reforgeItem, ItemSlot.Context.InventoryItem, pos);
 
             Main.mouseX = mx;
             Main.mouseY = my;
