@@ -1,7 +1,5 @@
 using Microsoft.Xna.Framework.Graphics;
 using Terraria;
-using Terraria.Audio;
-using Terraria.ID;
 using Terraria.UI;
 
 namespace ARPGItemSystem.Common.UI
@@ -18,20 +16,15 @@ namespace ARPGItemSystem.Common.UI
         {
             if (!Main.mouseItem.IsAir && Main.mouseItem.maxStack > 1) return;
 
-            if (!Main.mouseItem.IsAir)
-            {
-                // Place cursor item into slot — clone to avoid any reference aliasing
-                Main.reforgeItem = Main.mouseItem.Clone();
-                Main.mouseItem = new Item();
-            }
-            else if (!Main.reforgeItem.IsAir)
-            {
-                // Pick slot item up to cursor
-                Main.mouseItem = Main.reforgeItem.Clone();
-                Main.reforgeItem = new Item();
-            }
+            // Use vanilla's own exchange logic — same code DrawInventory uses for slots.
+            // Wrap Main.reforgeItem in a one-element array, let ItemSlot.LeftClick do the swap,
+            // then write back. This handles all hidden state (netID, cursor icon, etc.) correctly.
+            Item[] arr = { Main.reforgeItem };
+            ItemSlot.LeftClick(arr, ItemSlot.Context.BankItem, 0);
+            Main.reforgeItem = arr[0];
 
-            SoundEngine.PlaySound(SoundID.Grab);
+            // Consume the click so DrawInventory doesn't also process an inventory slot
+            // at the same screen position in the draw phase.
             Main.mouseLeft = false;
             Main.mouseLeftRelease = false;
         }
@@ -40,9 +33,10 @@ namespace ARPGItemSystem.Common.UI
         {
             if (Main.reforgeItem.IsAir || !Main.mouseItem.IsAir) return;
 
-            Main.mouseItem = Main.reforgeItem.Clone();
-            Main.reforgeItem = new Item();
-            SoundEngine.PlaySound(SoundID.Grab);
+            Item[] arr = { Main.reforgeItem };
+            ItemSlot.RightClick(arr, ItemSlot.Context.BankItem, 0);
+            Main.reforgeItem = arr[0];
+
             Main.mouseRight = false;
             Main.mouseRightRelease = false;
         }
@@ -51,9 +45,7 @@ namespace ARPGItemSystem.Common.UI
         {
             var pos = GetDimensions().Position();
 
-            // Push mouse coords out of range so ItemSlot.Draw is purely visual:
-            // it won't detect hover (no sounds) and won't process clicks (no double-swap).
-            // Interaction is handled by LeftClick/RightClick above.
+            // Push mouse coords out of range so ItemSlot.Draw is purely visual.
             int mx = Main.mouseX, my = Main.mouseY;
             Main.mouseX = -9999;
             Main.mouseY = -9999;
