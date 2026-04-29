@@ -218,6 +218,7 @@ namespace ARPGItemSystem.Common.GlobalItems.Weapon
                 ? tag.GetList<int>("SuffixTierList").ToList()
                 : Enumerable.Repeat(9, suffixIDList.Count).ToList();
 
+            modifierList.Clear();
             for (int i = 0; i < prefixIDList.Count; i++)
                 modifierList.Add(new WeaponModifier(ModifierType.Prefix, prefixMagnitudeList[i], prefixTooltipList[i], (PrefixType)prefixIDList[i], SuffixType.None, prefixTierList[i]));
 
