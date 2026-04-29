@@ -154,6 +154,7 @@ namespace ARPGItemSystem.Common.UI
                 line.SetPending(pending);
         }
 
+
         private void RefreshAffixLines()
         {
             ClearAffixLines();

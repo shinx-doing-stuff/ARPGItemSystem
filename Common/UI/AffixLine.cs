@@ -59,6 +59,13 @@ namespace ARPGItemSystem.Common.UI
         {
             if (_isPending || Main.reforgeItem.IsAir) return;
 
+            // Pre-check affordability before playing any sound or sending a packet.
+            if (!Main.LocalPlayer.CanAfford(_costDisplay.Cost))
+            {
+                MarkInsufficient();
+                return;
+            }
+
             SoundEngine.PlaySound(SoundID.Item37);
 
             var item = Main.reforgeItem;
@@ -78,6 +85,11 @@ namespace ARPGItemSystem.Common.UI
             {
                 ReforgePacketHandler.SendRerollRequest(_modifierIndex, kind, cat, damCat, item.value, excludeIds);
             }
+        }
+
+        public void MarkInsufficient()
+        {
+            SoundEngine.PlaySound(new SoundStyle("Terraria/Sounds/Item_194"));
         }
 
         public void SetPending(bool pending)
@@ -131,19 +143,20 @@ namespace ARPGItemSystem.Common.UI
                 var dim = GetDimensions();
                 float x = dim.X + dim.Width;
                 float y = dim.Y + dim.Height / 2f - 8f;
+                var textTint = Main.LocalPlayer.CanAfford(Cost) ? Color.White : Color.Red;
 
                 // Draw right-to-left so the least significant coin is on the far right
                 if (copper > 0 || (platinum == 0 && gold == 0 && silver == 0))
-                    x = DrawCoin(sb, x, y, copper, ItemID.CopperCoin);
+                    x = DrawCoin(sb, x, y, copper, ItemID.CopperCoin, textTint);
                 if (silver > 0)
-                    x = DrawCoin(sb, x, y, silver, ItemID.SilverCoin);
+                    x = DrawCoin(sb, x, y, silver, ItemID.SilverCoin, textTint);
                 if (gold > 0)
-                    x = DrawCoin(sb, x, y, gold, ItemID.GoldCoin);
+                    x = DrawCoin(sb, x, y, gold, ItemID.GoldCoin, textTint);
                 if (platinum > 0)
-                    x = DrawCoin(sb, x, y, platinum, ItemID.PlatinumCoin);
+                    x = DrawCoin(sb, x, y, platinum, ItemID.PlatinumCoin, textTint);
             }
 
-            private static float DrawCoin(SpriteBatch sb, float rightX, float y, int amount, int coinItemId)
+            private static float DrawCoin(SpriteBatch sb, float rightX, float y, int amount, int coinItemId, Color textTint)
             {
                 Main.instance.LoadItem(coinItemId);
                 Texture2D tex = TextureAssets.Item[coinItemId].Value;
@@ -159,7 +172,7 @@ namespace ARPGItemSystem.Common.UI
                     null, Color.White, 0f, Vector2.Zero, scale, SpriteEffects.None, 0f);
 
                 Utils.DrawBorderString(sb, text,
-                    new Vector2(startX + IconSize + 2f, y), Color.White, 0.75f);
+                    new Vector2(startX + IconSize + 2f, y), textTint, 0.75f);
 
                 return startX - 2f;
             }
