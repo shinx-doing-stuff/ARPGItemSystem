@@ -16,6 +16,8 @@ namespace ARPGItemSystem.Common.UI
 
         public override void LeftClick(UIMouseEvent evt)
         {
+            Main.NewText($"[ReforgeSlot] LeftClick: mouse={Main.mouseItem.Name} reforge={Main.reforgeItem.Name}", Microsoft.Xna.Framework.Color.Yellow);
+
             if (!Main.mouseItem.IsAir && Main.mouseItem.maxStack > 1) return;
 
             Item held = Main.reforgeItem;
