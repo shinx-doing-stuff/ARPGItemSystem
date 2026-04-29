@@ -12,6 +12,7 @@ namespace ARPGItemSystem.Common.Systems
     {
         private UserInterface _reforgeInterface;
         internal ReforgePanel Panel;
+        private GameTime _lastGameTime = new GameTime();
 
         public override void Load()
         {
@@ -26,6 +27,7 @@ namespace ARPGItemSystem.Common.Systems
 
         public override void UpdateUI(GameTime gameTime)
         {
+            _lastGameTime = gameTime;
             if (Main.InReforgeMenu)
                 _reforgeInterface?.Update(gameTime);
         }
@@ -44,7 +46,7 @@ namespace ARPGItemSystem.Common.Systems
                 () =>
                 {
                     if (Main.InReforgeMenu)
-                        _reforgeInterface.Draw(Main.spriteBatch, new GameTime());
+                        _reforgeInterface.Draw(Main.spriteBatch, _lastGameTime);
                     return true;
                 },
                 InterfaceScaleType.UI

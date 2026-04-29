@@ -50,14 +50,14 @@ namespace ARPGItemSystem.Common.GlobalItems.Weapon
         public int tier = 9;
         public string tooltip = "";
 
-        public List<int> meleeWeaponPrefixType = new List<int>() { 0, 1, 2, 3, 4, 5, 6 };
-        public List<int> rangedWeaponPrefixType = new List<int>() { 0, 1, 2, 3, 4, 5, 6 };
-        public List<int> magicWeaponPrefixType = new List<int>() { 0, 1, 2, 3, 4, 5, 6 };
-        public List<int> summonWeaponPrefixType = new List<int>() { 0, 1, 2, 3, 4, 6 };
-        public List<int> meleeWeaponSuffixType = new List<int>() { 0, 1, 2, 3 };
-        public List<int> rangedWeaponSuffixType = new List<int>() { 0, 1, 2, 3, 5 };
-        public List<int> magicWeaponSuffixType = new List<int>() { 0, 1, 2, 3, 4, 5 };
-        public List<int> summonWeaponSuffixType = new List<int>() { 0, 1, 2, 3 };
+        private static readonly List<int> MeleeWeaponPrefixTypes = new List<int> { 0, 1, 2, 3, 4, 5, 6 };
+        private static readonly List<int> RangedWeaponPrefixTypes = new List<int> { 0, 1, 2, 3, 4, 5, 6 };
+        private static readonly List<int> MagicWeaponPrefixTypes = new List<int> { 0, 1, 2, 3, 4, 5, 6 };
+        private static readonly List<int> SummonWeaponPrefixTypes = new List<int> { 0, 1, 2, 3, 4, 6 };
+        private static readonly List<int> MeleeWeaponSuffixTypes = new List<int> { 0, 1, 2, 3 };
+        private static readonly List<int> RangedWeaponSuffixTypes = new List<int> { 0, 1, 2, 3, 5 };
+        private static readonly List<int> MagicWeaponSuffixTypes = new List<int> { 0, 1, 2, 3, 4, 5 };
+        private static readonly List<int> SummonWeaponSuffixTypes = new List<int> { 0, 1, 2, 3 };
 
         // Used when deserializing (SaveData/LoadData/NetReceive)
         public WeaponModifier(ModifierType type, int magnitude, string tooltip, PrefixType prefixType = PrefixType.None, SuffixType suffixType = SuffixType.None, int tier = 9)
@@ -84,11 +84,11 @@ namespace ARPGItemSystem.Common.GlobalItems.Weapon
 
             if (type == ModifierType.Prefix)
             {
-                if (damageType == DamageClass.Melee || damageType == DamageClass.MeleeNoSpeed || damageType == DamageClass.SummonMeleeSpeed) { IDs = new List<int>(meleeWeaponPrefixType); }
-                else if (damageType == DamageClass.Ranged) { IDs = new List<int>(rangedWeaponPrefixType); }
-                else if (damageType == DamageClass.Magic || damageType == DamageClass.MagicSummonHybrid) { IDs = new List<int>(magicWeaponPrefixType); }
-                else if (damageType == DamageClass.Summon) { IDs = new List<int>(summonWeaponPrefixType); }
-                else { IDs = new List<int>(summonWeaponPrefixType); }
+                if (damageType == DamageClass.Melee || damageType == DamageClass.MeleeNoSpeed || damageType == DamageClass.SummonMeleeSpeed) { IDs = new List<int>(MeleeWeaponPrefixTypes); }
+                else if (damageType == DamageClass.Ranged) { IDs = new List<int>(RangedWeaponPrefixTypes); }
+                else if (damageType == DamageClass.Magic || damageType == DamageClass.MagicSummonHybrid) { IDs = new List<int>(MagicWeaponPrefixTypes); }
+                else if (damageType == DamageClass.Summon) { IDs = new List<int>(SummonWeaponPrefixTypes); }
+                else { IDs = new List<int>(SummonWeaponPrefixTypes); }
 
                 IDs = IDs.Where(val => !excludeList.Contains(val) && val != 0).ToList();
                 prefixType = (PrefixType)IDs[random.Next(0, IDs.Count)];
@@ -98,11 +98,11 @@ namespace ARPGItemSystem.Common.GlobalItems.Weapon
             }
             if (type == ModifierType.Suffix)
             {
-                if (damageType == DamageClass.Melee || damageType == DamageClass.MeleeNoSpeed || damageType == DamageClass.SummonMeleeSpeed) { IDs = new List<int>(meleeWeaponSuffixType); }
-                else if (damageType == DamageClass.Ranged) { IDs = new List<int>(rangedWeaponSuffixType); }
-                else if (damageType == DamageClass.Magic || damageType == DamageClass.MagicSummonHybrid) { IDs = new List<int>(magicWeaponSuffixType); }
-                else if (damageType == DamageClass.Summon) { IDs = new List<int>(summonWeaponSuffixType); }
-                else { IDs = new List<int>(summonWeaponSuffixType); }
+                if (damageType == DamageClass.Melee || damageType == DamageClass.MeleeNoSpeed || damageType == DamageClass.SummonMeleeSpeed) { IDs = new List<int>(MeleeWeaponSuffixTypes); }
+                else if (damageType == DamageClass.Ranged) { IDs = new List<int>(RangedWeaponSuffixTypes); }
+                else if (damageType == DamageClass.Magic || damageType == DamageClass.MagicSummonHybrid) { IDs = new List<int>(MagicWeaponSuffixTypes); }
+                else if (damageType == DamageClass.Summon) { IDs = new List<int>(SummonWeaponSuffixTypes); }
+                else { IDs = new List<int>(SummonWeaponSuffixTypes); }
 
                 IDs = IDs.Where(val => !excludeList.Contains(val) && val != 0).ToList();
                 suffixType = (SuffixType)IDs[random.Next(0, IDs.Count)];

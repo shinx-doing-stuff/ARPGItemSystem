@@ -74,22 +74,25 @@ namespace ARPGItemSystem.Common.GlobalItems
         internal static int GetTier()
         {
             Random random = new Random();
-            int maximumTier = 8;
-            int minimumTier = 10;
-            if (NPC.downedSlimeKing) maximumTier -= 1;
-            if (NPC.downedBoss2) minimumTier -= 1;
-            if (NPC.downedBoss3) maximumTier -= 1;
-            if (Main.hardMode) maximumTier -= 1;
-            if (NPC.downedQueenSlime) minimumTier -= 1;
-            if (NPC.downedMechBossAny) maximumTier -= 1;
-            if (NPC.downedGolemBoss) minimumTier -= 1;
-            if (NPC.downedPlantBoss) { maximumTier -= 1; }
-            if (NPC.downedFishron) { minimumTier -= 1; }
-            if (NPC.downedEmpressOfLight) { maximumTier -= 1; minimumTier -= 1; }
-            if (NPC.downedAncientCultist) { maximumTier -= 1; }
-            if (NPC.downedMoonlord) { maximumTier -= 1; minimumTier -= 1; }
+            int bestTier = 8;   // lowest tier number = strongest roll
+            int worstTier = 10; // highest tier number = weakest roll
 
-            return random.Next(maximumTier, minimumTier);
+            if (NPC.downedSlimeKing) bestTier -= 1;
+            if (NPC.downedBoss2) worstTier -= 1;
+            if (NPC.downedBoss3) bestTier -= 1;
+            if (Main.hardMode) bestTier -= 1;
+            if (NPC.downedQueenSlime) worstTier -= 1;
+            if (NPC.downedMechBossAny) bestTier -= 1;
+            if (NPC.downedGolemBoss) worstTier -= 1;
+            if (NPC.downedPlantBoss) bestTier -= 1;
+            if (NPC.downedFishron) worstTier -= 1;
+            if (NPC.downedEmpressOfLight) { bestTier -= 1; worstTier -= 1; }
+            if (NPC.downedAncientCultist) bestTier -= 1;
+            if (NPC.downedMoonlord) { bestTier -= 1; worstTier -= 1; }
+
+            bestTier = Math.Max(0, bestTier);
+            worstTier = Math.Max(bestTier + 1, worstTier);
+            return random.Next(bestTier, worstTier);
         }
 
         internal static List<int> CreateExcludeList(List<WeaponModifier> modifierList, Weapon.ModifierType type)

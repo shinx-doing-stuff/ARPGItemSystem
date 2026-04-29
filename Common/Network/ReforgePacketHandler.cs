@@ -108,6 +108,8 @@ namespace ARPGItemSystem.Common.Network
 
         private static void HandleRerollResult(BinaryReader reader)
         {
+            if (Main.netMode == NetmodeID.Server) return;
+
             byte affixIndex = reader.ReadByte();
             bool isPrefix = reader.ReadBoolean();
             int newTypeID = reader.ReadInt32();
@@ -124,6 +126,8 @@ namespace ARPGItemSystem.Common.Network
 
         private static void HandleRerollRejected(BinaryReader reader)
         {
+            if (Main.netMode == NetmodeID.Server) return;
+
             reader.ReadByte();
             ModContent.GetInstance<UISystem>().Panel.SetAllPending(false);
         }
@@ -188,6 +192,7 @@ namespace ARPGItemSystem.Common.Network
             if (item.damage > 0 && item.maxStack == 1)
             {
                 var manager = item.GetGlobalItem<Weapon.WeaponManager>();
+                if (affixIndex < 0 || affixIndex >= manager.modifierList.Count) return;
                 var mod = manager.modifierList[affixIndex];
                 if (isPrefix) mod.prefixType = (Weapon.PrefixType)newTypeID;
                 else mod.suffixType = (Weapon.SuffixType)newTypeID;
@@ -197,6 +202,7 @@ namespace ARPGItemSystem.Common.Network
             else if (item.accessory)
             {
                 var manager = item.GetGlobalItem<Accessory.AccessoryManager>();
+                if (affixIndex < 0 || affixIndex >= manager.modifierList.Count) return;
                 var mod = manager.modifierList[affixIndex];
                 if (isPrefix) mod.prefixType = (Accessory.PrefixType)newTypeID;
                 else mod.suffixType = (Accessory.SuffixType)newTypeID;
@@ -206,6 +212,7 @@ namespace ARPGItemSystem.Common.Network
             else
             {
                 var manager = item.GetGlobalItem<Armor.ArmorManager>();
+                if (affixIndex < 0 || affixIndex >= manager.modifierList.Count) return;
                 var mod = manager.modifierList[affixIndex];
                 if (isPrefix) mod.prefixType = (Armor.PrefixType)newTypeID;
                 else mod.suffixType = (Armor.SuffixType)newTypeID;

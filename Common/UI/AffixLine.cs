@@ -10,6 +10,7 @@ using ReLogic.Content;
 using Terraria;
 using Terraria.GameContent.UI.Elements;
 using Terraria.ID;
+using Terraria.Localization;
 using Terraria.ModLoader;
 using Terraria.UI;
 
@@ -117,11 +118,16 @@ namespace ARPGItemSystem.Common.UI
             int silver = (cost / 100) % 100;
             int copper = cost % 100;
 
+            string p = Language.GetTextValue("Mods.ARPGItemSystem.UI.ReforgePanel.Currency.Platinum");
+            string g = Language.GetTextValue("Mods.ARPGItemSystem.UI.ReforgePanel.Currency.Gold");
+            string s = Language.GetTextValue("Mods.ARPGItemSystem.UI.ReforgePanel.Currency.Silver");
+            string c = Language.GetTextValue("Mods.ARPGItemSystem.UI.ReforgePanel.Currency.Copper");
+
             string result = "";
-            if (platinum > 0) result += $"{platinum}p ";
-            if (gold > 0) result += $"{gold}g ";
-            if (silver > 0) result += $"{silver}s ";
-            if (copper > 0 || result == "") result += $"{copper}c";
+            if (platinum > 0) result += $"{platinum}{p} ";
+            if (gold > 0) result += $"{gold}{g} ";
+            if (silver > 0) result += $"{silver}{s} ";
+            if (copper > 0 || result == "") result += $"{copper}{c}";
             return result.Trim();
         }
     }

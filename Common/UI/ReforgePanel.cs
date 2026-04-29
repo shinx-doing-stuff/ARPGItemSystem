@@ -20,7 +20,8 @@ namespace ARPGItemSystem.Common.UI
         private UIText _itemName;
         private UIText _placeholder;
         private readonly List<AffixLine> _affixLines = new();
-        private Item _lastItem;
+        private int _lastItemType = -1;
+        private int _lastItemNetID = -1;
 
         public override void OnInitialize()
         {
@@ -58,11 +59,14 @@ namespace ARPGItemSystem.Common.UI
             base.Update(gameTime);
 
             bool hasItem = !Main.reforgeItem.IsAir;
+            int currentType = hasItem ? Main.reforgeItem.type : -1;
+            int currentNetID = hasItem ? Main.reforgeItem.netID : -1;
 
-            if (hasItem && Main.reforgeItem != _lastItem)
+            if (hasItem && (currentType != _lastItemType || currentNetID != _lastItemNetID))
             {
                 RefreshAffixLines();
-                _lastItem = Main.reforgeItem;
+                _lastItemType = currentType;
+                _lastItemNetID = currentNetID;
             }
             else if (!hasItem && _affixLines.Count > 0)
             {
@@ -110,7 +114,8 @@ namespace ARPGItemSystem.Common.UI
             foreach (var line in _affixLines)
                 _panel.RemoveChild(line);
             _affixLines.Clear();
-            _lastItem = null;
+            _lastItemType = -1;
+            _lastItemNetID = -1;
         }
 
         private static List<(string text, int tier, int index, bool isPrefix)> GetModifierLines(Item item)
