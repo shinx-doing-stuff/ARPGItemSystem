@@ -13,10 +13,11 @@ using Terraria.UI;
 
 namespace ARPGItemSystem.Common.UI
 {
-    // Affix display panel only. Vanilla handles the reforge item slot entirely.
     public class ReforgePanel : UIState
     {
         private UIPanel _panel;
+        private UIReforgeSlot _slot;
+        private UIText _itemName;
         private UIText _placeholder;
         private readonly List<AffixLine> _affixLines = new();
         private int _lastItemType = -1;
@@ -25,18 +26,38 @@ namespace ARPGItemSystem.Common.UI
         public override void OnInitialize()
         {
             _panel = new UIPanel();
-            _panel.Width.Set(260, 0f);
-            _panel.Height.Set(300, 0f);
-            _panel.Left.Set(20, 0f);
-            _panel.Top.Set(310, 0f);
+            _panel.Width.Set(320, 0f);
+            _panel.Height.Set(420, 0f);
+            _panel.HAlign = 0.5f;
+            _panel.VAlign = 0.5f;
             Append(_panel);
+
+            var titleText = new UIText(Language.GetText("Mods.ARPGItemSystem.UI.ReforgePanel.Title"));
+            var title = new UIPanel();
+            title.Width.Set(0, 1f);
+            title.Height.Set(30, 0f);
+            title.Top.Set(-12, 0f);
+            titleText.HAlign = 0.5f;
+            titleText.VAlign = 0.5f;
+            title.Append(titleText);
+            _panel.Append(title);
+
+            _slot = new UIReforgeSlot();
+            _slot.HAlign = 0.5f;
+            _slot.Top.Set(24, 0f);
+            _panel.Append(_slot);
+
+            _itemName = new UIText("", 0.9f);
+            _itemName.HAlign = 0.5f;
+            _itemName.Top.Set(84, 0f);
+            _panel.Append(_itemName);
 
             _placeholder = new UIText(Language.GetText("Mods.ARPGItemSystem.UI.ReforgePanel.Placeholder"), 0.85f)
             {
                 TextColor = Color.Gray,
                 HAlign = 0.5f
             };
-            _placeholder.Top.Set(10, 0f);
+            _placeholder.Top.Set(110, 0f);
             _panel.Append(_placeholder);
         }
 
@@ -44,9 +65,13 @@ namespace ARPGItemSystem.Common.UI
         {
             base.Update(gameTime);
 
-            bool hasItem = !Main.reforgeItem.IsAir;
-            int currentType = hasItem ? Main.reforgeItem.type : -1;
-            int currentNetID = hasItem ? Main.reforgeItem.netID : -1;
+            // Sync our slot's item to Main.reforgeItem so AffixLine / packet
+            // handler code that reads Main.reforgeItem still works correctly.
+            Main.reforgeItem = _slot.SlotItem;
+
+            bool hasItem = !_slot.SlotItem.IsAir;
+            int currentType = hasItem ? _slot.SlotItem.type : -1;
+            int currentNetID = hasItem ? _slot.SlotItem.netID : -1;
 
             if (hasItem && (currentType != _lastItemType || currentNetID != _lastItemNetID))
             {
@@ -60,6 +85,29 @@ namespace ARPGItemSystem.Common.UI
             }
 
             _placeholder.TextColor = hasItem ? Color.Transparent : Color.Gray;
+            _itemName.SetText(hasItem ? _slot.SlotItem.Name : "");
+        }
+
+        // Called by UISystem when the menu closes so we can return the held item.
+        public void ReturnItemToPlayer()
+        {
+            if (_slot.SlotItem.IsAir) return;
+            if (Main.mouseItem.IsAir)
+                Main.mouseItem = _slot.SlotItem;
+            else
+            {
+                for (int i = 0; i < Main.LocalPlayer.inventory.Length; i++)
+                {
+                    if (Main.LocalPlayer.inventory[i].IsAir)
+                    {
+                        Main.LocalPlayer.inventory[i] = _slot.SlotItem;
+                        break;
+                    }
+                }
+            }
+            _slot.SlotItem = new Item();
+            Main.reforgeItem = new Item();
+            ClearAffixLines();
         }
 
         public void RefreshAffix(int index)
@@ -78,10 +126,10 @@ namespace ARPGItemSystem.Common.UI
         private void RefreshAffixLines()
         {
             ClearAffixLines();
-            var item = Main.reforgeItem;
+            var item = _slot.SlotItem;
             var lines = GetModifierLines(item);
 
-            float yOffset = 10f;
+            float yOffset = 110f;
             foreach (var (text, tier, index, isPrefix) in lines)
             {
                 var line = new AffixLine(text, tier, index, isPrefix);

@@ -6,23 +6,27 @@ namespace ARPGItemSystem.Common.UI
 {
     public class UIReforgeSlot : UIElement
     {
+        // Own item field — vanilla never touches this, so ItemSlot.Draw
+        // can handle clicks without any interference from the reforge system.
+        public Item SlotItem = new Item();
+
         public UIReforgeSlot()
         {
             Width.Set(52, 0f);
             Height.Set(52, 0f);
         }
 
+        public override void Update(GameTime gameTime)
+        {
+            base.Update(gameTime);
+            if (ContainsPoint(Main.MouseScreen))
+                Main.LocalPlayer.mouseInterface = true;
+        }
+
         protected override void DrawSelf(SpriteBatch spriteBatch)
         {
-            // Interaction is handled in UISystem.UpdateUI (update phase) before
-            // DrawInventory can steal the click. This method is purely visual.
             var pos = GetDimensions().Position();
-            int mx = Main.mouseX, my = Main.mouseY;
-            Main.mouseX = -9999;
-            Main.mouseY = -9999;
-            ItemSlot.Draw(spriteBatch, ref Main.reforgeItem, ItemSlot.Context.InventoryItem, pos);
-            Main.mouseX = mx;
-            Main.mouseY = my;
+            ItemSlot.Draw(spriteBatch, ref SlotItem, ItemSlot.Context.InventoryItem, pos);
         }
     }
 }

@@ -13,6 +13,7 @@ namespace ARPGItemSystem.Common.Systems
         private UserInterface _reforgeInterface;
         internal ReforgePanel Panel;
         private GameTime _lastGameTime = new GameTime();
+        private bool _reforgeWasOpen;
 
         public override void Load()
         {
@@ -37,14 +38,35 @@ namespace ARPGItemSystem.Common.Systems
             int inventoryIndex = layers.FindIndex(l => l.Name == "Vanilla: Inventory");
             if (inventoryIndex < 0) return;
 
-            // Draw our affix panel after the inventory layer.
-            // Vanilla handles the reforge item slot and all item interaction.
-            layers.Insert(inventoryIndex + 1, new LegacyGameInterfaceLayer(
+            // Suppress vanilla's reforge slot draw so ours is the only one shown.
+            layers.Insert(inventoryIndex, new LegacyGameInterfaceLayer(
+                "ARPGItemSystem: Suppress Vanilla Reforge",
+                () =>
+                {
+                    _reforgeWasOpen = Main.InReforgeMenu;
+                    if (_reforgeWasOpen) Main.InReforgeMenu = false;
+                    return true;
+                },
+                InterfaceScaleType.UI
+            ));
+
+            layers.Insert(inventoryIndex + 2, new LegacyGameInterfaceLayer(
                 "ARPGItemSystem: Reforge Panel",
                 () =>
                 {
-                    if (Main.InReforgeMenu)
+                    if (!_reforgeWasOpen) return true;
+
+                    if (Main.playerInventory)
+                    {
+                        Main.InReforgeMenu = true;
                         _reforgeInterface.Draw(Main.spriteBatch, _lastGameTime);
+                    }
+                    else
+                    {
+                        // Menu closed — return item and clean up.
+                        Panel?.ReturnItemToPlayer();
+                        Main.InReforgeMenu = false;
+                    }
                     return true;
                 },
                 InterfaceScaleType.UI
