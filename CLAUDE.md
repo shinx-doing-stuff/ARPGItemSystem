@@ -79,3 +79,27 @@ All three managers use identical patterns for `SaveData`/`LoadData` and `NetSend
 4. Add the stat effect in the manager's appropriate hook (`ModifyWeaponDamage`, `UpdateEquip`, `UpdateAccessory`, etc.)
 5. If it affects projectiles, add a case in `ProjectileManager.ModifyHitNPC`
 6. For weapons: update the per-damage-class allowed-list fields in `WeaponModifier` (`meleeWeaponPrefixType`, `rangedWeaponSuffixType`, etc.)
+
+## UI Architecture (Reforge Panel)
+
+The reforge panel (`Common/UI/`) replaces the Goblin Tinkerer's vanilla reforge UI.
+
+### Key Files
+- **`Common/Systems/UISystem.cs`** — `ModSystem` that inserts the panel layer after `"Vanilla: Inventory"`. Suppresses `Main.InReforgeMenu` before inventory draws so vanilla's slot doesn't render. Intercepts ESC to close in one press.
+- **`Common/UI/ReforgePanel.cs`** — `UIState` containing the item slot, affix lines, title, placeholder. Syncs `Main.reforgeItem = _slot.SlotItem` each frame so packet/hammer code still reads the correct item.
+- **`Common/UI/UIReforgeSlot.cs`** — Custom `UIElement` item slot. Interaction handled in `DrawSelf` using `Main.mouseLeft && Main.mouseLeftRelease` (first frame of press). Mouse coords suppressed to -9999 before `ItemSlot.Draw` call to prevent double-interaction.
+- **`Common/UI/AffixLine.cs`** — One row per modifier: hammer button, affix text, coin-icon cost display.
+- **`Common/Config/ReforgeConfig.cs`** — Cost formula constants (`Scale=1.0`, `Base=2.0`, exponential scaling by tier).
+- **`Common/Network/ReforgePacketHandler.cs`** — Server-authoritative reroll: client sends request, server deducts cost via `player.BuyItem`, rolls new modifier, sends result back.
+- **`Common/Players/ItemInitializerPlayer.cs`** — `OnEnterWorld` gives affixes to all inventory items that don't have them yet (covers starter items).
+
+### Interface Layer Pattern
+`"Vanilla: Reforge Menu"` does **not exist** in tML 2026-02. The reforge slot is drawn inside `"Vanilla: Inventory"`. Pattern used:
+1. Layer before inventory: saves `Main.InReforgeMenu`, sets it false (suppresses vanilla slot)
+2. `"Vanilla: Inventory"` draws without reforge slot
+3. Layer after inventory: restores `Main.InReforgeMenu`, draws our panel
+
+### mouseLeft / mouseLeftRelease
+- `mouseLeft` = button currently pressed
+- `mouseLeftRelease` = was **not** pressed last update (first-frame detection when both true)
+- Do NOT set `mouseLeft = false` to consume — it causes the next frame to compute `mouseLeftRelease = true` again, creating a repeated-swap loop
