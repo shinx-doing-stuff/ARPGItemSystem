@@ -21,22 +21,26 @@ namespace ARPGItemSystem.Common.UI
         {
             base.Update(gameTime);
 
-            if (!ContainsPoint(Main.MouseScreen)) return;
+            bool over = ContainsPoint(Main.MouseScreen);
 
-            Main.LocalPlayer.mouseInterface = true;
-
-            if (Main.mouseLeft && Main.mouseLeftRelease)
+            // Debug: show state every frame mouse is over slot
+            if (over)
             {
-                if (Main.mouseItem.IsAir || Main.mouseItem.maxStack == 1)
-                {
-                    // Swap cursor item with slot item
-                    Item temp = Main.mouseItem;
-                    Main.mouseItem = SlotItem;
-                    SlotItem = temp;
-                    SoundEngine.PlaySound(SoundID.Grab);
-                    Main.mouseLeft = false;
-                    Main.mouseLeftRelease = false;
-                }
+                Main.NewText($"over slot | mouseLeft={Main.mouseLeft} mouseLeftRelease={Main.mouseLeftRelease} cursor={Main.mouseItem.Name}",
+                    Microsoft.Xna.Framework.Color.Cyan);
+                Main.LocalPlayer.mouseInterface = true;
+            }
+
+            if (over && Main.mouseLeft && Main.mouseLeftRelease
+                && (Main.mouseItem.IsAir || Main.mouseItem.maxStack == 1))
+            {
+                Main.NewText("SWAP!", Microsoft.Xna.Framework.Color.Yellow);
+                Item temp = Main.mouseItem;
+                Main.mouseItem = SlotItem;
+                SlotItem = temp;
+                SoundEngine.PlaySound(SoundID.Grab);
+                Main.mouseLeft = false;
+                Main.mouseLeftRelease = false;
             }
         }
 
