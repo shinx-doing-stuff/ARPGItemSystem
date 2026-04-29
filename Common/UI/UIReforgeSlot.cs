@@ -7,9 +7,12 @@ namespace ARPGItemSystem.Common.UI
 {
     public class UIReforgeSlot : UIElement
     {
-        // Own item field — vanilla never touches this, so ItemSlot.Draw
-        // can handle clicks without any interference from the reforge system.
+        // Own item field — vanilla never touches this directly.
         public Item SlotItem = new Item();
+
+        // Persistent single-element array so the array overload of ItemSlot.Draw
+        // (which handles clicks) can be used without allocating each frame.
+        private readonly Item[] _arr = new Item[1] { new Item() };
 
         public UIReforgeSlot()
         {
@@ -26,8 +29,12 @@ namespace ARPGItemSystem.Common.UI
 
         protected override void DrawSelf(SpriteBatch spriteBatch)
         {
+            // Use the array overload — this is what vanilla uses for all inventory slots
+            // and is the overload that definitively handles click interaction.
+            _arr[0] = SlotItem;
             var pos = GetDimensions().Position();
-            ItemSlot.Draw(spriteBatch, ref SlotItem, ItemSlot.Context.InventoryItem, pos);
+            ItemSlot.Draw(spriteBatch, _arr, ItemSlot.Context.InventoryItem, 0, pos);
+            SlotItem = _arr[0];
         }
     }
 }
