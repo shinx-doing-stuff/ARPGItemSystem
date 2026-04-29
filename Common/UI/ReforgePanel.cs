@@ -32,9 +32,14 @@ namespace ARPGItemSystem.Common.UI
             _panel.VAlign = 0.5f;
             Append(_panel);
 
-            var title = new UITextPanel<string>(Language.GetTextValue("Mods.ARPGItemSystem.UI.ReforgePanel.Title"));
-            title.HAlign = 0.5f;
+            var titleText = new UIText(Language.GetText("Mods.ARPGItemSystem.UI.ReforgePanel.Title"));
+            var title = new UIPanel();
+            title.Width.Set(0, 1f);
+            title.Height.Set(30, 0f);
             title.Top.Set(-12, 0f);
+            titleText.HAlign = 0.5f;
+            titleText.VAlign = 0.5f;
+            title.Append(titleText);
             _panel.Append(title);
 
             var slot = new UIReforgeSlot();
@@ -47,7 +52,7 @@ namespace ARPGItemSystem.Common.UI
             _itemName.Top.Set(84, 0f);
             _panel.Append(_itemName);
 
-            _placeholder = new UIText(Language.GetTextValue("Mods.ARPGItemSystem.UI.ReforgePanel.Placeholder"), 0.85f);
+            _placeholder = new UIText(Language.GetText("Mods.ARPGItemSystem.UI.ReforgePanel.Placeholder"), 0.85f);
             _placeholder.TextColor = Color.Gray;
             _placeholder.HAlign = 0.5f;
             _placeholder.Top.Set(120, 0f);
