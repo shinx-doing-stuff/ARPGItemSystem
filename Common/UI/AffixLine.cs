@@ -6,8 +6,8 @@ using ARPGItemSystem.Common.Network;
 using ARPGItemSystem.Common.Systems;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using ReLogic.Content;
 using Terraria;
+using Terraria.GameContent;
 using Terraria.GameContent.UI.Elements;
 using Terraria.ID;
 using Terraria.Localization;
@@ -31,8 +31,7 @@ namespace ARPGItemSystem.Common.UI
             _isPrefix = isPrefix;
             Height.Set(28, 0f);
 
-            var hammerTexture = Main.Assets.Request<Texture2D>("Images/UI/ReforgeButton", AssetRequestMode.ImmediateLoad);
-            _hammerButton = new UIImageButton(hammerTexture);
+            _hammerButton = new UIImageButton(TextureAssets.Reforge[0]);
             _hammerButton.Width.Set(22, 0f);
             _hammerButton.Height.Set(22, 0f);
             _hammerButton.Left.Set(0, 0f);
