@@ -22,26 +22,7 @@ namespace ARPGItemSystem.Common.Systems
                 Panel.Activate();
                 _reforgeInterface = new UserInterface();
                 _reforgeInterface.SetState(Panel);
-
-                // Suppress vanilla reforge slot/button rendering only for the duration
-                // of DrawInventory. This is atomic: ESC handling runs in the update phase
-                // (before draw) and always sees Main.InReforgeMenu = true, so one ESC
-                // still closes the menu correctly.
-                On.Terraria.Main.DrawInventory += HideVanillaReforge;
             }
-        }
-
-        public override void Unload()
-        {
-            On.Terraria.Main.DrawInventory -= HideVanillaReforge;
-        }
-
-        private static void HideVanillaReforge(On.Terraria.Main.orig_DrawInventory orig, Main self)
-        {
-            bool wasReforge = Main.InReforgeMenu;
-            if (wasReforge) Main.InReforgeMenu = false;
-            orig(self);
-            if (wasReforge) Main.InReforgeMenu = true;
         }
 
         public override void UpdateUI(GameTime gameTime)
@@ -55,6 +36,26 @@ namespace ARPGItemSystem.Common.Systems
         {
             int inventoryIndex = layers.FindIndex(l => l.Name == "Vanilla: Inventory");
             if (inventoryIndex < 0) return;
+
+            // Replace the vanilla inventory layer with a wrapper that suppresses
+            // Main.InReforgeMenu during the DrawInventory call so vanilla doesn't
+            // render the reforge slot/button. ESC is processed in the update phase
+            // (before draw) where Main.InReforgeMenu is always true, so one ESC works.
+            layers[inventoryIndex] = new LegacyGameInterfaceLayer(
+                "Vanilla: Inventory",
+                () =>
+                {
+                    if (!Main.ingameOptionsWindow && !Main.gameMenu)
+                    {
+                        bool wasReforge = Main.InReforgeMenu;
+                        if (wasReforge) Main.InReforgeMenu = false;
+                        Main.DrawInventory();
+                        if (wasReforge) Main.InReforgeMenu = true;
+                    }
+                    return true;
+                },
+                InterfaceScaleType.UI
+            );
 
             layers.Insert(inventoryIndex + 1, new LegacyGameInterfaceLayer(
                 "ARPGItemSystem: Reforge Panel",
