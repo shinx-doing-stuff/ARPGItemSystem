@@ -37,8 +37,9 @@ namespace ARPGItemSystem.Common.UI
                     Main.mouseItem = SlotItem;
                     SlotItem = temp;
                     SoundEngine.PlaySound(SoundID.Grab);
-                    // Consume so DrawInventory doesn't also process this click
-                    Main.mouseLeft = false;
+                    // Do NOT touch mouseLeft here — setting it false makes the next
+                    // frame compute mouseLeftRelease=true again, causing repeated swaps.
+                    // mouseLeftRelease naturally becomes false on frame 2+ of holding.
                 }
             }
 
