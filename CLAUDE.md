@@ -38,47 +38,66 @@ Three `GlobalItem` subclasses, each filtering via `AppliesToEntity(lateInstantia
 ### Core Data Flow
 
 ```
-OnCreated(item) → Manager.Reroll(item)
+OnCreated(item) → AffixItemManager.Reroll(item)
   → utils.GetTier()              // boss-progression-based, tier 0 (best) to 9 (worst)
   → utils.GetAmountOf*()         // count depends on specific boss milestones
-  → XxxModifier.GenerateModifier()
-      → TierDatabase[enum][tier] // random magnitude within min/max range
-      → TooltipDatabase[enum]    // format string stored on the modifier
-  → modifierList stored on GlobalItem instance (InstancePerEntity = true)
+  → AffixRoller.Roll()
+      → AffixRegistry.RollPool() // filters by category, kind, DamageClass
+      → def.Tiers[category][tier] // random magnitude within min/max range
+  → Affixes stored on GlobalItem instance (InstancePerEntity = true)
        ↓
 Applied each frame via:
   ModifyWeaponDamage / ModifyWeaponCrit / ModifyHitNPC / UseSpeedMultiplier / ModifyManaCost
   ModifyShootStats                                                    (WeaponManager)
-  UpdateEquip / UpdateInventory                                       (ArmorManager)
+  UpdateEquip                                                         (ArmorManager)
   UpdateAccessory                                                     (AccessoryManager)
   ModifyHitNPC (PercentageArmorPen, CritMultiplier on projectiles)    (ProjectileManager)
 ```
 
 ### Key Files
 
-- **`Common/GlobalItems/Database/TierDatabase.cs`** — Single `Dictionary<Enum, List<Tier>>` holding all weapon, armor, and accessory prefix/suffix types. Each entry has 10 `Tier` structs (tier 0 = strongest, tier 9 = weakest). This is the only place to change modifier value ranges.
-- **`Common/GlobalItems/Database/TooltipDatabase.cs`** — Maps every modifier enum variant to a `{0}%`/`+{0}` format string. Stored on the modifier struct at roll time so it survives without a database lookup on load.
-- **`Common/GlobalItems/utils.cs`** — Shared `GetTier()` (same boss-milestone shrinking logic as ARPGEnemySystem), `GetAmountOf*()` per item type and slot, and three overloads of `CreateExcludeList()` for deduplication across the three modifier namespaces.
-- **`Common/GlobalItems/Weapon/WeaponModifier.cs`** — Defines `PrefixType`, `SuffixType`, `ModifierType` enums and `WeaponModifier` struct. Weapon modifiers are filtered by `DamageClass`: summon weapons cannot roll `ManaCostReduction` or `VelocityIncrease`; adjust the `*WeaponPrefixType`/`*WeaponSuffixType` lists per damage class when adding modifiers.
-- **`Common/GlobalItems/Armor/ArmorModifier.cs`** and **`Common/GlobalItems/Accessory/AccessoryModifier.cs`** — Parallel structs for armor/accessory modifier types. These do not filter by damage class.
-- **`Common/GlobalItems/ProjectileManager.cs`** — Copies the spawning weapon's `modifierList` onto projectiles fired via `EntitySource_ItemUse_WithAmmo` (excludes consumables and fishing poles). Applies `PercentageArmorPen` and `CritMultiplier` to projectile hits against NPCs.
-
-### Critical: Namespace Collision
-
-`ModifierType`, `PrefixType`, and `SuffixType` are defined **separately** in each of the three namespaces (`ARPGItemSystem.Common.GlobalItems.Weapon`, `.Armor`, `.Accessory`). `TierDatabase` and `TooltipDatabase` use fully qualified names like `Weapon.PrefixType.FlatDamageIncrease` to disambiguate. Follow this pattern in any shared code that spans item categories.
+- **`Common/Affixes/AffixRegistry.cs`** — Single source of truth. One `AffixDef` entry per affix containing: `AffixId`, `AffixKind` (Prefix/Suffix), tooltip format string, per-`ItemCategory` tier tables (10 entries each), and optional `HashSet<DamageClass>` restriction for weapons. **This is the only place to define, change, or remove affixes.**
+- **`Common/Affixes/AffixItemManager.cs`** — Abstract `GlobalItem` base class shared by all three managers. Owns `List<Affix> Affixes`, handles `SaveData`/`LoadData`, `NetSend`/`NetReceive`, `Clone`, `ModifyTooltips`, and the `Reroll` entry point. Save format uses tag keys `"AffixIds"`, `"Magnitudes"`, `"Tiers"`, `"Kinds"` — absence of `"AffixIds"` means pre-refactor save and triggers a fresh reroll.
+- **`Common/Affixes/AffixRoller.cs`** — Picks a random eligible `AffixDef` from the pool (filtered by category, kind, DamageClass, and existing-affix deduplication) and rolls a magnitude. Uses `Main.rand`.
+- **`Common/GlobalItems/utils.cs`** — `GetTier()` and six `GetAmountOf*()` methods. Boss-progression logic lives here.
+- **`Common/GlobalItems/ProjectileManager.cs`** — Snapshots the spawning weapon's `Affixes` list. Applies `PercentageArmorPen` and `CritMultiplier` to projectile hits.
 
 ### Persistence Pattern
 
-All three managers use identical patterns for `SaveData`/`LoadData` and `NetSend`/`NetReceive`: parallel lists of `int` type-IDs, `int` magnitudes, and `string` tooltip format strings — prefixes and suffixes serialized in separate groups. **Read order must exactly match write order.** The tooltip string is stored redundantly to avoid needing a database lookup on deserialization.
+`AffixItemManager` writes four parallel `List<int/byte>` entries to `TagCompound`: `AffixIds`, `Magnitudes`, `Tiers`, `Kinds`. Read order matches write order. Tooltips are **not** stored — they are looked up at draw time from the registry. Migration: if `"AffixIds"` key is absent (old save), `LoadData` calls `Reroll()` immediately.
 
-### Adding a New Modifier
+### Adding a New Affix
 
-1. Add the enum value to `PrefixType` or `SuffixType` in the appropriate namespace file (`Weapon/`, `Armor/`, or `Accessory/`)
-2. Add a 10-entry `List<Tier>` to `TierDatabase.modifierTierDatabase` in `Common/GlobalItems/Database/TierDatabase.cs`
-3. Add a format string to `TooltipDatabase.modifierTooltipDatabase`
-4. Add the stat effect in the manager's appropriate hook (`ModifyWeaponDamage`, `UpdateEquip`, `UpdateAccessory`, etc.)
-5. If it affects projectiles, add a case in `ProjectileManager.ModifyHitNPC`
-6. For weapons: update the per-damage-class allowed-list fields in `WeaponModifier` (`meleeWeaponPrefixType`, `rangedWeaponSuffixType`, etc.)
+**Step 1 — `Common/Affixes/AffixId.cs`:** Add the new value to the `AffixId` enum.
+
+**Step 2 — `Common/Affixes/AffixRegistry.cs`:** Add one `new AffixDef { ... }` entry to the `defs` list in `BuildRegistry()`:
+
+```csharp
+new AffixDef {
+    Id = AffixId.YourNewAffix,
+    Kind = AffixKind.Prefix,           // or Suffix
+    TooltipFormat = "{0}% Your Text",
+    Tiers = new Dictionary<ItemCategory, List<Tier>>
+    {
+        [ItemCategory.Weapon] = new List<Tier> {   // add only the categories that can roll it
+            new(51,55), new(46,50), new(41,45), new(36,40), new(31,35),
+            new(26,30), new(21,25), new(16,20), new(11,15), new(5,10)  // exactly 10 entries
+        }
+    },
+    AllowedDamageClasses = null   // null = all damage classes; set a HashSet<DamageClass> to restrict
+},
+```
+
+The `BuildRegistry()` validation loop will throw a clear error on load if you supply a tier list that isn't exactly 10 entries.
+
+**Step 3 — stat-apply hook:** Add a `case AffixId.YourNewAffix:` in the appropriate manager:
+- Weapons → `WeaponManager.cs` (pick the right hook: `ModifyWeaponDamage`, `ModifyWeaponCrit`, `ModifyHitNPC`, etc.)
+- Armor → `ArmorManager.UpdateEquip`
+- Accessories → `AccessoryManager.UpdateAccessory`
+
+**Step 4 (projectiles only):** Add a case in `ProjectileManager.ModifyHitNPC`.
+
+That's it. The new affix automatically enters the roll pool, gets correct tooltips at draw time, saves/loads by ID, and syncs over the network — no other files to touch.
 
 ## UI Architecture (Reforge Panel)
 
