@@ -20,6 +20,7 @@ namespace ARPGItemSystem.Common.GlobalItems.Weapon
     public class WeaponManager : GlobalItem
     {
         public List<WeaponModifier> modifierList = new List<WeaponModifier>();
+        private bool _initialized;
         public override bool InstancePerEntity => true;
 
         // This is needed to make sure reference types are cloned properly to new instances
@@ -43,18 +44,26 @@ namespace ARPGItemSystem.Common.GlobalItems.Weapon
             return lateInstantiation && entity.damage > 0 && !(entity.maxStack > 1);
         }
 
-        // Roll modifiers on item creation
         public override void OnCreated(Item item, ItemCreationContext context)
         {
             Reroll(item);
+            _initialized = true;
         }
 
-        // Roll modifiers when picked up if the item somehow has none
         public override bool OnPickup(Item item, Player player)
         {
             if (modifierList.Count == 0)
                 Reroll(item);
+            _initialized = true;
             return true;
+        }
+
+        // Catches starter items and anything that bypassed OnCreated/OnPickup
+        public override void UpdateInventory(Item item, Player player)
+        {
+            if (_initialized) return;
+            Reroll(item);
+            _initialized = true;
         }
 
         public void Reroll(Item item)
@@ -232,6 +241,8 @@ namespace ARPGItemSystem.Common.GlobalItems.Weapon
 
             for (int i = 0; i < suffixIDList.Count; i++)
                 modifierList.Add(new WeaponModifier(ModifierType.Suffix, suffixMagnitudeList[i], suffixTooltipList[i], PrefixType.None, (SuffixType)suffixIDList[i], suffixTierList[i]));
+
+            _initialized = true;
         }
 
         public override void NetSend(Item item, BinaryWriter writer)
