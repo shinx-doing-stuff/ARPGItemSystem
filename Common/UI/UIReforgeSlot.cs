@@ -15,36 +15,19 @@ namespace ARPGItemSystem.Common.UI
             Height.Set(52, 0f);
         }
 
-        public override void Update(GameTime gameTime)
-        {
-            base.Update(gameTime);
-            if (ContainsPoint(Main.MouseScreen))
-                Main.LocalPlayer.mouseInterface = true;
-        }
-
-        public override void LeftMouseDown(UIMouseEvent evt)
-        {
-            // evt.Target == this prevents firing when a child element was clicked
-            if (evt.Target != this) return;
-            if (!Main.mouseItem.IsAir && Main.mouseItem.maxStack > 1) return;
-
-            // ItemSlot.Handle is the correct tModLoader API for slot interaction
-            ItemSlot.Handle(ref SlotItem, ItemSlot.Context.InventoryItem);
-
-            // Consume so DrawInventory doesn't also process an inventory slot here
-            Main.mouseLeft = false;
-            Main.mouseLeftRelease = false;
-        }
-
         protected override void DrawSelf(SpriteBatch spriteBatch)
         {
             var pos = GetDimensions().Position();
-            int mx = Main.mouseX, my = Main.mouseY;
-            Main.mouseX = -9999;
-            Main.mouseY = -9999;
+
+            if (ContainsPoint(Main.MouseScreen))
+            {
+                Main.LocalPlayer.mouseInterface = true;
+                // ItemSlot.Handle processes clicks (checks mouseLeft && mouseLeftRelease
+                // internally) and swaps SlotItem with Main.mouseItem when clicked.
+                ItemSlot.Handle(ref SlotItem, ItemSlot.Context.InventoryItem);
+            }
+
             ItemSlot.Draw(spriteBatch, ref SlotItem, ItemSlot.Context.InventoryItem, pos);
-            Main.mouseX = mx;
-            Main.mouseY = my;
         }
     }
 }
