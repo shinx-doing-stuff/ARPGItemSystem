@@ -1,5 +1,7 @@
 using Microsoft.Xna.Framework.Graphics;
 using Terraria;
+using Terraria.Audio;
+using Terraria.ID;
 using Terraria.UI;
 
 namespace ARPGItemSystem.Common.UI
@@ -12,9 +14,35 @@ namespace ARPGItemSystem.Common.UI
             Height.Set(52, 0f);
         }
 
+        public override void LeftClick(UIMouseEvent evt)
+        {
+            // Reject stackable items — only weapons, armor, accessories can be reforged
+            if (!Main.mouseItem.IsAir && Main.mouseItem.maxStack > 1)
+                return;
+
+            Item temp = Main.reforgeItem;
+            Main.reforgeItem = Main.mouseItem;
+            Main.mouseItem = temp;
+
+            SoundEngine.PlaySound(SoundID.Grab);
+        }
+
+        public override void RightClick(UIMouseEvent evt)
+        {
+            if (Main.reforgeItem.IsAir) return;
+
+            if (Main.mouseItem.IsAir)
+            {
+                Main.mouseItem = Main.reforgeItem;
+                Main.reforgeItem = new Item();
+                SoundEngine.PlaySound(SoundID.Grab);
+            }
+        }
+
         protected override void DrawSelf(SpriteBatch spriteBatch)
         {
             var pos = GetDimensions().Position();
+            // Draw-only — interaction is handled by LeftClick/RightClick above
             ItemSlot.Draw(spriteBatch, ref Main.reforgeItem, ItemSlot.Context.BankItem, pos);
         }
     }
