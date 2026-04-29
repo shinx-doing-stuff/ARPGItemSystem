@@ -212,13 +212,6 @@ namespace ARPGItemSystem.Common.GlobalItems.Weapon
 
         public override void LoadData(Item item, TagCompound tag)
         {
-            // PrefixIDList key absent = item existed before mod was installed → give fresh affixes
-            if (!tag.ContainsKey("PrefixIDList"))
-            {
-                Reroll(item);
-                return;
-            }
-
             var prefixIDList = tag.GetList<int>("PrefixIDList").ToList();
             var prefixMagnitudeList = tag.GetList<int>("PrefixMagnitudeList").ToList();
             var prefixTooltipList = tag.GetList<string>("PrefixTooltipList").ToList();
