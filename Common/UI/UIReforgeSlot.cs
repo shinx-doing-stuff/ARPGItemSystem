@@ -47,18 +47,20 @@ namespace ARPGItemSystem.Common.UI
                 }
             }
 
-            // Save mouse state AFTER the interaction block above (captures any consumed state),
-            // suppress so ItemSlot.Draw is draw-only, then restore so later UI elements
-            // (hammer buttons) still receive their own click events.
+            // Suppress ALL mouse state for ItemSlot.Draw so it is purely visual:
+            // no click handling, no hover sounds, no tooltip from it.
             bool ml = Main.mouseLeft, mlr = Main.mouseLeftRelease;
             bool mr = Main.mouseRight, mrr = Main.mouseRightRelease;
+            int savedMouseX = Main.mouseX, savedMouseY = Main.mouseY;
             Main.mouseLeft = false; Main.mouseLeftRelease = false;
             Main.mouseRight = false; Main.mouseRightRelease = false;
+            Main.mouseX = -9999; Main.mouseY = -9999;
 
             ItemSlot.Draw(spriteBatch, ref Main.reforgeItem, ItemSlot.Context.BankItem, pos);
 
             Main.mouseLeft = ml; Main.mouseLeftRelease = mlr;
             Main.mouseRight = mr; Main.mouseRightRelease = mrr;
+            Main.mouseX = savedMouseX; Main.mouseY = savedMouseY;
         }
     }
 }

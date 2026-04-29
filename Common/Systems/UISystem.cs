@@ -51,16 +51,44 @@ namespace ARPGItemSystem.Common.Systems
                 InterfaceScaleType.UI
             ));
 
-            // After inventory draws: restore so vanilla ESC/close logic works,
-            // then draw our panel.
             layers.Insert(inventoryIndex + 2, new LegacyGameInterfaceLayer(
                 "ARPGItemSystem: Reforge Panel",
                 () =>
                 {
-                    if (_reforgeWasOpen)
+                    if (!_reforgeWasOpen) return true;
+
+                    if (Main.playerInventory)
                     {
+                        // Inventory still open — restore and draw our panel normally.
                         Main.InReforgeMenu = true;
                         _reforgeInterface.Draw(Main.spriteBatch, _lastGameTime);
+                    }
+                    else
+                    {
+                        // Inventory was closed (ESC / NPC walked away / etc).
+                        // Don't restore InReforgeMenu so the close propagates.
+                        // Return any held item in case vanilla's cleanup was
+                        // inside DrawInventory and our suppress skipped it.
+                        if (!Main.reforgeItem.IsAir)
+                        {
+                            if (Main.mouseItem.IsAir)
+                            {
+                                Main.mouseItem = Main.reforgeItem;
+                            }
+                            else
+                            {
+                                for (int i = 0; i < Main.LocalPlayer.inventory.Length; i++)
+                                {
+                                    if (Main.LocalPlayer.inventory[i].IsAir)
+                                    {
+                                        Main.LocalPlayer.inventory[i] = Main.reforgeItem;
+                                        break;
+                                    }
+                                }
+                            }
+                            Main.reforgeItem = new Item();
+                        }
+                        Main.InReforgeMenu = false;
                     }
                     return true;
                 },
