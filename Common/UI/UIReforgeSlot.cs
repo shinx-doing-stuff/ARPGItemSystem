@@ -42,8 +42,18 @@ namespace ARPGItemSystem.Common.UI
         protected override void DrawSelf(SpriteBatch spriteBatch)
         {
             var pos = GetDimensions().Position();
-            // Draw-only — interaction is handled by LeftClick/RightClick above
+
+            // Suppress mouse state so ItemSlot.Draw is draw-only.
+            // Without this, ItemSlot.Draw also processes clicks and double-swaps with LeftClick above.
+            bool savedLeft = Main.mouseLeft;
+            bool savedLeftRelease = Main.mouseLeftRelease;
+            Main.mouseLeft = false;
+            Main.mouseLeftRelease = false;
+
             ItemSlot.Draw(spriteBatch, ref Main.reforgeItem, ItemSlot.Context.BankItem, pos);
+
+            Main.mouseLeft = savedLeft;
+            Main.mouseLeftRelease = savedLeftRelease;
         }
     }
 }
