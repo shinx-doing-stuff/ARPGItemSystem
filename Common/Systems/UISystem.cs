@@ -1,6 +1,9 @@
+using System;
 using System.Collections.Generic;
+using System.Reflection;
 using ARPGItemSystem.Common.UI;
 using Microsoft.Xna.Framework;
+using MonoMod.RuntimeDetour;
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
@@ -13,6 +16,7 @@ namespace ARPGItemSystem.Common.Systems
         private UserInterface _reforgeInterface;
         internal ReforgePanel Panel;
         private GameTime _lastGameTime = new GameTime();
+        private static Hook _drawInventoryHook;
 
         public override void Load()
         {
@@ -22,7 +26,25 @@ namespace ARPGItemSystem.Common.Systems
                 Panel.Activate();
                 _reforgeInterface = new UserInterface();
                 _reforgeInterface.SetState(Panel);
+
+                var method = typeof(Main).GetMethod("DrawInventory",
+                    BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
+                if (method != null)
+                    _drawInventoryHook = new Hook(method,
+                        new Action<Action<Main>, Main>((orig, self) =>
+                        {
+                            bool wasReforge = Main.InReforgeMenu;
+                            if (wasReforge) Main.InReforgeMenu = false;
+                            orig(self);
+                            if (wasReforge) Main.InReforgeMenu = true;
+                        }));
             }
+        }
+
+        public override void Unload()
+        {
+            _drawInventoryHook?.Dispose();
+            _drawInventoryHook = null;
         }
 
         public override void UpdateUI(GameTime gameTime)
@@ -36,26 +58,6 @@ namespace ARPGItemSystem.Common.Systems
         {
             int inventoryIndex = layers.FindIndex(l => l.Name == "Vanilla: Inventory");
             if (inventoryIndex < 0) return;
-
-            // Replace the vanilla inventory layer with a wrapper that suppresses
-            // Main.InReforgeMenu during the DrawInventory call so vanilla doesn't
-            // render the reforge slot/button. ESC is processed in the update phase
-            // (before draw) where Main.InReforgeMenu is always true, so one ESC works.
-            layers[inventoryIndex] = new LegacyGameInterfaceLayer(
-                "Vanilla: Inventory",
-                () =>
-                {
-                    if (!Main.ingameOptionsWindow && !Main.gameMenu)
-                    {
-                        bool wasReforge = Main.InReforgeMenu;
-                        if (wasReforge) Main.InReforgeMenu = false;
-                        Main.DrawInventory();
-                        if (wasReforge) Main.InReforgeMenu = true;
-                    }
-                    return true;
-                },
-                InterfaceScaleType.UI
-            );
 
             layers.Insert(inventoryIndex + 1, new LegacyGameInterfaceLayer(
                 "ARPGItemSystem: Reforge Panel",
