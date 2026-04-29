@@ -1,3 +1,4 @@
+using ARPGItemSystem.Common.Affixes;
 using ARPGItemSystem.Common.GlobalItems.Accessory;
 using ARPGItemSystem.Common.GlobalItems.Armor;
 using ARPGItemSystem.Common.GlobalItems.Weapon;
@@ -6,8 +7,6 @@ using Terraria.ModLoader;
 
 namespace ARPGItemSystem.Common.Players
 {
-    // Ensures all inventory items have affixes when entering a world.
-    // Covers starter items on new characters and pre-mod items in old saves.
     public class ItemInitializerPlayer : ModPlayer
     {
         public override void OnEnterWorld()
@@ -17,31 +16,18 @@ namespace ARPGItemSystem.Common.Players
                 Item item = Player.inventory[i];
                 if (item.IsAir) continue;
 
-                if (item.damage > 0 && item.maxStack == 1)
-                {
-                    var mgr = item.GetGlobalItem<WeaponManager>();
-                    if (mgr.modifierList.Count == 0)
-                    {
-                        mgr.Reroll(item);
-                        mgr._initialized = true;
-                    }
-                }
+                AffixItemManager mgr = null;
+                if (item.damage > 0 && item.maxStack <= 1)
+                    mgr = item.GetGlobalItem<WeaponManager>();
                 else if (item.accessory)
-                {
-                    var mgr = item.GetGlobalItem<AccessoryManager>();
-                    if (mgr.modifierList.Count == 0)
-                    {
-                        mgr.Reroll(item);
-                        mgr._initialized = true;
-                    }
-                }
+                    mgr = item.GetGlobalItem<AccessoryManager>();
                 else if (!item.vanity && item.maxStack == 1 && item.damage < 1)
+                    mgr = item.TryGetGlobalItem<ArmorManager>(out var am) ? am : null;
+
+                if (mgr != null && mgr.Affixes.Count == 0)
                 {
-                    if (item.TryGetGlobalItem<ArmorManager>(out var mgr) && mgr.modifierList.Count == 0)
-                    {
-                        mgr.Reroll(item);
-                        mgr._initialized = true;
-                    }
+                    mgr.Reroll(item);
+                    mgr.Initialized = true;
                 }
             }
         }

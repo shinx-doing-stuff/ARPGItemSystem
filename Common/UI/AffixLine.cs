@@ -1,4 +1,5 @@
 using System;
+using ARPGItemSystem.Common.Affixes;
 using ARPGItemSystem.Common.Config;
 using ARPGItemSystem.Common.GlobalItems.Accessory;
 using ARPGItemSystem.Common.GlobalItems.Armor;
@@ -62,18 +63,19 @@ namespace ARPGItemSystem.Common.UI
             var item = Main.reforgeItem;
             var cat = ReforgePacketHandler.GetItemCategory(item);
             var damCat = ReforgePacketHandler.GetDamageCategory(item);
-            var excludeList = ReforgePacketHandler.GetExcludeList(item, _modifierIndex, _isPrefix);
+            var excludeIds = ReforgePacketHandler.GetExcludeIds(item, _modifierIndex);
+            var kind = _isPrefix ? AffixKind.Prefix : AffixKind.Suffix;
 
             ModContent.GetInstance<UISystem>().Panel.SetAllPending(true);
 
             if (Main.netMode == NetmodeID.SinglePlayer)
             {
-                ReforgePacketHandler.DoRerollDirectly(item, _modifierIndex, _isPrefix, cat, damCat, excludeList);
+                ReforgePacketHandler.DoRerollDirectly(item, _modifierIndex, kind, cat, damCat, excludeIds);
                 ModContent.GetInstance<UISystem>().Panel.RefreshAffix(_modifierIndex);
             }
             else
             {
-                ReforgePacketHandler.SendRerollRequest(_modifierIndex, _isPrefix, cat, damCat, item.value, excludeList);
+                ReforgePacketHandler.SendRerollRequest(_modifierIndex, kind, cat, damCat, item.value, excludeIds);
             }
         }
 
@@ -88,30 +90,20 @@ namespace ARPGItemSystem.Common.UI
             var item = Main.reforgeItem;
             if (item.IsAir) return;
 
-            string displayText;
-            int tier;
+            AffixItemManager mgr = item.damage > 0 && item.maxStack <= 1
+                ? (AffixItemManager)item.GetGlobalItem<WeaponManager>()
+                : item.accessory
+                    ? (AffixItemManager)item.GetGlobalItem<AccessoryManager>()
+                    : (AffixItemManager)item.GetGlobalItem<ArmorManager>();
 
-            if (item.damage > 0 && item.maxStack == 1)
-            {
-                var mod = item.GetGlobalItem<WeaponManager>().modifierList[_modifierIndex];
-                displayText = string.Format(mod.tooltip, mod.magnitude);
-                tier = mod.tier;
-            }
-            else if (item.accessory)
-            {
-                var mod = item.GetGlobalItem<AccessoryManager>().modifierList[_modifierIndex];
-                displayText = string.Format(mod.tooltip, mod.magnitude);
-                tier = mod.tier;
-            }
-            else
-            {
-                var mod = item.GetGlobalItem<ArmorManager>().modifierList[_modifierIndex];
-                displayText = string.Format(mod.tooltip, mod.magnitude);
-                tier = mod.tier;
-            }
+            if (mgr == null || _modifierIndex < 0 || _modifierIndex >= mgr.Affixes.Count) return;
+
+            var a = mgr.Affixes[_modifierIndex];
+            var def = AffixRegistry.Get(a.Id);
+            string displayText = string.Format(def.TooltipFormat, a.Magnitude);
 
             _affixText.SetText(displayText);
-            _costDisplay.Cost = ReforgeConfig.CalculateCost(item.value, tier);
+            _costDisplay.Cost = ReforgeConfig.CalculateCost(item.value, a.Tier);
         }
 
         // Draws the cost as coin icons (platinum/gold/silver/copper) instead of text abbreviations.

@@ -1,11 +1,9 @@
 using System.Collections.Generic;
+using ARPGItemSystem.Common.Affixes;
 using ARPGItemSystem.Common.GlobalItems.Accessory;
 using ARPGItemSystem.Common.GlobalItems.Armor;
 using ARPGItemSystem.Common.GlobalItems.Weapon;
 using Microsoft.Xna.Framework;
-using Accessory = ARPGItemSystem.Common.GlobalItems.Accessory;
-using Armor = ARPGItemSystem.Common.GlobalItems.Armor;
-using Weapon = ARPGItemSystem.Common.GlobalItems.Weapon;
 using Terraria;
 using Terraria.GameContent.UI.Elements;
 using Terraria.Localization;
@@ -188,32 +186,21 @@ namespace ARPGItemSystem.Common.UI
         {
             var result = new List<(string, int, int, bool)>();
 
-            if (item.damage > 0 && item.maxStack == 1)
+            AffixItemManager mgr = item.damage > 0 && item.maxStack <= 1
+                ? (AffixItemManager)item.GetGlobalItem<WeaponManager>()
+                : item.accessory
+                    ? (AffixItemManager)item.GetGlobalItem<AccessoryManager>()
+                    : (AffixItemManager)item.GetGlobalItem<ArmorManager>();
+
+            if (mgr == null) return result;
+
+            for (int i = 0; i < mgr.Affixes.Count; i++)
             {
-                var list = item.GetGlobalItem<WeaponManager>().modifierList;
-                for (int i = 0; i < list.Count; i++)
-                {
-                    var m = list[i];
-                    result.Add((string.Format(m.tooltip, m.magnitude), m.tier, i, m.modifierType == Weapon.ModifierType.Prefix));
-                }
-            }
-            else if (item.accessory)
-            {
-                var list = item.GetGlobalItem<AccessoryManager>().modifierList;
-                for (int i = 0; i < list.Count; i++)
-                {
-                    var m = list[i];
-                    result.Add((string.Format(m.tooltip, m.magnitude), m.tier, i, m.modifierType == Accessory.ModifierType.Prefix));
-                }
-            }
-            else
-            {
-                var list = item.GetGlobalItem<ArmorManager>().modifierList;
-                for (int i = 0; i < list.Count; i++)
-                {
-                    var m = list[i];
-                    result.Add((string.Format(m.tooltip, m.magnitude), m.tier, i, m.modifierType == Armor.ModifierType.Prefix));
-                }
+                var a = mgr.Affixes[i];
+                var def = AffixRegistry.Get(a.Id);
+                string text = string.Format(def.TooltipFormat, a.Magnitude);
+                bool isPrefix = def.Kind == AffixKind.Prefix;
+                result.Add((text, a.Tier, i, isPrefix));
             }
 
             return result;
