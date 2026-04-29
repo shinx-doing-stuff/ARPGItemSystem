@@ -46,7 +46,7 @@ namespace ARPGItemSystem.Common.UI
             int mx = Main.mouseX, my = Main.mouseY;
             Main.mouseX = -9999;
             Main.mouseY = -9999;
-            ItemSlot.Draw(spriteBatch, ref SlotItem, ItemSlot.Context.InventoryItem, pos);
+            ItemSlot.Draw(spriteBatch, ref SlotItem, ItemSlot.Context.ChestItem, pos);
             Main.mouseX = mx;
             Main.mouseY = my;
         }
