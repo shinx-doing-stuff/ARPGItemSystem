@@ -1,3 +1,4 @@
+using System;
 using ARPGItemSystem.Common.Config;
 using ARPGItemSystem.Common.GlobalItems.Accessory;
 using ARPGItemSystem.Common.GlobalItems.Armor;
@@ -7,10 +8,10 @@ using ARPGItemSystem.Common.Systems;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Terraria;
+using Terraria.Audio;
 using Terraria.GameContent;
 using Terraria.GameContent.UI.Elements;
 using Terraria.ID;
-using Terraria.Localization;
 using Terraria.ModLoader;
 using Terraria.UI;
 
@@ -20,7 +21,7 @@ namespace ARPGItemSystem.Common.UI
     {
         private UIImageButton _hammerButton;
         private UIText _affixText;
-        private UIText _costText;
+        private UICostDisplay _costDisplay;
         private bool _isPending;
         private readonly int _modifierIndex;
         private readonly bool _isPrefix;
@@ -45,15 +46,18 @@ namespace ARPGItemSystem.Common.UI
             _affixText.VAlign = 0.5f;
             Append(_affixText);
 
-            _costText = new UIText(FormatCost(ReforgeConfig.CalculateCost(Main.reforgeItem.IsAir ? 0 : Main.reforgeItem.value, tier)), 0.85f);
-            _costText.HAlign = 1f;
-            _costText.VAlign = 0.5f;
-            Append(_costText);
+            _costDisplay = new UICostDisplay(ReforgeConfig.CalculateCost(
+                Main.reforgeItem.IsAir ? 0 : Main.reforgeItem.value, tier));
+            _costDisplay.HAlign = 1f;
+            _costDisplay.VAlign = 0.5f;
+            Append(_costDisplay);
         }
 
         private void OnHammerClicked(UIMouseEvent evt, UIElement listeningElement)
         {
             if (_isPending || Main.reforgeItem.IsAir) return;
+
+            SoundEngine.PlaySound(SoundID.Item4);
 
             var item = Main.reforgeItem;
             var cat = ReforgePacketHandler.GetItemCategory(item);
@@ -107,27 +111,65 @@ namespace ARPGItemSystem.Common.UI
             }
 
             _affixText.SetText(displayText);
-            _costText.SetText(FormatCost(ReforgeConfig.CalculateCost(item.value, tier)));
+            _costDisplay.Cost = ReforgeConfig.CalculateCost(item.value, tier);
         }
 
-        private static string FormatCost(int cost)
+        // Draws the cost as coin icons (platinum/gold/silver/copper) instead of text abbreviations.
+        private sealed class UICostDisplay : UIElement
         {
-            int platinum = cost / 1000000;
-            int gold = (cost / 10000) % 100;
-            int silver = (cost / 100) % 100;
-            int copper = cost % 100;
+            public int Cost;
 
-            string p = Language.GetTextValue("Mods.ARPGItemSystem.UI.ReforgePanel.Currency.Platinum");
-            string g = Language.GetTextValue("Mods.ARPGItemSystem.UI.ReforgePanel.Currency.Gold");
-            string s = Language.GetTextValue("Mods.ARPGItemSystem.UI.ReforgePanel.Currency.Silver");
-            string c = Language.GetTextValue("Mods.ARPGItemSystem.UI.ReforgePanel.Currency.Copper");
+            public UICostDisplay(int cost)
+            {
+                Cost = cost;
+                Width.Set(130, 0f);
+                Height.Set(20, 0f);
+            }
 
-            string result = "";
-            if (platinum > 0) result += $"{platinum}{p} ";
-            if (gold > 0) result += $"{gold}{g} ";
-            if (silver > 0) result += $"{silver}{s} ";
-            if (copper > 0 || result == "") result += $"{copper}{c}";
-            return result.Trim();
+            protected override void DrawSelf(SpriteBatch sb)
+            {
+                if (Cost <= 0) return;
+
+                int platinum = Cost / 1000000;
+                int gold     = (Cost / 10000) % 100;
+                int silver   = (Cost / 100) % 100;
+                int copper   = Cost % 100;
+
+                var dim = GetDimensions();
+                float x = dim.X + dim.Width;
+                float y = dim.Y + dim.Height / 2f - 8f;
+
+                // Draw right-to-left so the least significant coin is on the far right
+                if (copper > 0 || (platinum == 0 && gold == 0 && silver == 0))
+                    x = DrawCoin(sb, x, y, copper, ItemID.CopperCoin);
+                if (silver > 0)
+                    x = DrawCoin(sb, x, y, silver, ItemID.SilverCoin);
+                if (gold > 0)
+                    x = DrawCoin(sb, x, y, gold, ItemID.GoldCoin);
+                if (platinum > 0)
+                    x = DrawCoin(sb, x, y, platinum, ItemID.PlatinumCoin);
+            }
+
+            private static float DrawCoin(SpriteBatch sb, float rightX, float y, int amount, int coinItemId)
+            {
+                Main.instance.LoadItem(coinItemId);
+                Texture2D tex = TextureAssets.Item[coinItemId].Value;
+
+                string text = amount.ToString();
+                float textWidth = FontAssets.MouseText.Value.MeasureString(text).X * 0.75f;
+                const float IconSize = 16f;
+                float totalWidth = IconSize + 2f + textWidth + 4f;
+                float startX = rightX - totalWidth;
+
+                float scale = IconSize / Math.Max(tex.Width, tex.Height);
+                sb.Draw(tex, new Vector2(startX, y + (IconSize - tex.Height * scale) / 2f),
+                    null, Color.White, 0f, Vector2.Zero, scale, SpriteEffects.None, 0f);
+
+                Utils.DrawBorderString(sb, text,
+                    new Vector2(startX + IconSize + 2f, y), Color.White, 0.75f);
+
+                return startX - 2f;
+            }
         }
     }
 }

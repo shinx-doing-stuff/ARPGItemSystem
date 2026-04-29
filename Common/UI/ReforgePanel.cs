@@ -26,7 +26,7 @@ namespace ARPGItemSystem.Common.UI
         public override void OnInitialize()
         {
             _panel = new UIPanel();
-            _panel.Width.Set(320, 0f);
+            _panel.Width.Set(420, 0f);
             _panel.Height.Set(420, 0f);
             _panel.HAlign = 0.5f;
             _panel.VAlign = 0.5f;
