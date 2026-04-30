@@ -25,7 +25,7 @@ namespace ARPGItemSystem.Common.GlobalItems.Armor
                         player.statLifeMax2 += a.Magnitude;
                         break;
                     case AffixId.FlatDefenseIncrease:
-                        item.defense = (int)(item.OriginalDefense * (1 + a.Magnitude / 100f));
+                        item.defense = item.OriginalDefense + a.Magnitude;
                         break;
                     case AffixId.PercentageDefenseIncrease:
                         item.defense = (int)(item.OriginalDefense * (1 + a.Magnitude / 100f));
