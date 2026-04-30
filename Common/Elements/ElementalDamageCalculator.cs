@@ -58,15 +58,18 @@ namespace ARPGItemSystem.Common.Elements
                 lightRes = bossData.LightningResistance;
             }
 
-            // --- Compute enemy physRes from defense (read BEFORE ModifyIncomingHit zeroes it) ---
-            float physRes = ElementalMath.ConvertDefenseToResistance(target.defense, ratio, cap);
-
-            // --- Apply armor pen affixes to enemy physRes (before cap) ---
+            // --- Apply armor pen to effective defense BEFORE converting to physRes ---
+            // FlatArmorPen reduces the enemy's defense value (e.g. FlatArmorPen=20 on a 60-defense enemy
+            // → effectiveDefense=40 → physRes=40×ratio, not physRes-20%). Semantics: pen reduces defense,
+            // resistance is derived from the reduced defense, not subtracted from resistance directly.
             float flatArmorPen = GetMagnitude(affixes, AffixId.FlatArmorPen);
             float percArmorPen = GetMagnitude(affixes, AffixId.PercentageArmorPen);
-            physRes -= flatArmorPen;
+            float effectiveDefense = Math.Max(0f, target.defense - flatArmorPen);
             if (percArmorPen != 0)
-                physRes *= (1f - percArmorPen / 100f);
+                effectiveDefense *= (1f - percArmorPen / 100f);
+
+            // --- Compute enemy physRes from effective defense (read BEFORE ModifyIncomingHit zeroes it) ---
+            float physRes = ElementalMath.ConvertDefenseToResistance(effectiveDefense, ratio, cap);
 
             // --- Read elemental gain and increased% affixes ---
             float gainFire  = GetMagnitude(affixes, AffixId.GainPercentAsFire);
