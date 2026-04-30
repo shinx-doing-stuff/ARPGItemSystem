@@ -1,10 +1,13 @@
 using System;
 using System.Collections.Generic;
 using EnemyConfig = ARPGEnemySystem.Common.Configs.Config;
+using EnemyConfigClient = ARPGEnemySystem.Common.Configs.ConfigClient;
 using ARPGEnemySystem.Common.Elements;
 using ARPGEnemySystem.Common.GlobalNPCs;
 using ARPGItemSystem.Common.Affixes;
+using Microsoft.Xna.Framework;
 using Terraria;
+using Terraria.ID;
 using Terraria.ModLoader;
 
 namespace ARPGItemSystem.Common.Elements
@@ -32,6 +35,7 @@ namespace ARPGItemSystem.Common.Elements
         // Crit propagates to elemental proportionally — no undo needed.
         public static void ApplyToHit(
             List<Affix> affixes,
+            Player player,
             NPC target,
             ref NPC.HitModifiers modifiers)
         {
@@ -72,6 +76,10 @@ namespace ARPGItemSystem.Common.Elements
             float incCold   = GetMagnitude(affixes, AffixId.IncreasedColdDamage);
             float incLight  = GetMagnitude(affixes, AffixId.IncreasedLightningDamage);
 
+            bool logEnabled = player.whoAmI == Main.myPlayer
+                && Main.netMode != NetmodeID.Server
+                && ModContent.GetInstance<EnemyConfigClient>()?.EnableElementalDamageLog == true;
+
             // --- Register callback (all pre-computed — no modifiers capture needed) ---
             modifiers.ModifyHitInfo += (ref NPC.HitInfo info) =>
             {
@@ -90,6 +98,17 @@ namespace ARPGItemSystem.Common.Elements
                 float lightFinal = ElementalMath.ApplyResistance(rawLight, lightRes, cap);
 
                 info.Damage = Math.Max(1, (int)(physFinal + fireFinal + coldFinal + lightFinal));
+
+                if (logEnabled)
+                {
+                    string crit = info.Crit ? " [CRIT]" : "";
+                    Main.NewText($"→ {target.GivenOrTypeName}{crit}", Color.White);
+                    Main.NewText($"  Phys:  {physFinal,6:F0}  (raw:{phys,5:F0}  res:{physRes:F1}%)", Color.Silver);
+                    if (rawFire  > 0) Main.NewText($"  Fire:  {fireFinal,6:F0}  (raw:{rawFire,5:F0}  res:{fireRes:F1}%)", new Color(255, 120, 50));
+                    if (rawCold  > 0) Main.NewText($"  Cold:  {coldFinal,6:F0}  (raw:{rawCold,5:F0}  res:{coldRes:F1}%)", new Color(100, 200, 255));
+                    if (rawLight > 0) Main.NewText($"  Light: {lightFinal,6:F0}  (raw:{rawLight,5:F0}  res:{lightRes:F1}%)", new Color(255, 240, 80));
+                    Main.NewText($"  Total: {info.Damage}", Color.GreenYellow);
+                }
             };
         }
     }

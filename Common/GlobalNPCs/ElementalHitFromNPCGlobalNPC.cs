@@ -1,9 +1,12 @@
 using System;
 using EnemyConfig = ARPGEnemySystem.Common.Configs.Config;
+using EnemyConfigClient = ARPGEnemySystem.Common.Configs.ConfigClient;
 using ARPGEnemySystem.Common.Elements;
 using ARPGEnemySystem.Common.GlobalNPCs;
 using ARPGItemSystem.Common.Players;
+using Microsoft.Xna.Framework;
 using Terraria;
+using Terraria.ID;
 using Terraria.ModLoader;
 
 namespace ARPGItemSystem.Common.GlobalNPCs
@@ -55,9 +58,31 @@ namespace ARPGItemSystem.Common.GlobalNPCs
 
             int finalDamage = Math.Max(1, (int)(physFinal + elemFinal));
 
+            // Log only in singleplayer or on the local client (ModifyHitPlayer runs server-side in MP)
+            bool logEnabled = Main.netMode != NetmodeID.Server
+                && target.whoAmI == Main.myPlayer
+                && ModContent.GetInstance<EnemyConfigClient>()?.EnableElementalDamageLog == true;
+
             modifiers.ModifyHurtInfo += (ref Player.HurtInfo info) =>
             {
                 info.Damage = finalDamage;
+
+                if (logEnabled)
+                {
+                    string elemName = elemType == Element.Physical ? "Phys" : elemType.ToString();
+                    Color elemColor = elemType switch
+                    {
+                        Element.Fire      => new Color(255, 120, 50),
+                        Element.Cold      => new Color(100, 200, 255),
+                        Element.Lightning => new Color(255, 240, 80),
+                        _                 => Color.Silver,
+                    };
+                    Main.NewText($"← {npc.GivenOrTypeName} hit you", Color.OrangeRed);
+                    Main.NewText($"  Phys:  {physFinal,6:F0}  (res:{physRes:F1}%)", Color.Silver);
+                    if (elemDamagePct > 0)
+                        Main.NewText($"  {elemName,-6} {elemFinal,6:F0}  (res:{elemRes:F1}%)", elemColor);
+                    Main.NewText($"  Total: {info.Damage}", Color.OrangeRed);
+                }
             };
         }
     }

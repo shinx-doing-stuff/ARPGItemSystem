@@ -37,7 +37,7 @@ namespace ARPGItemSystem.Common.GlobalItems
                     modifiers.CritDamage += a.Magnitude / 100f;
             }
 
-            ElementalDamageCalculator.ApplyToHit(Affixes, target, ref modifiers);
+            ElementalDamageCalculator.ApplyToHit(Affixes, Main.player[projectile.owner], target, ref modifiers);
         }
     }
 }

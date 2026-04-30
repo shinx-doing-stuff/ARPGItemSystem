@@ -59,7 +59,7 @@ namespace ARPGItemSystem.Common.GlobalItems.Weapon
                 // as a reduction to enemy physical resistance before the cap
             }
 
-            ElementalDamageCalculator.ApplyToHit(Affixes, target, ref modifiers);
+            ElementalDamageCalculator.ApplyToHit(Affixes, player, target, ref modifiers);
         }
 
         public override void ModifyWeaponKnockback(Item item, Player player, ref StatModifier knockback)
