@@ -11,9 +11,17 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 This is a tModLoader mod for Terraria targeting .NET 6. To build:
 - **In-game (recommended):** tModLoader → Workshop → Mod Sources → select `ARPGItemSystem` → Build & Reload
-- **CLI compile check:** `dotnet build` (verifies compilation but does not deploy)
+- **CLI compile check:** `dotnet build` (verifies compilation but does not deploy — requires ARPGEnemySystem built first so its dll exists at `../ARPGEnemySystem/bin/Debug/net8.0/ARPGEnemySystem.dll`)
 
 There are no automated tests. Testing requires running tModLoader with the mod loaded.
+
+## Cross-Mod Dependency
+
+`build.txt` declares `modReferences = ARPGEnemySystem` (runtime load order). `ARPGItemSystem.csproj` has a `<Reference>` pointing to ARPGEnemySystem's compiled dll (compile-time type resolution). Both are required. When referencing ARPGEnemySystem's `Config` class, use a type alias to avoid ambiguity with any future `Config` in this mod's namespaces:
+```csharp
+using EnemyConfig = ARPGEnemySystem.Common.Configs.Config;
+using EnemyConfigClient = ARPGEnemySystem.Common.Configs.ConfigClient;
+```
 
 ## In-game Reroll
 
@@ -51,7 +59,8 @@ Applied each frame via:
   ModifyShootStats                                                    (WeaponManager)
   UpdateEquip                                                         (ArmorManager)
   UpdateAccessory                                                     (AccessoryManager)
-  ModifyHitNPC (PercentageArmorPen, CritMultiplier on projectiles)    (ProjectileManager)
+  ModifyHitNPC → ElementalDamageCalculator.ApplyToHit                (ProjectileManager + WeaponManager)
+  PostUpdateEquips → PlayerElementalPlayer aggregates physRes + elem resistances from gear
 ```
 
 ### Key Files
@@ -60,7 +69,10 @@ Applied each frame via:
 - **`Common/Affixes/AffixItemManager.cs`** — Abstract `GlobalItem` base class shared by all three managers. Owns `List<Affix> Affixes`, handles `SaveData`/`LoadData`, `NetSend`/`NetReceive`, `Clone`, `ModifyTooltips`, and the `Reroll` entry point. Save format uses tag keys `"AffixIds"`, `"Magnitudes"`, `"Tiers"`, `"Kinds"` — absence of `"AffixIds"` means pre-refactor save and triggers a fresh reroll.
 - **`Common/Affixes/AffixRoller.cs`** — Picks a random eligible `AffixDef` from the pool (filtered by category, kind, DamageClass, and existing-affix deduplication) and rolls a magnitude. Uses `Main.rand`.
 - **`Common/GlobalItems/utils.cs`** — `GetTier()` and six `GetAmountOf*()` methods. Boss-progression logic lives here.
-- **`Common/GlobalItems/ProjectileManager.cs`** — Snapshots the spawning weapon's `Affixes` list. Applies `PercentageArmorPen` and `CritMultiplier` to projectile hits.
+- **`Common/GlobalItems/ProjectileManager.cs`** — Snapshots the spawning weapon's `Affixes` list via `OnSpawn`. Source check is `EntitySource_ItemUse` (base class, captures melee projectiles, summons, and all ranged — not just `EntitySource_ItemUse_WithAmmo`). Calls `ElementalDamageCalculator.ApplyToHit` in `ModifyHitNPC`.
+- **`Common/Elements/ElementalDamageCalculator.cs`** — Core player→enemy hit math. Called from both `WeaponManager.ModifyHitNPC` and `ProjectileManager.ModifyHitNPC`. Reads enemy resistances from `NPCManager`/`BossManager`; derives enemy `physRes` from `target.defense` via `ConvertDefenseToResistance` (read before `NPCManager.ModifyIncomingHit` zeroes it — hook order guarantee). Registers a `ModifyHitInfo` callback where `info.Damage` is used as elemental base (crit already included, no undo). `FlatArmorPen` and `PercentageArmorPen` apply to **effective defense** before the physRes conversion, not to the percentage directly.
+- **`Common/Players/PlayerElementalPlayer.cs`** — `ModPlayer`. `PostUpdateEquips` computes `PhysRes = ConvertDefenseToResistance(Player.statDefense, ratio, cap)` (so `FlatDefenseIncrease`/`PercentageDefenseIncrease` affixes naturally contribute via `statDefense` — no code needed in those affix cases). Then sums `PhysicalResistance`, `FireResistance`, `ColdResistance`, `LightningResistance` affix bonuses additively. `GetResistance(Element)` returns the matching field.
+- **`Common/GlobalNPCs/ElementalHitFromNPCGlobalNPC.cs`** — `GlobalNPC.ModifyHitPlayer`. Handles NPC contact damage → player. Reads NPC elemental profile, reads player's `PlayerElementalPlayer` resistance, overrides damage via `ModifyHurtInfo` callback. Uses `Main.DamageVar(npc.damage)` for hit variance. NPC projectile hits are NOT covered here (deferred).
 
 ### Persistence Pattern
 
@@ -105,6 +117,8 @@ The key must exactly match the `AffixId` enum name. `{0}` is replaced with the r
 - Accessories → `AccessoryManager.UpdateAccessory`
 
 **Step 5 (projectiles only):** Add a case in `ProjectileManager.ModifyHitNPC`.
+
+**Exception — elemental affixes:** `GainPercentAsX`, `IncreasedXDamage`, `FlatArmorPen`, and `PercentageArmorPen` are handled entirely inside `ElementalDamageCalculator.ApplyToHit` via `GetMagnitude`. Do NOT add switch cases for these in `WeaponManager.ModifyHitNPC` or `ProjectileManager.ModifyHitNPC`. Resistance affixes (`PhysicalResistance`, `FireResistance`, `ColdResistance`, `LightningResistance`) are read in `PlayerElementalPlayer.PostUpdateEquips` — no switch cases needed in `ArmorManager` or `AccessoryManager`.
 
 That's it. The new affix automatically enters the roll pool, saves/loads by ID, and syncs over the network — no other files to touch.
 
