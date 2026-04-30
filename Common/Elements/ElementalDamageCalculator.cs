@@ -32,7 +32,6 @@ namespace ARPGItemSystem.Common.Elements
         // Crit propagates to elemental proportionally — no undo needed.
         public static void ApplyToHit(
             List<Affix> affixes,
-            Player player,
             NPC target,
             ref NPC.HitModifiers modifiers)
         {
@@ -62,7 +61,7 @@ namespace ARPGItemSystem.Common.Elements
             float flatArmorPen = GetMagnitude(affixes, AffixId.FlatArmorPen);
             float percArmorPen = GetMagnitude(affixes, AffixId.PercentageArmorPen);
             physRes -= flatArmorPen;
-            if (percArmorPen > 0f)
+            if (percArmorPen != 0)
                 physRes *= (1f - percArmorPen / 100f);
 
             // --- Read elemental gain and increased% affixes ---
