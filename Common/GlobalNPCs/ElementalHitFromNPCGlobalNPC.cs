@@ -56,7 +56,7 @@ namespace ARPGItemSystem.Common.GlobalNPCs
             float physFinal = ElementalMath.ApplyResistance(physPortion, physRes, cap);
             float elemFinal = ElementalMath.ApplyResistance(elemPortion, elemRes, cap);
 
-            int finalDamage = Math.Max(1, (int)(physFinal + elemFinal));
+            int finalDamage = Math.Max(1, (int)Math.Round(physFinal + elemFinal));
 
             // Log only in singleplayer or on the local client (ModifyHitPlayer runs server-side in MP)
             bool logEnabled = Main.netMode != NetmodeID.Server

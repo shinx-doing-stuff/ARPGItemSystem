@@ -97,16 +97,16 @@ namespace ARPGItemSystem.Common.Elements
                 float coldFinal  = ElementalMath.ApplyResistance(rawCold,  coldRes,  cap);
                 float lightFinal = ElementalMath.ApplyResistance(rawLight, lightRes, cap);
 
-                info.Damage = Math.Max(1, (int)(physFinal + fireFinal + coldFinal + lightFinal));
+                info.Damage = Math.Max(1, (int)Math.Round(physFinal + fireFinal + coldFinal + lightFinal));
 
                 if (logEnabled)
                 {
                     string crit = info.Crit ? " [CRIT]" : "";
                     Main.NewText($"→ {target.GivenOrTypeName}{crit}", Color.White);
-                    Main.NewText($"  Phys:  {physFinal,6:F0}  (raw:{phys,5:F0}  res:{physRes:F1}%)", Color.Silver);
-                    if (rawFire  > 0) Main.NewText($"  Fire:  {fireFinal,6:F0}  (raw:{rawFire,5:F0}  res:{fireRes:F1}%)", new Color(255, 120, 50));
-                    if (rawCold  > 0) Main.NewText($"  Cold:  {coldFinal,6:F0}  (raw:{rawCold,5:F0}  res:{coldRes:F1}%)", new Color(100, 200, 255));
-                    if (rawLight > 0) Main.NewText($"  Light: {lightFinal,6:F0}  (raw:{rawLight,5:F0}  res:{lightRes:F1}%)", new Color(255, 240, 80));
+                    Main.NewText($"  Phys:  {physFinal,6:F1}  (raw:{phys,5:F0}  res:{physRes:F1}%)", Color.Silver);
+                    if (rawFire  > 0) Main.NewText($"  Fire:  {fireFinal,6:F1}  (raw:{rawFire,5:F1}  res:{fireRes:F1}%)", new Color(255, 120, 50));
+                    if (rawCold  > 0) Main.NewText($"  Cold:  {coldFinal,6:F1}  (raw:{rawCold,5:F1}  res:{coldRes:F1}%)", new Color(100, 200, 255));
+                    if (rawLight > 0) Main.NewText($"  Light: {lightFinal,6:F1}  (raw:{rawLight,5:F1}  res:{lightRes:F1}%)", new Color(255, 240, 80));
                     Main.NewText($"  Total: {info.Damage}", Color.GreenYellow);
                 }
             };
