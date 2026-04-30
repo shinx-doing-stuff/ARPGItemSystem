@@ -126,6 +126,44 @@ namespace ARPGItemSystem.Common.Affixes
                     AllowedDamageClasses = null
                 },
 
+                // ============== WEAPON PREFIXES — ELEMENTAL ==============
+                new AffixDef {
+                    Id = AffixId.GainPercentAsFire,
+                    Kind = AffixKind.Prefix,
+                    Tiers = new Dictionary<ItemCategory, List<Tier>>
+                    {
+                        [ItemCategory.Weapon] = new List<Tier> {
+                            new(46,50), new(41,45), new(36,40), new(31,35), new(26,30),
+                            new(21,25), new(16,20), new(11,15), new(6,10),  new(1,5)
+                        }
+                    },
+                    AllowedDamageClasses = null
+                },
+                new AffixDef {
+                    Id = AffixId.GainPercentAsCold,
+                    Kind = AffixKind.Prefix,
+                    Tiers = new Dictionary<ItemCategory, List<Tier>>
+                    {
+                        [ItemCategory.Weapon] = new List<Tier> {
+                            new(46,50), new(41,45), new(36,40), new(31,35), new(26,30),
+                            new(21,25), new(16,20), new(11,15), new(6,10),  new(1,5)
+                        }
+                    },
+                    AllowedDamageClasses = null
+                },
+                new AffixDef {
+                    Id = AffixId.GainPercentAsLightning,
+                    Kind = AffixKind.Prefix,
+                    Tiers = new Dictionary<ItemCategory, List<Tier>>
+                    {
+                        [ItemCategory.Weapon] = new List<Tier> {
+                            new(46,50), new(41,45), new(36,40), new(31,35), new(26,30),
+                            new(21,25), new(16,20), new(11,15), new(6,10),  new(1,5)
+                        }
+                    },
+                    AllowedDamageClasses = null
+                },
+
                 // ============== WEAPON SUFFIXES ==============
                 new AffixDef {
                     Id = AffixId.PercentageCritChance,
@@ -162,6 +200,44 @@ namespace ARPGItemSystem.Common.Affixes
                         }
                     },
                     AllowedDamageClasses = rangedAndMagicOnly
+                },
+
+                // ============== WEAPON SUFFIXES — ELEMENTAL ==============
+                new AffixDef {
+                    Id = AffixId.IncreasedFireDamage,
+                    Kind = AffixKind.Suffix,
+                    Tiers = new Dictionary<ItemCategory, List<Tier>>
+                    {
+                        [ItemCategory.Weapon] = new List<Tier> {
+                            new(51,55), new(46,50), new(41,45), new(36,40), new(31,35),
+                            new(26,30), new(21,25), new(16,20), new(11,15), new(5,10)
+                        }
+                    },
+                    AllowedDamageClasses = null
+                },
+                new AffixDef {
+                    Id = AffixId.IncreasedColdDamage,
+                    Kind = AffixKind.Suffix,
+                    Tiers = new Dictionary<ItemCategory, List<Tier>>
+                    {
+                        [ItemCategory.Weapon] = new List<Tier> {
+                            new(51,55), new(46,50), new(41,45), new(36,40), new(31,35),
+                            new(26,30), new(21,25), new(16,20), new(11,15), new(5,10)
+                        }
+                    },
+                    AllowedDamageClasses = null
+                },
+                new AffixDef {
+                    Id = AffixId.IncreasedLightningDamage,
+                    Kind = AffixKind.Suffix,
+                    Tiers = new Dictionary<ItemCategory, List<Tier>>
+                    {
+                        [ItemCategory.Weapon] = new List<Tier> {
+                            new(51,55), new(46,50), new(41,45), new(36,40), new(31,35),
+                            new(26,30), new(21,25), new(16,20), new(11,15), new(5,10)
+                        }
+                    },
+                    AllowedDamageClasses = null
                 },
 
                 // ============== ARMOR-ONLY ==============
@@ -302,6 +378,72 @@ namespace ARPGItemSystem.Common.Affixes
                         },
                         [ItemCategory.Accessory] = new List<Tier> {
                             new(6,7), new(5,6), new(4,5), new(4,5), new(3,4),
+                            new(3,4), new(2,3), new(2,3), new(1,2), new(1,2)
+                        }
+                    },
+                    AllowedDamageClasses = null
+                },
+
+                // ============== ARMOR + ACCESSORY — ELEMENTAL RESISTANCE ==============
+                new AffixDef {
+                    Id = AffixId.PhysicalResistance,
+                    Kind = AffixKind.Suffix,
+                    Tiers = new Dictionary<ItemCategory, List<Tier>>
+                    {
+                        [ItemCategory.Armor] = new List<Tier> {
+                            new(13,15), new(12,14), new(10,12), new(9,11), new(7,9),
+                            new(6,8),   new(5,7),   new(4,5),   new(2,4),  new(1,2)
+                        },
+                        [ItemCategory.Accessory] = new List<Tier> {
+                            new(5,6), new(5,6), new(4,5), new(4,5), new(3,4),
+                            new(3,4), new(2,3), new(2,3), new(1,2), new(1,2)
+                        }
+                    },
+                    AllowedDamageClasses = null
+                },
+                new AffixDef {
+                    Id = AffixId.FireResistance,
+                    Kind = AffixKind.Suffix,
+                    Tiers = new Dictionary<ItemCategory, List<Tier>>
+                    {
+                        [ItemCategory.Armor] = new List<Tier> {
+                            new(13,15), new(12,14), new(10,12), new(9,11), new(7,9),
+                            new(6,8),   new(5,7),   new(4,5),   new(2,4),  new(1,2)
+                        },
+                        [ItemCategory.Accessory] = new List<Tier> {
+                            new(5,6), new(5,6), new(4,5), new(4,5), new(3,4),
+                            new(3,4), new(2,3), new(2,3), new(1,2), new(1,2)
+                        }
+                    },
+                    AllowedDamageClasses = null
+                },
+                new AffixDef {
+                    Id = AffixId.ColdResistance,
+                    Kind = AffixKind.Suffix,
+                    Tiers = new Dictionary<ItemCategory, List<Tier>>
+                    {
+                        [ItemCategory.Armor] = new List<Tier> {
+                            new(13,15), new(12,14), new(10,12), new(9,11), new(7,9),
+                            new(6,8),   new(5,7),   new(4,5),   new(2,4),  new(1,2)
+                        },
+                        [ItemCategory.Accessory] = new List<Tier> {
+                            new(5,6), new(5,6), new(4,5), new(4,5), new(3,4),
+                            new(3,4), new(2,3), new(2,3), new(1,2), new(1,2)
+                        }
+                    },
+                    AllowedDamageClasses = null
+                },
+                new AffixDef {
+                    Id = AffixId.LightningResistance,
+                    Kind = AffixKind.Suffix,
+                    Tiers = new Dictionary<ItemCategory, List<Tier>>
+                    {
+                        [ItemCategory.Armor] = new List<Tier> {
+                            new(13,15), new(12,14), new(10,12), new(9,11), new(7,9),
+                            new(6,8),   new(5,7),   new(4,5),   new(2,4),  new(1,2)
+                        },
+                        [ItemCategory.Accessory] = new List<Tier> {
+                            new(5,6), new(5,6), new(4,5), new(4,5), new(3,4),
                             new(3,4), new(2,3), new(2,3), new(1,2), new(1,2)
                         }
                     },
