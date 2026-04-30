@@ -35,7 +35,7 @@ namespace ARPGItemSystem.Common.Players
             ColdRes      = 0f;
             LightningRes = 0f;
 
-            // Elemental resistance from affix rolls and the PhysicalResistance affix bonus
+            // Elemental resistance from affix rolls
             for (int i = 0; i < Player.armor.Length; i++)
             {
                 var item = Player.armor[i];
@@ -54,7 +54,6 @@ namespace ARPGItemSystem.Common.Players
             {
                 switch (a.Id)
                 {
-                    case AffixId.PhysicalResistance:  PhysRes      += a.Magnitude; break;
                     case AffixId.FireResistance:       FireRes      += a.Magnitude; break;
                     case AffixId.ColdResistance:       ColdRes      += a.Magnitude; break;
                     case AffixId.LightningResistance:  LightningRes += a.Magnitude; break;

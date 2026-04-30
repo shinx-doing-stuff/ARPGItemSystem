@@ -37,7 +37,6 @@ namespace ARPGItemSystem.Common.Affixes
         PercentageSummonDamageIncrease,
 
         // Armor + Accessory — elemental resistance
-        PhysicalResistance,
         FireResistance,
         ColdResistance,
         LightningResistance,

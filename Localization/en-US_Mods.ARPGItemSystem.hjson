@@ -33,7 +33,6 @@ Affixes: {
 	IncreasedColdDamage: +{0}% increased Cold damage
 	IncreasedLightningDamage: +{0}% increased Lightning damage
 	// Armor/Accessory elemental resistance
-	PhysicalResistance: +{0}% Physical resistance
 	FireResistance: +{0}% Fire resistance
 	ColdResistance: +{0}% Cold resistance
 	LightningResistance: +{0}% Lightning resistance
