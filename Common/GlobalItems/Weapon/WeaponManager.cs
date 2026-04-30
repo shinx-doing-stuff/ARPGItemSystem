@@ -1,4 +1,5 @@
 using ARPGItemSystem.Common.Affixes;
+using ARPGItemSystem.Common.Elements;
 using Microsoft.Xna.Framework;
 using Terraria;
 using Terraria.ID;
@@ -28,9 +29,6 @@ namespace ARPGItemSystem.Common.GlobalItems.Weapon
                     case AffixId.PercentageDamageIncrease:
                         damage *= 1 + a.Magnitude / 100f;
                         break;
-                    case AffixId.FlatArmorPen:
-                        player.GetArmorPenetration(DamageClass.Generic) += a.Magnitude;
-                        break;
                 }
             }
         }
@@ -55,16 +53,13 @@ namespace ARPGItemSystem.Common.GlobalItems.Weapon
         {
             foreach (var a in Affixes)
             {
-                switch (a.Id)
-                {
-                    case AffixId.PercentageArmorPen:
-                        modifiers.ScalingArmorPenetration += a.Magnitude / 100f;
-                        break;
-                    case AffixId.CritMultiplier:
-                        modifiers.CritDamage += a.Magnitude / 100f;
-                        break;
-                }
+                if (a.Id == AffixId.CritMultiplier)
+                    modifiers.CritDamage += a.Magnitude / 100f;
+                // PercentageArmorPen removed — now handled inside ElementalDamageCalculator
+                // as a reduction to enemy physical resistance before the cap
             }
+
+            ElementalDamageCalculator.ApplyToHit(Affixes, target, ref modifiers);
         }
 
         public override void ModifyWeaponKnockback(Item item, Player player, ref StatModifier knockback)
