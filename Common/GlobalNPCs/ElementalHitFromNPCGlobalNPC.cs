@@ -44,7 +44,9 @@ namespace ARPGItemSystem.Common.GlobalNPCs
 
             // Compute final damage from npc.damage (already scaled by level/rarity/modifiers in PreAI).
             // ModifyHurtInfo callback fires AFTER vanilla statDefense subtraction but overrides the result.
-            float baseDamage  = npc.damage;
+            // Apply vanilla damage variation (±15%) so hits don't deal exactly the same value every time.
+            // npc.damage is the post-PreAI scaled base (level/rarity already applied).
+            float baseDamage = Main.DamageVar(npc.damage);
             float physPortion = baseDamage * (1f - elemDamagePct / 100f);
             float elemPortion = baseDamage * elemDamagePct / 100f;
 
