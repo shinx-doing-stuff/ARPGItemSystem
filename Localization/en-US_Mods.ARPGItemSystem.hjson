@@ -26,17 +26,17 @@ Affixes: {
 	FlatCritChance: "{0}% Additional Critical Strike Chance"
 	ManaCostReduction: "{0}% Reduced Mana Cost"
 	// Weapon elemental damage
-	GainPercentAsFire:        "Gain {0}% of base damage as Fire"
-	GainPercentAsCold:        "Gain {0}% of base damage as Cold"
-	GainPercentAsLightning:   "Gain {0}% of base damage as Lightning"
-	IncreasedFireDamage:      "+{0}% increased Fire damage"
-	IncreasedColdDamage:      "+{0}% increased Cold damage"
-	IncreasedLightningDamage: "+{0}% increased Lightning damage"
+	GainPercentAsFire: Gain {0}% of base damage as Fire
+	GainPercentAsCold: Gain {0}% of base damage as Cold
+	GainPercentAsLightning: Gain {0}% of base damage as Lightning
+	IncreasedFireDamage: +{0}% increased Fire damage
+	IncreasedColdDamage: +{0}% increased Cold damage
+	IncreasedLightningDamage: +{0}% increased Lightning damage
 	// Armor/Accessory elemental resistance
-	PhysicalResistance:       "+{0}% Physical resistance"
-	FireResistance:           "+{0}% Fire resistance"
-	ColdResistance:           "+{0}% Cold resistance"
-	LightningResistance:      "+{0}% Lightning resistance"
+	PhysicalResistance: +{0}% Physical resistance
+	FireResistance: +{0}% Fire resistance
+	ColdResistance: +{0}% Cold resistance
+	LightningResistance: +{0}% Lightning resistance
 }
 
 UI: {
