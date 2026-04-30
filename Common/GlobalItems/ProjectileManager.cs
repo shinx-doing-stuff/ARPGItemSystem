@@ -16,14 +16,25 @@ namespace ARPGItemSystem.Common.GlobalItems
 
         public override void OnSpawn(Projectile projectile, IEntitySource source)
         {
-            // Match EntitySource_ItemUse (base class) to capture melee projectiles,
-            // all ranged weapons, magic, and summons — not just ammo weapons.
+            // Direct weapon use — captures melee, ranged, magic, minions, and sentries.
             if (source is EntitySource_ItemUse itemSource
                 && !itemSource.Item.consumable
                 && itemSource.Item.fishingPole <= 0)
             {
                 if (itemSource.Item.TryGetGlobalItem<WeaponManager>(out var wm))
                     Affixes = wm.Affixes.ToList();
+                return;
+            }
+
+            // Projectiles fired BY a sentry or minion (EntitySource_Parent where the parent is a
+            // projectile that already has affix data). Propagates affixes to child shots so
+            // sentry bolts and minion sub-projectiles inherit the summoning weapon's affixes.
+            if (source is EntitySource_Parent parentSource
+                && parentSource.Entity is Projectile parentProj
+                && parentProj.TryGetGlobalProjectile<ProjectileManager>(out var parentPm)
+                && parentPm.Affixes.Count > 0)
+            {
+                Affixes = parentPm.Affixes.ToList();
             }
         }
 
