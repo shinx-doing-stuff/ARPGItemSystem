@@ -15,6 +15,14 @@ namespace ARPGItemSystem.Common.Affixes
         CritMultiplier,
         VelocityIncrease,
 
+        // Weapon-only — elemental damage
+        GainPercentAsFire,
+        GainPercentAsCold,
+        GainPercentAsLightning,
+        IncreasedFireDamage,
+        IncreasedColdDamage,
+        IncreasedLightningDamage,
+
         // Armor-only
         PercentageDefenseIncrease,
 
@@ -27,6 +35,12 @@ namespace ARPGItemSystem.Common.Affixes
         PercentageRangedDamageIncrease,
         PercentageMagicDamageIncrease,
         PercentageSummonDamageIncrease,
+
+        // Armor + Accessory — elemental resistance
+        PhysicalResistance,
+        FireResistance,
+        ColdResistance,
+        LightningResistance,
 
         // All categories
         FlatCritChance,
