@@ -19,7 +19,6 @@ namespace ARPGItemSystem.Common.GlobalNPCs
         {
             var cfg = ModContent.GetInstance<EnemyConfig>();
             float cap   = cfg.ElementalResistanceCap;
-            float ratio = cfg.DefenseToPhysResRatio;
 
             // Read the NPC's elemental damage profile
             float elemDamagePct;

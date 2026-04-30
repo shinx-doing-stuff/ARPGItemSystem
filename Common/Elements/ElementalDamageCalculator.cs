@@ -40,8 +40,8 @@ namespace ARPGItemSystem.Common.Elements
             ref NPC.HitModifiers modifiers)
         {
             var cfg = ModContent.GetInstance<EnemyConfig>();
-            float cap   = cfg.ElementalResistanceCap;
-            float ratio = cfg.DefenseToPhysResRatio;
+            float cap       = cfg.ElementalResistanceCap;
+            float halfPoint = cfg.PhysResHalfPoint;
 
             // --- Read enemy elemental resistances ---
             float fireRes = 0f, coldRes = 0f, lightRes = 0f;
@@ -69,7 +69,7 @@ namespace ARPGItemSystem.Common.Elements
                 effectiveDefense *= (1f - percArmorPen / 100f);
 
             // --- Compute enemy physRes from effective defense (read BEFORE ModifyIncomingHit zeroes it) ---
-            float physRes = ElementalMath.ConvertDefenseToResistance(effectiveDefense, ratio, cap);
+            float physRes = ElementalMath.ConvertDefenseToResistance(effectiveDefense, halfPoint, cap);
 
             // --- Read elemental gain and increased% affixes ---
             float gainFire  = GetMagnitude(affixes, AffixId.GainPercentAsFire);

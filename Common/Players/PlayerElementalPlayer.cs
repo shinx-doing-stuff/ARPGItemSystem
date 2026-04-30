@@ -27,11 +27,10 @@ namespace ARPGItemSystem.Common.Players
         public override void PostUpdateEquips()
         {
             var cfg = ModContent.GetInstance<EnemyConfig>();
-            float cap = cfg.ElementalResistanceCap;
 
             // Base physRes from vanilla defense (includes FlatDefenseIncrease and PercentageDefenseIncrease
             // affix contributions — they run in UpdateEquip/UpdateAccessory before PostUpdateEquips).
-            PhysRes      = ElementalMath.ConvertDefenseToResistance(Player.statDefense, cfg.DefenseToPhysResRatio, cap);
+            PhysRes = ElementalMath.ConvertDefenseToResistance(Player.statDefense, cfg.PhysResHalfPoint, cfg.PlayerPhysResCap);
             FireRes      = 0f;
             ColdRes      = 0f;
             LightningRes = 0f;
