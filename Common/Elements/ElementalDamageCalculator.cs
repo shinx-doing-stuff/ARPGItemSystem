@@ -81,9 +81,10 @@ namespace ARPGItemSystem.Common.Elements
             // resistance is derived from the reduced defense, not subtracted from resistance directly.
             float flatArmorPen = GetMagnitude(affixes, AffixId.FlatArmorPen) + playerElem.FlatArmorPen;
             float percArmorPen = GetMagnitude(affixes, AffixId.PercentageArmorPen) + playerElem.PercentArmorPen;
-            float effectiveDefense = Math.Max(0f, target.defense - flatArmorPen);
+            float effectiveDefense = target.defense;
             if (percArmorPen != 0)
                 effectiveDefense *= (1f - percArmorPen / 100f);
+            effectiveDefense = Math.Max(0f, effectiveDefense - flatArmorPen);
 
             // --- Compute enemy physRes from effective defense (read BEFORE ModifyIncomingHit zeroes it) ---
             float physResRaw = ElementalMath.ConvertDefenseToResistance(target.defense, halfPoint, cap);
