@@ -1,11 +1,18 @@
 using System.Collections.Generic;
 using ARPGItemSystem.Common.Affixes;
+using ARPGItemSystem.Common.Config;
+using ARPGItemSystem.Common.GlobalItems;
 using ARPGItemSystem.Common.GlobalItems.Accessory;
 using ARPGItemSystem.Common.GlobalItems.Armor;
 using ARPGItemSystem.Common.GlobalItems.Weapon;
+using ARPGItemSystem.Common.Network;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 using Terraria;
+using Terraria.Audio;
+using Terraria.GameContent;
 using Terraria.GameContent.UI.Elements;
+using Terraria.ID;
 using Terraria.Localization;
 using Terraria.UI;
 
@@ -17,9 +24,18 @@ namespace ARPGItemSystem.Common.UI
         private UIReforgeSlot _slot;
         private UIText _itemName;
         private UIText _placeholder;
+
         private readonly List<AffixLine> _affixLines = new();
+        private readonly List<EmptySlotRow> _emptyRows = new();
+
+        private UIImageButton _reforgeButton;
+        private UICostDisplay _reforgeCost;
+        private UIText _reforgeHint;
+
         private int _lastItemType = -1;
         private int _lastItemNetID = -1;
+        private int _lastAffixCount = -1;
+        private bool _reforgeButtonEnabled = true;
 
         public override void OnInitialize()
         {
@@ -57,55 +73,64 @@ namespace ARPGItemSystem.Common.UI
             };
             _placeholder.Top.Set(110, 0f);
             _panel.Append(_placeholder);
+
+            // Bottom bar: hammer button + cost display, centered together.
+            var bottomBar = new UIElement();
+            bottomBar.Width.Set(170, 0f);   // 28 button + 8 gap + 130 cost + 4 slack
+            bottomBar.Height.Set(30, 0f);
+            bottomBar.HAlign = 0.5f;
+            bottomBar.Top.Set(-44, 1f);
+            _panel.Append(bottomBar);
+
+            _reforgeButton = new UIImageButton(TextureAssets.Reforge[0]);
+            _reforgeButton.Width.Set(28, 0f);
+            _reforgeButton.Height.Set(28, 0f);
+            _reforgeButton.Left.Set(0, 0f);
+            _reforgeButton.VAlign = 0.5f;
+            _reforgeButton.OnLeftClick += OnReforgeClicked;
+            bottomBar.Append(_reforgeButton);
+
+            _reforgeCost = new UICostDisplay(0) { LeftAligned = true };
+            _reforgeCost.Left.Set(36, 0f);   // 28 button + 8 gap
+            _reforgeCost.VAlign = 0.5f;
+            bottomBar.Append(_reforgeCost);
+
+            _reforgeHint = new UIText("", 0.8f);
+            _reforgeHint.HAlign = 0.5f;
+            _reforgeHint.Top.Set(-12, 1f);
+            _reforgeHint.TextColor = new Color(180, 180, 180);
+            _panel.Append(_reforgeHint);
         }
 
         public override void Update(GameTime gameTime)
         {
             base.Update(gameTime);
 
-            // Sync our slot's item to Main.reforgeItem so AffixLine / packet
-            // handler code that reads Main.reforgeItem still works correctly.
             Main.reforgeItem = _slot.SlotItem;
 
             bool hasItem = !_slot.SlotItem.IsAir;
             int currentType = hasItem ? _slot.SlotItem.type : -1;
             int currentNetID = hasItem ? _slot.SlotItem.netID : -1;
+            int currentAffixCount = hasItem ? GetAffixCount(_slot.SlotItem) : -1;
 
-            if (hasItem && (currentType != _lastItemType || currentNetID != _lastItemNetID))
+            if (hasItem && (currentType != _lastItemType
+                            || currentNetID != _lastItemNetID
+                            || currentAffixCount != _lastAffixCount))
             {
-                RefreshAffixLines();
+                RefreshRows();
                 _lastItemType = currentType;
                 _lastItemNetID = currentNetID;
+                _lastAffixCount = currentAffixCount;
             }
-            else if (!hasItem && _affixLines.Count > 0)
+            else if (!hasItem && (_affixLines.Count > 0 || _emptyRows.Count > 0))
             {
-                ClearAffixLines();
+                ClearRows();
             }
 
             _placeholder.TextColor = hasItem ? Color.Transparent : Color.Gray;
             _itemName.SetText(hasItem ? _slot.SlotItem.Name : "");
-        }
 
-        // Called by ReforgeUISystem when the menu closes so we can return the held item.
-        public void ReturnItemToPlayer()
-        {
-            if (_slot.SlotItem.IsAir) return;
-            if (Main.mouseItem.IsAir)
-                Main.mouseItem = _slot.SlotItem;
-            else
-            {
-                for (int i = 0; i < Main.LocalPlayer.inventory.Length; i++)
-                {
-                    if (Main.LocalPlayer.inventory[i].IsAir)
-                    {
-                        Main.LocalPlayer.inventory[i] = _slot.SlotItem;
-                        break;
-                    }
-                }
-            }
-            _slot.SlotItem = new Item();
-            Main.reforgeItem = new Item();
-            ClearAffixLines();
+            UpdateReforgeButtonState();
         }
 
         public bool SlotIsEmpty => _slot.SlotItem.IsAir;
@@ -114,11 +139,6 @@ namespace ARPGItemSystem.Common.UI
         {
             if (!_slot.SlotItem.IsAir)
             {
-                // Main.reforgeItem is synced to _slot.SlotItem each frame.
-                // If vanilla already returned and cleared Main.reforgeItem (new Item()),
-                // the references diverge — reforgeItem.IsAir=true, SlotItem still has the weapon.
-                // In that case vanilla already handled the return; we just clear visually.
-                // If reforgeItem still has the weapon, vanilla didn't return it — we do it now.
                 if (!Main.reforgeItem.IsAir)
                 {
                     if (Main.mouseItem.IsAir)
@@ -138,7 +158,28 @@ namespace ARPGItemSystem.Common.UI
             }
             _slot.SlotItem = new Item();
             Main.reforgeItem = new Item();
-            ClearAffixLines();
+            ClearRows();
+        }
+
+        public void ReturnItemToPlayer()
+        {
+            if (_slot.SlotItem.IsAir) return;
+            if (Main.mouseItem.IsAir)
+                Main.mouseItem = _slot.SlotItem;
+            else
+            {
+                for (int i = 0; i < Main.LocalPlayer.inventory.Length; i++)
+                {
+                    if (Main.LocalPlayer.inventory[i].IsAir)
+                    {
+                        Main.LocalPlayer.inventory[i] = _slot.SlotItem;
+                        break;
+                    }
+                }
+            }
+            _slot.SlotItem = new Item();
+            Main.reforgeItem = new Item();
+            ClearRows();
         }
 
         public void RefreshAffix(int index)
@@ -150,50 +191,27 @@ namespace ARPGItemSystem.Common.UI
 
         public void SetAllPending(bool pending)
         {
-            foreach (var line in _affixLines)
-                line.SetPending(pending);
+            foreach (var line in _affixLines) line.SetPending(pending);
+            foreach (var row in _emptyRows) row.SetEnabled(!pending);
+            // Reforge button visibility is managed solely by UpdateReforgeButtonState
+            // to avoid fighting with UIImageButton's native click animation.
         }
 
-
-        private void RefreshAffixLines()
+        public void RebuildRowsAfterFill()
         {
-            ClearAffixLines();
+            SetAllPending(false);
+        }
+
+        private void RefreshRows()
+        {
+            ClearRows();
             var item = _slot.SlotItem;
-            var lines = GetModifierLines(item);
+            if (item.IsAir) return;
+
+            var mgr = GetManager(item);
+            if (mgr == null) return;
 
             float yOffset = 110f;
-            foreach (var (text, tier, index, isPrefix) in lines)
-            {
-                var line = new AffixLine(text, tier, index, isPrefix);
-                line.Top.Set(yOffset, 0f);
-                line.Width.Set(-20, 1f);
-                line.Left.Set(10, 0f);
-                _panel.Append(line);
-                _affixLines.Add(line);
-                yOffset += 32f;
-            }
-        }
-
-        private void ClearAffixLines()
-        {
-            foreach (var line in _affixLines)
-                _panel.RemoveChild(line);
-            _affixLines.Clear();
-            _lastItemType = -1;
-            _lastItemNetID = -1;
-        }
-
-        private static List<(string text, int tier, int index, bool isPrefix)> GetModifierLines(Item item)
-        {
-            var result = new List<(string, int, int, bool)>();
-
-            AffixItemManager mgr = item.damage > 0 && item.maxStack <= 1
-                ? (AffixItemManager)item.GetGlobalItem<WeaponManager>()
-                : item.accessory
-                    ? (AffixItemManager)item.GetGlobalItem<AccessoryManager>()
-                    : (AffixItemManager)item.GetGlobalItem<ArmorManager>();
-
-            if (mgr == null) return result;
 
             for (int i = 0; i < mgr.Affixes.Count; i++)
             {
@@ -201,10 +219,226 @@ namespace ARPGItemSystem.Common.UI
                 var def = AffixRegistry.Get(a.Id);
                 string text = Language.GetTextValue($"Mods.ARPGItemSystem.Affixes.{a.Id}", a.Magnitude);
                 bool isPrefix = def.Kind == AffixKind.Prefix;
-                result.Add((text, a.Tier, i, isPrefix));
+
+                var line = new AffixLine(text, i, isPrefix);
+                line.Top.Set(yOffset, 0f);
+                line.Width.Set(-20, 1f);
+                line.Left.Set(10, 0f);
+                _panel.Append(line);
+                _affixLines.Add(line);
+                yOffset += 32f;
             }
 
-            return result;
+            int existingPrefixes = CountByKind(mgr.Affixes, AffixKind.Prefix);
+            int existingSuffixes = CountByKind(mgr.Affixes, AffixKind.Suffix);
+            int maxPrefixes = GetMaxPrefixes(mgr.Category);
+            int maxSuffixes = GetMaxSuffixes(mgr.Category);
+
+            int emptyCost = ReforgePacketHandler.ComputeEmptySlotCost(_slot.SlotItem.value);
+
+            for (int i = existingPrefixes; i < maxPrefixes; i++)
+            {
+                var row = new EmptySlotRow(AffixKind.Prefix, emptyCost, () => OnFillEmptyClicked(AffixKind.Prefix));
+                row.Top.Set(yOffset, 0f);
+                row.Width.Set(-20, 1f);
+                row.Left.Set(10, 0f);
+                _panel.Append(row);
+                _emptyRows.Add(row);
+                yOffset += 32f;
+            }
+
+            for (int i = existingSuffixes; i < maxSuffixes; i++)
+            {
+                var row = new EmptySlotRow(AffixKind.Suffix, emptyCost, () => OnFillEmptyClicked(AffixKind.Suffix));
+                row.Top.Set(yOffset, 0f);
+                row.Width.Set(-20, 1f);
+                row.Left.Set(10, 0f);
+                _panel.Append(row);
+                _emptyRows.Add(row);
+                yOffset += 32f;
+            }
         }
+
+        private void ClearRows()
+        {
+            foreach (var line in _affixLines) _panel.RemoveChild(line);
+            foreach (var row in _emptyRows) _panel.RemoveChild(row);
+            _affixLines.Clear();
+            _emptyRows.Clear();
+            _lastItemType = -1;
+            _lastItemNetID = -1;
+            _lastAffixCount = -1;
+        }
+
+        private void UpdateReforgeButtonState()
+        {
+            int unlockedCount = 0;
+            int lockedCount = 0;
+            foreach (var line in _affixLines)
+            {
+                if (line.Locked) lockedCount++;
+                else unlockedCount++;
+            }
+
+            bool enabled = !(_slot.SlotItem.IsAir || _affixLines.Count == 0 || unlockedCount == 0);
+
+            // Only call SetVisibility on transition — calling it every frame interferes
+            // with UIImageButton's native click animation.
+            if (enabled != _reforgeButtonEnabled)
+            {
+                _reforgeButtonEnabled = enabled;
+                _reforgeButton.SetVisibility(enabled ? 1.0f : 0.4f, enabled ? 0.7f : 0.4f);
+            }
+
+            if (_slot.SlotItem.IsAir || _affixLines.Count == 0)
+            {
+                _reforgeCost.Cost = 0;
+                _reforgeHint.SetText("");
+                return;
+            }
+
+            if (unlockedCount == 0)
+            {
+                _reforgeCost.Cost = 0;
+                _reforgeHint.SetText(Language.GetTextValue("Mods.ARPGItemSystem.UI.ReforgePanel.AllLockedHint"));
+                return;
+            }
+
+            int itemValue = _slot.SlotItem.value;
+            long sum = 0;
+            var mgr = GetManager(_slot.SlotItem);
+            if (mgr != null)
+            {
+                // Sum ALL affix tiers (locked + unlocked) — matches server-side formula.
+                for (int i = 0; i < _affixLines.Count && i < mgr.Affixes.Count; i++)
+                    sum += ReforgeConfig.CalculateCost(itemValue, mgr.Affixes[i].Tier);
+            }
+            _reforgeCost.Cost = (int)(sum * ReforgeConfig.LockMultiplier(lockedCount));
+            _reforgeHint.SetText("");
+        }
+
+        private void OnReforgeClicked(UIMouseEvent evt, UIElement listening)
+        {
+            if (_slot.SlotItem.IsAir || _affixLines.Count == 0) return;
+
+            var mgr = GetManager(_slot.SlotItem);
+            if (mgr == null) return;
+
+            var unlocked = new List<(byte index, AffixKind kind, int storedTier)>();
+            var locked = new List<(AffixKind kind, AffixId id, int storedTier)>();
+
+            for (int i = 0; i < _affixLines.Count && i < mgr.Affixes.Count; i++)
+            {
+                var a = mgr.Affixes[i];
+                var kind = AffixRegistry.Get(a.Id).Kind;
+                if (_affixLines[i].Locked)
+                    locked.Add((kind, a.Id, a.Tier));
+                else
+                    unlocked.Add(((byte)i, kind, a.Tier));
+            }
+
+            if (unlocked.Count == 0) return;
+
+            if (!Main.LocalPlayer.CanAfford(_reforgeCost.Cost))
+            {
+                SoundEngine.PlaySound(new SoundStyle("Terraria/Sounds/Item_194"));
+                return;
+            }
+
+            SoundEngine.PlaySound(SoundID.Item37);
+            SetAllPending(true);
+
+            var cat = ReforgePacketHandler.GetItemCategory(_slot.SlotItem);
+            var damCat = ReforgePacketHandler.GetDamageCategory(_slot.SlotItem);
+
+            if (Main.netMode == NetmodeID.SinglePlayer)
+            {
+                ReforgePacketHandler.DoRerollAllUnlockedDirectly(
+                    _slot.SlotItem, cat, damCat, _slot.SlotItem.value, unlocked, locked);
+            }
+            else
+            {
+                ReforgePacketHandler.SendRerollAllUnlockedRequest(
+                    cat, damCat, _slot.SlotItem.value, unlocked, locked);
+            }
+        }
+
+        private void OnFillEmptyClicked(AffixKind kind)
+        {
+            if (_slot.SlotItem.IsAir) return;
+            var mgr = GetManager(_slot.SlotItem);
+            if (mgr == null) return;
+
+            int cost = ReforgePacketHandler.ComputeEmptySlotCost(_slot.SlotItem.value);
+            if (!Main.LocalPlayer.CanAfford(cost))
+            {
+                SoundEngine.PlaySound(new SoundStyle("Terraria/Sounds/Item_194"));
+                return;
+            }
+
+            var excludeIds = new List<AffixId>();
+            foreach (var a in mgr.Affixes)
+            {
+                if (AffixRegistry.Get(a.Id).Kind == kind)
+                    excludeIds.Add(a.Id);
+            }
+
+            SoundEngine.PlaySound(SoundID.Item37);
+            SetAllPending(true);
+
+            var cat = ReforgePacketHandler.GetItemCategory(_slot.SlotItem);
+            var damCat = ReforgePacketHandler.GetDamageCategory(_slot.SlotItem);
+
+            if (Main.netMode == NetmodeID.SinglePlayer)
+            {
+                ReforgePacketHandler.DoFillEmptySlotDirectly(
+                    _slot.SlotItem, cat, damCat, kind, _slot.SlotItem.value, excludeIds);
+            }
+            else
+            {
+                ReforgePacketHandler.SendFillEmptySlotRequest(
+                    cat, damCat, kind, _slot.SlotItem.value, excludeIds);
+            }
+        }
+
+        private static AffixItemManager GetManager(Item item)
+        {
+            if (item.IsAir) return null;
+            return item.damage > 0 && item.maxStack <= 1
+                ? (AffixItemManager)item.GetGlobalItem<WeaponManager>()
+                : item.accessory
+                    ? (AffixItemManager)item.GetGlobalItem<AccessoryManager>()
+                    : (AffixItemManager)item.GetGlobalItem<ArmorManager>();
+        }
+
+        private static int GetAffixCount(Item item)
+        {
+            var mgr = GetManager(item);
+            return mgr?.Affixes.Count ?? 0;
+        }
+
+        private static int CountByKind(List<Affix> list, AffixKind kind)
+        {
+            int n = 0;
+            foreach (var a in list)
+                if (AffixRegistry.Get(a.Id).Kind == kind) n++;
+            return n;
+        }
+
+        private static int GetMaxPrefixes(ItemCategory cat) => cat switch
+        {
+            ItemCategory.Weapon => utils.GetMaxPrefixesWeapon(),
+            ItemCategory.Armor => utils.GetMaxPrefixesArmor(),
+            ItemCategory.Accessory => utils.GetMaxPrefixesAccessory(),
+            _ => 0
+        };
+
+        private static int GetMaxSuffixes(ItemCategory cat) => cat switch
+        {
+            ItemCategory.Weapon => utils.GetMaxSuffixesWeapon(),
+            ItemCategory.Armor => utils.GetMaxSuffixesArmor(),
+            ItemCategory.Accessory => utils.GetMaxSuffixesAccessory(),
+            _ => 0
+        };
     }
 }

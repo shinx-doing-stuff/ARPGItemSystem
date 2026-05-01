@@ -1,101 +1,67 @@
 using System;
 using ARPGItemSystem.Common.Affixes;
-using ARPGItemSystem.Common.Config;
 using ARPGItemSystem.Common.GlobalItems.Accessory;
 using ARPGItemSystem.Common.GlobalItems.Armor;
 using ARPGItemSystem.Common.GlobalItems.Weapon;
-using ARPGItemSystem.Common.Network;
-using ARPGItemSystem.Common.Systems;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Terraria;
 using Terraria.Audio;
-using Terraria.GameContent;
 using Terraria.GameContent.UI.Elements;
 using Terraria.ID;
 using Terraria.Localization;
-using Terraria.ModLoader;
 using Terraria.UI;
 
 namespace ARPGItemSystem.Common.UI
 {
+    // One row in the reforge panel for an existing affix on the slotted item.
+    // Shows a lock toggle on the left and the affix text on the right.
+    // Locks are session-only — reset whenever the row is rebuilt.
     public class AffixLine : UIElement
     {
-        private UIImageButton _hammerButton;
-        private UIText _affixText;
-        private UICostDisplay _costDisplay;
+        private readonly LockToggleButton _lockButton;
+        private readonly UIText _affixText;
         private bool _isPending;
-        private readonly int _modifierIndex;
+        private readonly int _affixIndex;
         private readonly bool _isPrefix;
 
-        public AffixLine(string displayText, int tier, int modifierIndex, bool isPrefix)
+        public bool Locked => _lockButton.Locked;
+        public int AffixIndex => _affixIndex;
+        public bool IsPrefix => _isPrefix;
+
+        protected override void DrawSelf(SpriteBatch sb)
         {
-            _modifierIndex = modifierIndex;
+            if (!_lockButton.Locked) return;
+            var dim = GetDimensions();
+            sb.Draw(Terraria.GameContent.TextureAssets.MagicPixel.Value,
+                new Rectangle((int)dim.X, (int)dim.Y, (int)dim.Width, (int)dim.Height),
+                new Color(0, 0, 0, 80));
+        }
+
+        public AffixLine(string displayText, int affixIndex, bool isPrefix)
+        {
+            _affixIndex = affixIndex;
             _isPrefix = isPrefix;
             Height.Set(28, 0f);
 
-            _hammerButton = new UIImageButton(TextureAssets.Reforge[0]);
-            _hammerButton.Width.Set(22, 0f);
-            _hammerButton.Height.Set(22, 0f);
-            _hammerButton.Left.Set(0, 0f);
-            _hammerButton.VAlign = 0.5f;
-            _hammerButton.OnLeftClick += OnHammerClicked;
-            Append(_hammerButton);
+            _lockButton = new LockToggleButton();
+            _lockButton.Width.Set(22, 0f);
+            _lockButton.Height.Set(22, 0f);
+            _lockButton.Left.Set(0, 0f);
+            _lockButton.VAlign = 0.5f;
+            Append(_lockButton);
 
             _affixText = new UIText(displayText, 0.85f);
             _affixText.TextColor = isPrefix ? Color.LightGreen : Color.DeepSkyBlue;
             _affixText.Left.Set(28, 0f);
             _affixText.VAlign = 0.5f;
             Append(_affixText);
-
-            _costDisplay = new UICostDisplay(ReforgeConfig.CalculateCost(
-                Main.reforgeItem.IsAir ? 0 : Main.reforgeItem.value, tier));
-            _costDisplay.HAlign = 1f;
-            _costDisplay.VAlign = 0.5f;
-            Append(_costDisplay);
-        }
-
-        private void OnHammerClicked(UIMouseEvent evt, UIElement listeningElement)
-        {
-            if (_isPending || Main.reforgeItem.IsAir) return;
-
-            // Pre-check affordability before playing any sound or sending a packet.
-            if (!Main.LocalPlayer.CanAfford(_costDisplay.Cost))
-            {
-                MarkInsufficient();
-                return;
-            }
-
-            SoundEngine.PlaySound(SoundID.Item37);
-
-            var item = Main.reforgeItem;
-            var cat = ReforgePacketHandler.GetItemCategory(item);
-            var damCat = ReforgePacketHandler.GetDamageCategory(item);
-            var excludeIds = ReforgePacketHandler.GetExcludeIds(item, _modifierIndex);
-            var kind = _isPrefix ? AffixKind.Prefix : AffixKind.Suffix;
-
-            ModContent.GetInstance<ReforgeUISystem>().Panel.SetAllPending(true);
-
-            if (Main.netMode == NetmodeID.SinglePlayer)
-            {
-                ReforgePacketHandler.DoRerollDirectly(item, _modifierIndex, kind, cat, damCat, excludeIds);
-                ModContent.GetInstance<ReforgeUISystem>().Panel.RefreshAffix(_modifierIndex);
-            }
-            else
-            {
-                ReforgePacketHandler.SendRerollRequest(_modifierIndex, kind, cat, damCat, item.value, excludeIds);
-            }
-        }
-
-        public void MarkInsufficient()
-        {
-            SoundEngine.PlaySound(new SoundStyle("Terraria/Sounds/Item_194"));
         }
 
         public void SetPending(bool pending)
         {
             _isPending = pending;
-            _hammerButton.SetVisibility(pending ? 0.4f : 1f, pending ? 0.4f : 1f);
+            _lockButton.SetEnabled(!pending);
         }
 
         public void Refresh()
@@ -109,72 +75,55 @@ namespace ARPGItemSystem.Common.UI
                     ? (AffixItemManager)item.GetGlobalItem<AccessoryManager>()
                     : (AffixItemManager)item.GetGlobalItem<ArmorManager>();
 
-            if (mgr == null || _modifierIndex < 0 || _modifierIndex >= mgr.Affixes.Count) return;
+            if (mgr == null || _affixIndex < 0 || _affixIndex >= mgr.Affixes.Count) return;
 
-            var a = mgr.Affixes[_modifierIndex];
-            var def = AffixRegistry.Get(a.Id);
+            var a = mgr.Affixes[_affixIndex];
             string displayText = Language.GetTextValue($"Mods.ARPGItemSystem.Affixes.{a.Id}", a.Magnitude);
-
             _affixText.SetText(displayText);
-            _costDisplay.Cost = ReforgeConfig.CalculateCost(item.value, a.Tier);
         }
 
-        // Draws the cost as coin icons (platinum/gold/silver/copper) instead of text abbreviations.
-        private sealed class UICostDisplay : UIElement
+        // Clickable lock icon using vanilla Terraria lock textures.
+        // Lock_0 = locked (padlock closed), Lock_1 = unlocked (padlock open).
+        private sealed class LockToggleButton : UIElement
         {
-            public int Cost;
+            public bool Locked { get; private set; }
+            private bool _enabled = true;
 
-            public UICostDisplay(int cost)
+            public LockToggleButton()
             {
-                Cost = cost;
-                Width.Set(130, 0f);
-                Height.Set(20, 0f);
+                OnLeftClick += (_, _) =>
+                {
+                    if (!_enabled) return;
+                    Locked = !Locked;
+                    SoundEngine.PlaySound(SoundID.Unlock);
+                };
             }
+
+            public void SetEnabled(bool enabled) => _enabled = enabled;
 
             protected override void DrawSelf(SpriteBatch sb)
             {
-                if (Cost <= 0) return;
-
-                int platinum = Cost / 1000000;
-                int gold     = (Cost / 10000) % 100;
-                int silver   = (Cost / 100) % 100;
-                int copper   = Cost % 100;
-
                 var dim = GetDimensions();
-                float x = dim.X + dim.Width;
-                float y = dim.Y + dim.Height / 2f - 8f;
-                var textTint = Main.LocalPlayer.CanAfford(Cost) ? Color.White : Color.Red;
 
-                // Draw right-to-left so the least significant coin is on the far right
-                if (copper > 0 || (platinum == 0 && gold == 0 && silver == 0))
-                    x = DrawCoin(sb, x, y, copper, ItemID.CopperCoin, textTint);
-                if (silver > 0)
-                    x = DrawCoin(sb, x, y, silver, ItemID.SilverCoin, textTint);
-                if (gold > 0)
-                    x = DrawCoin(sb, x, y, gold, ItemID.GoldCoin, textTint);
-                if (platinum > 0)
-                    x = DrawCoin(sb, x, y, platinum, ItemID.PlatinumCoin, textTint);
-            }
+                Texture2D tex = Main.Assets.Request<Texture2D>(
+                    Locked ? "Images/Lock_0" : "Images/Lock_1").Value;
 
-            private static float DrawCoin(SpriteBatch sb, float rightX, float y, int amount, int coinItemId, Color textTint)
-            {
-                Main.instance.LoadItem(coinItemId);
-                Texture2D tex = TextureAssets.Item[coinItemId].Value;
+                // The texture is a horizontal sprite sheet; each frame is tex.Height wide.
+                var frame = new Rectangle(0, 0, tex.Height, tex.Height);
+                float scale = Math.Min(dim.Width / frame.Width, dim.Height / frame.Height);
+                Color color = _enabled ? Color.White : Color.White * 0.5f;
+                var origin = new Vector2(frame.Width / 2f, frame.Height / 2f);
+                var pos = new Vector2(dim.X + dim.Width / 2f, dim.Y + dim.Height / 2f);
 
-                string text = amount.ToString();
-                float textWidth = FontAssets.MouseText.Value.MeasureString(text).X * 0.75f;
-                const float IconSize = 16f;
-                float totalWidth = IconSize + 2f + textWidth + 4f;
-                float startX = rightX - totalWidth;
+                sb.Draw(tex, pos, frame, color, 0f, origin, scale, SpriteEffects.None, 0f);
 
-                float scale = IconSize / Math.Max(tex.Width, tex.Height);
-                sb.Draw(tex, new Vector2(startX, y + (IconSize - tex.Height * scale) / 2f),
-                    null, Color.White, 0f, Vector2.Zero, scale, SpriteEffects.None, 0f);
-
-                Utils.DrawBorderString(sb, text,
-                    new Vector2(startX + IconSize + 2f, y), textTint, 0.75f);
-
-                return startX - 2f;
+                if (IsMouseHovering && _enabled)
+                {
+                    string key = Locked
+                        ? "Mods.ARPGItemSystem.UI.ReforgePanel.UnlockTooltip"
+                        : "Mods.ARPGItemSystem.UI.ReforgePanel.LockTooltip";
+                    Main.instance.MouseText(Language.GetTextValue(key));
+                }
             }
         }
     }
