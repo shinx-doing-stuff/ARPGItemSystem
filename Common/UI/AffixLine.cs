@@ -74,12 +74,12 @@ namespace ARPGItemSystem.Common.UI
             var excludeIds = ReforgePacketHandler.GetExcludeIds(item, _modifierIndex);
             var kind = _isPrefix ? AffixKind.Prefix : AffixKind.Suffix;
 
-            ModContent.GetInstance<UISystem>().Panel.SetAllPending(true);
+            ModContent.GetInstance<ReforgeUISystem>().Panel.SetAllPending(true);
 
             if (Main.netMode == NetmodeID.SinglePlayer)
             {
                 ReforgePacketHandler.DoRerollDirectly(item, _modifierIndex, kind, cat, damCat, excludeIds);
-                ModContent.GetInstance<UISystem>().Panel.RefreshAffix(_modifierIndex);
+                ModContent.GetInstance<ReforgeUISystem>().Panel.RefreshAffix(_modifierIndex);
             }
             else
             {

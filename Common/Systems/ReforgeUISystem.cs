@@ -9,7 +9,7 @@ using Terraria.UI;
 
 namespace ARPGItemSystem.Common.Systems
 {
-    public class UISystem : ModSystem
+    public class ReforgeUISystem : ModSystem
     {
         private UserInterface _reforgeInterface;
         internal ReforgePanel Panel;

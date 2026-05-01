@@ -107,14 +107,14 @@ namespace ARPGItemSystem.Common.Network
             if (item.IsAir) return;
 
             ApplyAffixReplacement(item, affixIndex, newId, newMagnitude, newTier);
-            ModContent.GetInstance<UISystem>().Panel.RefreshAffix(affixIndex);
+            ModContent.GetInstance<ReforgeUISystem>().Panel.RefreshAffix(affixIndex);
         }
 
         private static void HandleRerollRejected(BinaryReader reader)
         {
             if (Main.netMode == NetmodeID.Server) return;
             reader.ReadByte();
-            ModContent.GetInstance<UISystem>().Panel.SetAllPending(false);
+            ModContent.GetInstance<ReforgeUISystem>().Panel.SetAllPending(false);
         }
 
         public static void DoRerollDirectly(Item item, int affixIndex, AffixKind kind,
@@ -125,7 +125,7 @@ namespace ARPGItemSystem.Common.Network
 
             if (!Main.LocalPlayer.BuyItem(cost))
             {
-                ModContent.GetInstance<UISystem>().Panel.SetAllPending(false);
+                ModContent.GetInstance<ReforgeUISystem>().Panel.SetAllPending(false);
                 return;
             }
 

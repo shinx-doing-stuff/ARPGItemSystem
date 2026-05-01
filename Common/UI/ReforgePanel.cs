@@ -86,7 +86,7 @@ namespace ARPGItemSystem.Common.UI
             _itemName.SetText(hasItem ? _slot.SlotItem.Name : "");
         }
 
-        // Called by UISystem when the menu closes so we can return the held item.
+        // Called by ReforgeUISystem when the menu closes so we can return the held item.
         public void ReturnItemToPlayer()
         {
             if (_slot.SlotItem.IsAir) return;
