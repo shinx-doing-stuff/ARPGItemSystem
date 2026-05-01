@@ -64,9 +64,10 @@ namespace ARPGItemSystem.Common.Elements
             // e.g. 100% raw fire res - 20% pen = 80% effective, clamped to 75% cap → still 75%.
             // This preserves the over-cap intent: pen only matters when enemy res is near/below cap.
             var playerElem = player.GetModPlayer<PlayerElementalPlayer>();
-            float firePen  = GetMagnitude(affixes, AffixId.FirePenetration)  + playerElem.FirePen;
-            float coldPen  = GetMagnitude(affixes, AffixId.ColdPenetration)  + playerElem.ColdPen;
-            float lightPen = GetMagnitude(affixes, AffixId.LightningPenetration) + playerElem.LightningPen;
+            float universalPen = GetMagnitude(affixes, AffixId.AllElementalPenetration);
+            float firePen  = GetMagnitude(affixes, AffixId.FirePenetration)      + universalPen + playerElem.FirePen;
+            float coldPen  = GetMagnitude(affixes, AffixId.ColdPenetration)      + universalPen + playerElem.ColdPen;
+            float lightPen = GetMagnitude(affixes, AffixId.LightningPenetration) + universalPen + playerElem.LightningPen;
             float fireResRaw  = fireRes;
             float coldResRaw  = coldRes;
             float lightResRaw = lightRes;
@@ -78,8 +79,8 @@ namespace ARPGItemSystem.Common.Elements
             // FlatArmorPen reduces the enemy's defense value (e.g. FlatArmorPen=20 on a 60-defense enemy
             // → effectiveDefense=40 → physRes=40×ratio, not physRes-20%). Semantics: pen reduces defense,
             // resistance is derived from the reduced defense, not subtracted from resistance directly.
-            float flatArmorPen = GetMagnitude(affixes, AffixId.FlatArmorPen);
-            float percArmorPen = GetMagnitude(affixes, AffixId.PercentageArmorPen);
+            float flatArmorPen = GetMagnitude(affixes, AffixId.FlatArmorPen) + playerElem.FlatArmorPen;
+            float percArmorPen = GetMagnitude(affixes, AffixId.PercentageArmorPen) + playerElem.PercentArmorPen;
             float effectiveDefense = Math.Max(0f, target.defense - flatArmorPen);
             if (percArmorPen != 0)
                 effectiveDefense *= (1f - percArmorPen / 100f);
@@ -131,13 +132,14 @@ namespace ARPGItemSystem.Common.Elements
                     Main.NewText($"→ {target.GivenOrTypeName}{crit}", Color.White);
 
                     // Show active penetration values so they're visible even when there's no elemental damage
-                    if (anyArmPen || firePen != 0 || coldPen != 0 || lightPen != 0)
+                    if (anyArmPen || universalPen != 0 || firePen != 0 || coldPen != 0 || lightPen != 0)
                     {
                         var penParts = new System.Text.StringBuilder("  [pen]");
-                        if (anyArmPen)    penParts.Append($"  arm:{flatArmorPen:F0}flat/{percArmorPen:F0}%");
-                        if (firePen  != 0) penParts.Append($"  fire:{firePen:F0}%");
-                        if (coldPen  != 0) penParts.Append($"  cold:{coldPen:F0}%");
-                        if (lightPen != 0) penParts.Append($"  light:{lightPen:F0}%");
+                        if (anyArmPen)         penParts.Append($"  arm:{flatArmorPen:F0}flat/{percArmorPen:F0}%");
+                        if (universalPen != 0) penParts.Append($"  all:{universalPen:F0}%");
+                        if (firePen  != 0)     penParts.Append($"  fire:{firePen:F0}%");
+                        if (coldPen  != 0)     penParts.Append($"  cold:{coldPen:F0}%");
+                        if (lightPen != 0)     penParts.Append($"  light:{lightPen:F0}%");
                         Main.NewText(penParts.ToString(), Color.Yellow);
                     }
 
