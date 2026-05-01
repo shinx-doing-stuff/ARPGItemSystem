@@ -79,24 +79,32 @@ namespace ARPGItemSystem.Common.Affixes
                 },
                 new AffixDef {
                     Id = AffixId.FlatArmorPen,
-                    Kind = AffixKind.Prefix,
+                    Kind = AffixKind.Suffix,
                     Tiers = new Dictionary<ItemCategory, List<Tier>>
                     {
                         [ItemCategory.Weapon] = new List<Tier> {
                             new(46,50), new(41,45), new(36,40), new(31,35), new(26,30),
                             new(21,25), new(16,20), new(11,15), new(6,10),  new(1,5)
+                        },
+                        [ItemCategory.Accessory] = new List<Tier> {
+                            new(10,12), new(9,10), new(7,9), new(6,7), new(5,6),
+                            new(4,5),   new(3,4),  new(2,3), new(1,2), new(1,1)
                         }
                     },
                     AllowedDamageClasses = null
                 },
                 new AffixDef {
                     Id = AffixId.PercentageArmorPen,
-                    Kind = AffixKind.Prefix,
+                    Kind = AffixKind.Suffix,
                     Tiers = new Dictionary<ItemCategory, List<Tier>>
                     {
                         [ItemCategory.Weapon] = new List<Tier> {
                             new(28,30), new(25,27), new(22,24), new(19,21), new(16,18),
                             new(13,15), new(10,12), new(7,9),   new(4,6),   new(1,3)
+                        },
+                        [ItemCategory.Accessory] = new List<Tier> {
+                            new(5,6), new(5,5), new(4,5), new(4,4), new(3,4),
+                            new(3,3), new(2,3), new(2,2), new(1,1), new(1,1)
                         }
                     },
                     AllowedDamageClasses = null
