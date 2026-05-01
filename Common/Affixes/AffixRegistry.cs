@@ -491,6 +491,22 @@ namespace ARPGItemSystem.Common.Affixes
                     },
                     AllowedDamageClasses = null
                 },
+                new AffixDef {
+                    Id = AffixId.AllElementalPenetration,
+                    Kind = AffixKind.Suffix,
+                    Tiers = new Dictionary<ItemCategory, List<Tier>>
+                    {
+                        [ItemCategory.Weapon] = new List<Tier> {
+                            new(16,18), new(14,15), new(12,13), new(10,12), new(9,10),
+                            new(7,8),   new(5,6),   new(4,5),   new(2,3),   new(1,2)
+                        },
+                        [ItemCategory.Accessory] = new List<Tier> {
+                            new(3,3), new(2,3), new(2,3), new(2,2), new(2,2),
+                            new(1,2), new(1,2), new(1,1), new(1,1), new(1,1)
+                        }
+                    },
+                    AllowedDamageClasses = null
+                },
 
                 // ============== ALL CATEGORIES ==============
                 new AffixDef {
