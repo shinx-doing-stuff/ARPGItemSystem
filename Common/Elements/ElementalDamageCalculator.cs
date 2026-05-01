@@ -5,6 +5,7 @@ using EnemyConfigClient = ARPGEnemySystem.Common.Configs.ConfigClient;
 using ARPGEnemySystem.Common.Elements;
 using ARPGEnemySystem.Common.GlobalNPCs;
 using ARPGItemSystem.Common.Affixes;
+using ARPGItemSystem.Common.Players;
 using Microsoft.Xna.Framework;
 using Terraria;
 using Terraria.ID;
@@ -66,6 +67,9 @@ namespace ARPGItemSystem.Common.Elements
             float firePen  = GetMagnitude(affixes, AffixId.FirePenetration)  + playerElem.FirePen;
             float coldPen  = GetMagnitude(affixes, AffixId.ColdPenetration)  + playerElem.ColdPen;
             float lightPen = GetMagnitude(affixes, AffixId.LightningPenetration) + playerElem.LightningPen;
+            float fireResRaw  = fireRes;
+            float coldResRaw  = coldRes;
+            float lightResRaw = lightRes;
             fireRes  -= firePen;
             coldRes  -= coldPen;
             lightRes -= lightPen;
@@ -81,7 +85,8 @@ namespace ARPGItemSystem.Common.Elements
                 effectiveDefense *= (1f - percArmorPen / 100f);
 
             // --- Compute enemy physRes from effective defense (read BEFORE ModifyIncomingHit zeroes it) ---
-            float physRes = ElementalMath.ConvertDefenseToResistance(effectiveDefense, halfPoint, cap);
+            float physResRaw = ElementalMath.ConvertDefenseToResistance(target.defense, halfPoint, cap);
+            float physRes    = ElementalMath.ConvertDefenseToResistance(effectiveDefense, halfPoint, cap);
 
             // --- Read elemental gain and increased% affixes ---
             float gainFire  = GetMagnitude(affixes, AffixId.GainPercentAsFire);
@@ -116,12 +121,30 @@ namespace ARPGItemSystem.Common.Elements
 
                 if (logEnabled)
                 {
+                    bool anyArmPen = flatArmorPen > 0 || percArmorPen > 0;
+                    string physResStr  = anyArmPen    ? $"{physResRaw:F1}%→{physRes:F1}%"    : $"{physRes:F1}%";
+                    string fireResStr  = firePen  != 0 ? $"{fireResRaw:F1}%→{fireRes:F1}%"   : $"{fireRes:F1}%";
+                    string coldResStr  = coldPen  != 0 ? $"{coldResRaw:F1}%→{coldRes:F1}%"   : $"{coldRes:F1}%";
+                    string lightResStr = lightPen != 0 ? $"{lightResRaw:F1}%→{lightRes:F1}%" : $"{lightRes:F1}%";
+
                     string crit = info.Crit ? " [CRIT]" : "";
                     Main.NewText($"→ {target.GivenOrTypeName}{crit}", Color.White);
-                    Main.NewText($"  Phys:  {physFinal,6:F1}  (raw:{phys,5:F0}  res:{physRes:F1}%)", Color.Silver);
-                    if (rawFire  > 0) Main.NewText($"  Fire:  {fireFinal,6:F1}  (raw:{rawFire,5:F1}  res:{fireRes:F1}%)", new Color(255, 120, 50));
-                    if (rawCold  > 0) Main.NewText($"  Cold:  {coldFinal,6:F1}  (raw:{rawCold,5:F1}  res:{coldRes:F1}%)", new Color(100, 200, 255));
-                    if (rawLight > 0) Main.NewText($"  Light: {lightFinal,6:F1}  (raw:{rawLight,5:F1}  res:{lightRes:F1}%)", new Color(255, 240, 80));
+
+                    // Show active penetration values so they're visible even when there's no elemental damage
+                    if (anyArmPen || firePen != 0 || coldPen != 0 || lightPen != 0)
+                    {
+                        var penParts = new System.Text.StringBuilder("  [pen]");
+                        if (anyArmPen)    penParts.Append($"  arm:{flatArmorPen:F0}flat/{percArmorPen:F0}%");
+                        if (firePen  != 0) penParts.Append($"  fire:{firePen:F0}%");
+                        if (coldPen  != 0) penParts.Append($"  cold:{coldPen:F0}%");
+                        if (lightPen != 0) penParts.Append($"  light:{lightPen:F0}%");
+                        Main.NewText(penParts.ToString(), Color.Yellow);
+                    }
+
+                    Main.NewText($"  Phys:  {physFinal,6:F1}  (raw:{phys,5:F0}  res:{physResStr})", Color.Silver);
+                    if (rawFire  > 0) Main.NewText($"  Fire:  {fireFinal,6:F1}  (raw:{rawFire,5:F1}  res:{fireResStr})",  new Color(255, 120, 50));
+                    if (rawCold  > 0) Main.NewText($"  Cold:  {coldFinal,6:F1}  (raw:{rawCold,5:F1}  res:{coldResStr})",  new Color(100, 200, 255));
+                    if (rawLight > 0) Main.NewText($"  Light: {lightFinal,6:F1}  (raw:{rawLight,5:F1}  res:{lightResStr})", new Color(255, 240, 80));
                     Main.NewText($"  Total: {info.Damage}", Color.GreenYellow);
                 }
             };

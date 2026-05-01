@@ -29,7 +29,7 @@ namespace ARPGItemSystem.Common.Systems
         };
 
         private const int VerticalGap = 4;
-        private const float ShieldScale = 1f;
+        private const float ShieldScale = 1.2f;
         private const float ShieldTextScale = 0.8f;
 
         public override void Load()
