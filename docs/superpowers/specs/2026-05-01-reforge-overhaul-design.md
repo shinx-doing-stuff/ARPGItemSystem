@@ -89,19 +89,19 @@ The multiplier escalates so that locking many lines and rerolling few is signifi
 **Empty slot fill cost** (paid when `+` is clicked):
 
 ```
-emptySlotCost = CalculateCost(itemValue, currentTier) * EmptySlotMultiplier
+emptySlotCost = CalculateCost(itemValue, utils.GetBestTier()) * EmptySlotMultiplier
 ```
 
-where `EmptySlotMultiplier` is a new `ReforgeConfig` constant defaulting to `5.0` and `currentTier` is the tier the server rolls during the fill operation (see "Tier-source rule" below). Server-authoritative; client displays an estimated cost using a locally-rolled `utils.GetTier()` snapshot, matching the existing per-line behavior pattern where displayed cost is an approximation.
+where `EmptySlotMultiplier` is a new `ReforgeConfig` constant defaulting to `5.0` and `GetBestTier()` is a new deterministic helper in `utils.cs` (see below). The cost is fully deterministic — both client and server compute the same value with no estimate gap.
 
-Rationale: filling an empty slot is a one-shot, no-risk operation that strictly adds value to the item. It should be a meaningful coin sink — "great cost" per the design — but not so prohibitive that players never bother.
+Rationale: filling an empty slot is a one-shot, no-risk operation that strictly adds value to the item. The "best tier" anchor reads as: *the player pays the ceiling price for guaranteed access to the best roll the current progression band can produce.* The actual rolled tier may land lower, but the contract is fair — they were guaranteed nothing before clicking. Cost still scales with progression because `GetBestTier()` decreases (gets more expensive) as bosses fall.
 
 ### Tier-source rule (cost calculation)
 
 `utils.GetTier()` is non-deterministic per call (returns a random tier inside the current progression band), so client and server can roll different values. To keep cost calculations sane:
 
 - **Reforge All Unlocked cost** uses each unlocked affix's **stored tier** (`affix.Tier` from the existing roll). Client and server agree because both read the same stored tier from the item / packet payload. The server still rolls fresh tiers for the *replacement* affixes — but billing is on the old tiers, not the new ones. This matches the existing per-line reroll's behavior pattern.
-- **Empty slot fill cost** has no stored tier (slot is empty). The **server rolls `GetTier()` once** when handling the request and bills using that. The client's pre-click display is an estimate, may differ slightly from the actual charge, and that's acceptable — same gap exists today on per-line reroll.
+- **Empty slot fill cost** uses **`utils.GetBestTier()`** — a new deterministic helper that returns the lowest (most expensive) tier currently reachable, derived from the same boss-flag checks `GetTier()` uses but without the random pick. Both client and server compute the same value, so no estimate vs. actual gap. The actual affix tier rolled by the server uses `GetTier()` independently and is unrelated to the cost calculation.
 
 ### Lock state
 
@@ -125,7 +125,7 @@ In single-player, the same flow runs without packets via a `DoRerollAllUnlockedD
 Same pattern, simpler payload:
 
 1. Client sends a `FillEmptySlot` packet with `(kind, itemValue, excludeIds)`.
-2. Server validates affordability against `emptySlotCost` (using its own `GetTier()` roll), deducts coin, rolls one affix.
+2. Server validates affordability against `emptySlotCost = CalculateCost(itemValue, utils.GetBestTier()) * EmptySlotMultiplier` (deterministic — agrees with the client's pre-click display), deducts coin, then rolls the affix using `utils.GetTier()` for the actual tier.
 3. Server replies with `FillEmptySlotResult` carrying `(AffixId, magnitude, tier)`.
 4. Client appends the new affix to the end of `mgr.Affixes` and rebuilds rows.
 
@@ -145,7 +145,7 @@ Storage order doesn't affect gameplay — affixes are independent, the tooltip i
 ### Files to modify
 
 - **`Common/Config/ReforgeConfig.cs`** — Add `LockMultiplier(int locks)` helper and `EmptySlotMultiplier` constant. Existing `CalculateCost` unchanged.
-- **`Common/GlobalItems/utils.cs`** — Add 6 deterministic `GetMaxX` helpers next to the existing rolling helpers.
+- **`Common/GlobalItems/utils.cs`** — Add 6 deterministic `GetMaxX` helpers next to the existing rolling helpers (max prefixes/suffixes per category). Add 1 deterministic `GetBestTier()` helper that returns the lowest (most expensive) tier currently reachable, derived from the same boss-flag checks `GetTier()` uses but without the random pick.
 - **`Common/UI/AffixLine.cs`** — Replace hammer button with lock toggle button. Remove per-line cost display. Remove the `OnHammerClicked` reroll logic. Add `bool Locked` property + getter for the panel to read.
 - **`Common/UI/ReforgePanel.cs`** — Rebuild row construction to include empty-slot rows. Add the bottom Reforge button with live cost display. Drive a "reforge all unlocked" handler. Add an "empty slot row" UIElement (new small class, can live in this file or alongside `AffixLine`).
 - **`Common/Network/ReforgePacketHandler.cs`** — Add six new packet types: `RerollAllUnlocked` / `RerollAllUnlockedResult` / `RerollAllUnlockedRejected` and `FillEmptySlot` / `FillEmptySlotResult` / `FillEmptySlotRejected`. Reuse existing `RollReplacement` for individual rolls. Add a `RollMultipleReplacements` helper that maintains a running exclude-set so new rolls don't duplicate each other or any locked affix. **Remove the old per-line packet types** (`RerollRequest`, `RerollResult`, `RerollRejected`) and the `DoRerollDirectly` / `SendRerollRequest` helpers — they are unused after the cutover.
