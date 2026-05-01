@@ -81,7 +81,7 @@ Applied each frame via:
 
 ### Adding a New Affix
 
-**Step 1 — `Common/Affixes/AffixId.cs`:** Add the new value to the `AffixId` enum.
+**Step 1 — `Common/Affixes/AffixId.cs`:** Add the new value to the `AffixId` enum. **CRITICAL: only append new entries — never insert in the middle or reorder.** The integer value of each enum member is persisted to disk in item saves. Inserting or moving entries shifts all subsequent IDs, corrupting every saved item that had those affixes.
 
 **Step 2 — `Common/Affixes/AffixRegistry.cs`:** Add one `new AffixDef { ... }` entry to the `defs` list in `BuildRegistry()`:
 
