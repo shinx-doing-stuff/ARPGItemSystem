@@ -20,6 +20,9 @@ namespace ARPGItemSystem.Common.Players
         public float ColdPen;
         public float LightningPen;
 
+        public float FlatArmorPen;
+        public float PercentArmorPen;
+
         public float GetResistance(Element element) => element switch
         {
             Element.Fire      => FireRes,
@@ -41,6 +44,8 @@ namespace ARPGItemSystem.Common.Players
             FirePen      = 0f;
             ColdPen      = 0f;
             LightningPen = 0f;
+            FlatArmorPen    = 0f;
+            PercentArmorPen = 0f;
 
             // Elemental resistance and penetration from affix rolls
             for (int i = 0; i < Player.armor.Length; i++)
@@ -83,6 +88,13 @@ namespace ARPGItemSystem.Common.Players
                     case AffixId.FirePenetration:      FirePen      += a.Magnitude; break;
                     case AffixId.ColdPenetration:      ColdPen      += a.Magnitude; break;
                     case AffixId.LightningPenetration: LightningPen += a.Magnitude; break;
+                    case AffixId.FlatArmorPen:         FlatArmorPen    += a.Magnitude; break;
+                    case AffixId.PercentageArmorPen:   PercentArmorPen += a.Magnitude; break;
+                    case AffixId.AllElementalPenetration:
+                        FirePen      += a.Magnitude;
+                        ColdPen      += a.Magnitude;
+                        LightningPen += a.Magnitude;
+                        break;
                 }
             }
         }
