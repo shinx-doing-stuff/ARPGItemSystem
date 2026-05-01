@@ -58,6 +58,18 @@ namespace ARPGItemSystem.Common.Elements
                 lightRes = bossData.LightningResistance;
             }
 
+            // --- Apply elemental penetration (subtracts from raw resistance before cap) ---
+            // Semantics: pen reduces the stored % directly, then ApplyResistance clamps to cap.
+            // e.g. 100% raw fire res - 20% pen = 80% effective, clamped to 75% cap → still 75%.
+            // This preserves the over-cap intent: pen only matters when enemy res is near/below cap.
+            var playerElem = player.GetModPlayer<PlayerElementalPlayer>();
+            float firePen  = GetMagnitude(affixes, AffixId.FirePenetration)  + playerElem.FirePen;
+            float coldPen  = GetMagnitude(affixes, AffixId.ColdPenetration)  + playerElem.ColdPen;
+            float lightPen = GetMagnitude(affixes, AffixId.LightningPenetration) + playerElem.LightningPen;
+            fireRes  -= firePen;
+            coldRes  -= coldPen;
+            lightRes -= lightPen;
+
             // --- Apply armor pen to effective defense BEFORE converting to physRes ---
             // FlatArmorPen reduces the enemy's defense value (e.g. FlatArmorPen=20 on a 60-defense enemy
             // → effectiveDefense=40 → physRes=40×ratio, not physRes-20%). Semantics: pen reduces defense,

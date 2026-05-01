@@ -16,6 +16,10 @@ namespace ARPGItemSystem.Common.Players
         public float ColdRes;
         public float LightningRes;
 
+        public float FirePen;
+        public float ColdPen;
+        public float LightningPen;
+
         public float GetResistance(Element element) => element switch
         {
             Element.Fire      => FireRes,
@@ -34,8 +38,11 @@ namespace ARPGItemSystem.Common.Players
             FireRes      = 0f;
             ColdRes      = 0f;
             LightningRes = 0f;
+            FirePen      = 0f;
+            ColdPen      = 0f;
+            LightningPen = 0f;
 
-            // Elemental resistance from affix rolls
+            // Elemental resistance and penetration from affix rolls
             for (int i = 0; i < Player.armor.Length; i++)
             {
                 var item = Player.armor[i];
@@ -44,7 +51,10 @@ namespace ARPGItemSystem.Common.Players
                 if (item.TryGetGlobalItem<ArmorManager>(out var am))
                     ApplyResistanceAffixes(am.Affixes);
                 else if (item.TryGetGlobalItem<AccessoryManager>(out var acc))
+                {
                     ApplyResistanceAffixes(acc.Affixes);
+                    ApplyPenetrationAffixes(acc.Affixes);
+                }
             }
         }
 
@@ -60,6 +70,19 @@ namespace ARPGItemSystem.Common.Players
                     // FlatDefenseIncrease and PercentageDefenseIncrease are NOT handled here —
                     // they already boosted Player.statDefense in UpdateEquip/UpdateAccessory,
                     // which feeds into the ConvertDefenseToResistance call above.
+                }
+            }
+        }
+
+        private void ApplyPenetrationAffixes(List<Affix> affixes)
+        {
+            foreach (var a in affixes)
+            {
+                switch (a.Id)
+                {
+                    case AffixId.FirePenetration:      FirePen      += a.Magnitude; break;
+                    case AffixId.ColdPenetration:      ColdPen      += a.Magnitude; break;
+                    case AffixId.LightningPenetration: LightningPen += a.Magnitude; break;
                 }
             }
         }

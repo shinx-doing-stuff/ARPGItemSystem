@@ -12,52 +12,57 @@ using Terraria.ModLoader;
 namespace ARPGItemSystem.Common.GlobalNPCs
 {
     // Applies player elemental resistance to NPC direct contact damage.
-    // NPC-sourced projectile elemental hits are deferred to a follow-up spec.
+    // NPC-sourced projectile elemental hits are handled in ProjectileManager.ModifyHitPlayer.
     public class ElementalHitFromNPCGlobalNPC : GlobalNPC
     {
         public override void ModifyHitPlayer(NPC npc, Player target, ref Player.HurtModifiers modifiers)
         {
             var cfg = ModContent.GetInstance<EnemyConfig>();
-            float cap   = cfg.ElementalResistanceCap;
+            float cap = cfg.ElementalResistanceCap;
 
-            // Read the NPC's elemental damage profile
-            float elemDamagePct;
-            Element elemType;
+            // Read the NPC's multi-element damage profile
+            float firePct, coldPct, lightPct;
 
             if (npc.TryGetGlobalNPC<NPCManager>(out var npcData))
             {
-                elemDamagePct = npcData.ElementalDamagePct;
-                elemType      = npcData.ElementalDamageType;
+                firePct  = npcData.FireDamagePct;
+                coldPct  = npcData.ColdDamagePct;
+                lightPct = npcData.LightningDamagePct;
             }
             else if (npc.TryGetGlobalNPC<BossManager>(out var bossData))
             {
-                elemDamagePct = bossData.ElementalDamagePct;
-                elemType      = bossData.ElementalDamageType;
+                firePct  = bossData.FireDamagePct;
+                coldPct  = bossData.ColdDamagePct;
+                lightPct = bossData.LightningDamagePct;
             }
             else
             {
                 return;
             }
 
-            // Read the player's resistance (computed from player.statDefense + affix bonuses in PostUpdateEquips)
+            // Read the player's resistances (computed in PlayerElementalPlayer.PostUpdateEquips)
             var playerData = target.GetModPlayer<PlayerElementalPlayer>();
             float physRes  = playerData.PhysRes;
-            float elemRes  = playerData.GetResistance(elemType);
+            float fireRes  = playerData.FireRes;
+            float coldRes  = playerData.ColdRes;
+            float lightRes = playerData.LightningRes;
 
             // Compute final damage from npc.damage (already scaled by level/rarity/modifiers in PreAI).
-            // ModifyHurtInfo callback fires AFTER vanilla statDefense subtraction but overrides the result.
             // Apply vanilla damage variation (±15%) so hits don't deal exactly the same value every time.
-            // npc.damage is the post-PreAI scaled base (level/rarity already applied).
-            float baseDamage = Main.DamageVar(npc.damage);
-            float physPortion = baseDamage * (1f - elemDamagePct / 100f);
-            float elemPortion = baseDamage * elemDamagePct / 100f;
+            float totalElemPct = (firePct + coldPct + lightPct) / 100f;
+            float baseDamage   = Main.DamageVar(npc.damage);
+            float physPortion  = baseDamage * Math.Max(0f, 1f - totalElemPct);
+            float firePortion  = baseDamage * firePct  / 100f;
+            float coldPortion  = baseDamage * coldPct  / 100f;
+            float lightPortion = baseDamage * lightPct / 100f;
 
-            float physFinal = ElementalMath.ApplyResistance(physPortion, physRes, cap);
-            float elemFinal = ElementalMath.ApplyResistance(elemPortion, elemRes, cap);
+            float physFinal  = ElementalMath.ApplyResistance(physPortion, physRes,  cap);
+            float fireFinal  = ElementalMath.ApplyResistance(firePortion,  fireRes,  cap);
+            float coldFinal  = ElementalMath.ApplyResistance(coldPortion,  coldRes,  cap);
+            float lightFinal = ElementalMath.ApplyResistance(lightPortion, lightRes, cap);
 
-            int finalDamage = Math.Max(1, (int)Math.Round(physFinal + elemFinal));
+            int finalDamage = Math.Max(1, (int)Math.Round(physFinal + fireFinal + coldFinal + lightFinal));
 
-            // Log only in singleplayer or on the local client (ModifyHitPlayer runs server-side in MP)
             bool logEnabled = Main.netMode != NetmodeID.Server
                 && target.whoAmI == Main.myPlayer
                 && ModContent.GetInstance<EnemyConfigClient>()?.EnableElementalDamageLog == true;
@@ -68,18 +73,11 @@ namespace ARPGItemSystem.Common.GlobalNPCs
 
                 if (logEnabled)
                 {
-                    string elemName = elemType == Element.Physical ? "Phys" : elemType.ToString();
-                    Color elemColor = elemType switch
-                    {
-                        Element.Fire      => new Color(255, 120, 50),
-                        Element.Cold      => new Color(100, 200, 255),
-                        Element.Lightning => new Color(255, 240, 80),
-                        _                 => Color.Silver,
-                    };
                     Main.NewText($"← {npc.GivenOrTypeName} hit you", Color.OrangeRed);
-                    Main.NewText($"  Phys:  {physFinal,6:F0}  (res:{physRes:F1}%)", Color.Silver);
-                    if (elemDamagePct > 0)
-                        Main.NewText($"  {elemName,-6} {elemFinal,6:F0}  (res:{elemRes:F1}%)", elemColor);
+                    Main.NewText($"  Phys:  {physFinal,6:F0}  (raw:{physPortion,5:F0}  res:{physRes:F1}%)", Color.Silver);
+                    if (firePct  > 0) Main.NewText($"  Fire:  {fireFinal,6:F0}  (raw:{firePortion,5:F0}  res:{fireRes:F1}%)",  new Color(255, 120, 50));
+                    if (coldPct  > 0) Main.NewText($"  Cold:  {coldFinal,6:F0}  (raw:{coldPortion,5:F0}  res:{coldRes:F1}%)",  new Color(100, 200, 255));
+                    if (lightPct > 0) Main.NewText($"  Light: {lightFinal,6:F0}  (raw:{lightPortion,5:F0}  res:{lightRes:F1}%)", new Color(255, 240, 80));
                     Main.NewText($"  Total: {info.Damage}", Color.OrangeRed);
                 }
             };

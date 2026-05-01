@@ -23,6 +23,11 @@ namespace ARPGItemSystem.Common.Affixes
         IncreasedColdDamage,
         IncreasedLightningDamage,
 
+        // Weapon + Accessory — elemental penetration (subtracts from enemy resistance before cap)
+        FirePenetration,
+        ColdPenetration,
+        LightningPenetration,
+
         // Armor-only
         PercentageDefenseIncrease,
 

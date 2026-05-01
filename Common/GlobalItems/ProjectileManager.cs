@@ -68,18 +68,19 @@ namespace ARPGItemSystem.Common.GlobalItems
             if (!projectile.TryGetGlobalProjectile<EnemyProjectileManager>(out var enemyPm))
                 return;
 
-            float elemDamagePct;
-            Element elemType;
+            float firePct, coldPct, lightPct;
 
             if (enemyPm.modNPC != null)
             {
-                elemDamagePct = enemyPm.modNPC.ElementalDamagePct;
-                elemType      = enemyPm.modNPC.ElementalDamageType;
+                firePct  = enemyPm.modNPC.FireDamagePct;
+                coldPct  = enemyPm.modNPC.ColdDamagePct;
+                lightPct = enemyPm.modNPC.LightningDamagePct;
             }
             else if (enemyPm.modBossNPC != null)
             {
-                elemDamagePct = enemyPm.modBossNPC.ElementalDamagePct;
-                elemType      = enemyPm.modBossNPC.ElementalDamageType;
+                firePct  = enemyPm.modBossNPC.FireDamagePct;
+                coldPct  = enemyPm.modBossNPC.ColdDamagePct;
+                lightPct = enemyPm.modBossNPC.LightningDamagePct;
             }
             else
             {
@@ -91,18 +92,25 @@ namespace ARPGItemSystem.Common.GlobalItems
 
             var playerData = target.GetModPlayer<PlayerElementalPlayer>();
             float physRes  = playerData.PhysRes;
-            float elemRes  = playerData.GetResistance(elemType);
+            float fireRes  = playerData.FireRes;
+            float coldRes  = playerData.ColdRes;
+            float lightRes = playerData.LightningRes;
 
             // projectile.damage is already scaled by the NPC's level/modifiers in ARPGEnemySystem.
             // Apply DamageVar for hit variance, then split and apply resistance — same pattern as contact hits.
-            float baseDamage  = Main.DamageVar(projectile.damage);
-            float physPortion = baseDamage * (1f - elemDamagePct / 100f);
-            float elemPortion = baseDamage * elemDamagePct / 100f;
+            float totalElemPct = (firePct + coldPct + lightPct) / 100f;
+            float baseDamage   = Main.DamageVar(projectile.damage);
+            float physPortion  = baseDamage * Math.Max(0f, 1f - totalElemPct);
+            float firePortion  = baseDamage * firePct  / 100f;
+            float coldPortion  = baseDamage * coldPct  / 100f;
+            float lightPortion = baseDamage * lightPct / 100f;
 
-            float physFinal = ElementalMath.ApplyResistance(physPortion, physRes, cap);
-            float elemFinal = ElementalMath.ApplyResistance(elemPortion, elemRes, cap);
+            float physFinal  = ElementalMath.ApplyResistance(physPortion, physRes,  cap);
+            float fireFinal  = ElementalMath.ApplyResistance(firePortion,  fireRes,  cap);
+            float coldFinal  = ElementalMath.ApplyResistance(coldPortion,  coldRes,  cap);
+            float lightFinal = ElementalMath.ApplyResistance(lightPortion, lightRes, cap);
 
-            int finalDamage = Math.Max(1, (int)Math.Round(physFinal + elemFinal));
+            int finalDamage = Math.Max(1, (int)Math.Round(physFinal + fireFinal + coldFinal + lightFinal));
 
             bool logEnabled = Main.netMode != NetmodeID.Server
                 && target.whoAmI == Main.myPlayer
@@ -118,17 +126,11 @@ namespace ARPGItemSystem.Common.GlobalItems
 
                 if (logEnabled)
                 {
-                    Color elemColor = elemType switch
-                    {
-                        Element.Fire      => new Color(255, 120, 50),
-                        Element.Cold      => new Color(100, 200, 255),
-                        Element.Lightning => new Color(255, 240, 80),
-                        _                 => Color.Silver,
-                    };
                     Main.NewText($"← [proj] {npcName} hit you", Color.OrangeRed);
-                    Main.NewText($"  Phys:  {physFinal,6:F1}  (res:{physRes:F1}%)", Color.Silver);
-                    if (elemDamagePct > 0)
-                        Main.NewText($"  {elemType,-8} {elemFinal,6:F1}  (res:{elemRes:F1}%)", elemColor);
+                    Main.NewText($"  Phys:  {physFinal,6:F1}  (raw:{physPortion,5:F1}  res:{physRes:F1}%)", Color.Silver);
+                    if (firePct  > 0) Main.NewText($"  Fire:  {fireFinal,6:F1}  (raw:{firePortion,5:F1}  res:{fireRes:F1}%)",  new Color(255, 120, 50));
+                    if (coldPct  > 0) Main.NewText($"  Cold:  {coldFinal,6:F1}  (raw:{coldPortion,5:F1}  res:{coldRes:F1}%)",  new Color(100, 200, 255));
+                    if (lightPct > 0) Main.NewText($"  Light: {lightFinal,6:F1}  (raw:{lightPortion,5:F1}  res:{lightRes:F1}%)", new Color(255, 240, 80));
                     Main.NewText($"  Total: {info.Damage}", Color.OrangeRed);
                 }
             };

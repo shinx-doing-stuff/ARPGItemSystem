@@ -36,6 +36,10 @@ Affixes: {
 	FireResistance: +{0}% Fire resistance
 	ColdResistance: +{0}% Cold resistance
 	LightningResistance: +{0}% Lightning resistance
+	// Armor/Accessory elemental penetration
+	FirePenetration: "{0}% Fire Penetration"
+	ColdPenetration: "{0}% Cold Penetration"
+	LightningPenetration: "{0}% Lightning Penetration"
 }
 
 UI: {

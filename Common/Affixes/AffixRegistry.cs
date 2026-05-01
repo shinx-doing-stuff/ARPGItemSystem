@@ -434,6 +434,56 @@ namespace ARPGItemSystem.Common.Affixes
                     AllowedDamageClasses = null
                 },
 
+                // ============== WEAPON + ACCESSORY — ELEMENTAL PENETRATION ==============
+                new AffixDef {
+                    Id = AffixId.FirePenetration,
+                    Kind = AffixKind.Suffix,
+                    Tiers = new Dictionary<ItemCategory, List<Tier>>
+                    {
+                        [ItemCategory.Weapon] = new List<Tier> {
+                            new(28,30), new(25,27), new(22,24), new(19,21), new(16,18),
+                            new(13,15), new(10,12), new(7,9),   new(4,6),   new(1,3)
+                        },
+                        [ItemCategory.Accessory] = new List<Tier> {
+                            new(5,6), new(5,5), new(4,5), new(4,4), new(3,4),
+                            new(3,3), new(2,3), new(2,2), new(1,1), new(1,1)
+                        }
+                    },
+                    AllowedDamageClasses = null
+                },
+                new AffixDef {
+                    Id = AffixId.ColdPenetration,
+                    Kind = AffixKind.Suffix,
+                    Tiers = new Dictionary<ItemCategory, List<Tier>>
+                    {
+                        [ItemCategory.Weapon] = new List<Tier> {
+                            new(28,30), new(25,27), new(22,24), new(19,21), new(16,18),
+                            new(13,15), new(10,12), new(7,9),   new(4,6),   new(1,3)
+                        },
+                        [ItemCategory.Accessory] = new List<Tier> {
+                            new(5,6), new(5,5), new(4,5), new(4,4), new(3,4),
+                            new(3,3), new(2,3), new(2,2), new(1,1), new(1,1)
+                        }
+                    },
+                    AllowedDamageClasses = null
+                },
+                new AffixDef {
+                    Id = AffixId.LightningPenetration,
+                    Kind = AffixKind.Suffix,
+                    Tiers = new Dictionary<ItemCategory, List<Tier>>
+                    {
+                        [ItemCategory.Weapon] = new List<Tier> {
+                            new(28,30), new(25,27), new(22,24), new(19,21), new(16,18),
+                            new(13,15), new(10,12), new(7,9),   new(4,6),   new(1,3)
+                        },
+                        [ItemCategory.Accessory] = new List<Tier> {
+                            new(5,6), new(5,5), new(4,5), new(4,4), new(3,4),
+                            new(3,3), new(2,3), new(2,2), new(1,1), new(1,1)
+                        }
+                    },
+                    AllowedDamageClasses = null
+                },
+
                 // ============== ALL CATEGORIES ==============
                 new AffixDef {
                     Id = AffixId.FlatCritChance,
