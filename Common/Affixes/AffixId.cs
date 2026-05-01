@@ -27,6 +27,7 @@ namespace ARPGItemSystem.Common.Affixes
         FirePenetration,
         ColdPenetration,
         LightningPenetration,
+        AllElementalPenetration,
 
         // Armor-only
         PercentageDefenseIncrease,
