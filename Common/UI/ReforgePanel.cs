@@ -20,6 +20,11 @@ namespace ARPGItemSystem.Common.UI
 {
     public class ReforgePanel : UIState
     {
+        private const float NearMaxThreshold = 0.85f;
+
+        private static readonly SoundStyle BestReforgeSound =
+            new("ARPGItemSystem/Assets/Sounds/Best_reforge");
+
         private UIPanel _panel;
         private UIReforgeSlot _slot;
         private UIText _itemName;
@@ -185,8 +190,22 @@ namespace ARPGItemSystem.Common.UI
         public void RefreshAffix(int index)
         {
             if (index >= 0 && index < _affixLines.Count)
+            {
                 _affixLines[index].Refresh();
+                TryPlayNearMaxSound(index);
+            }
             SetAllPending(false);
+        }
+
+        private void TryPlayNearMaxSound(int index)
+        {
+            var mgr = GetManager(_slot.SlotItem);
+            if (mgr == null || index < 0 || index >= mgr.Affixes.Count) return;
+
+            var a = mgr.Affixes[index];
+            int bestMax = AffixRegistry.Get(a.Id).Tiers[mgr.Category][utils.GetBestTier()].Max;
+            if (a.Magnitude >= bestMax * NearMaxThreshold)
+                SoundEngine.PlaySound(BestReforgeSound);
         }
 
         public void SetAllPending(bool pending)
@@ -213,14 +232,17 @@ namespace ARPGItemSystem.Common.UI
 
             float yOffset = 110f;
 
+            int bestTier = utils.GetBestTier();
             for (int i = 0; i < mgr.Affixes.Count; i++)
             {
                 var a = mgr.Affixes[i];
                 var def = AffixRegistry.Get(a.Id);
                 string text = Language.GetTextValue($"Mods.ARPGItemSystem.Affixes.{a.Id}", a.Magnitude);
+                int bestMax = def.Tiers[mgr.Category][bestTier].Max;
+                string maxText = Language.GetTextValue("Mods.ARPGItemSystem.UI.ReforgePanel.BestFormat", bestMax);
                 bool isPrefix = def.Kind == AffixKind.Prefix;
 
-                var line = new AffixLine(text, i, isPrefix);
+                var line = new AffixLine(text, maxText, i, isPrefix);
                 line.Top.Set(yOffset, 0f);
                 line.Width.Set(-20, 1f);
                 line.Left.Set(10, 0f);

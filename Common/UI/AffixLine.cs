@@ -1,5 +1,6 @@
 using System;
 using ARPGItemSystem.Common.Affixes;
+using ARPGItemSystem.Common.GlobalItems;
 using ARPGItemSystem.Common.GlobalItems.Accessory;
 using ARPGItemSystem.Common.GlobalItems.Armor;
 using ARPGItemSystem.Common.GlobalItems.Weapon;
@@ -21,6 +22,7 @@ namespace ARPGItemSystem.Common.UI
     {
         private readonly LockToggleButton _lockButton;
         private readonly UIText _affixText;
+        private readonly UIText _maxText;
         private bool _isPending;
         private readonly int _affixIndex;
         private readonly bool _isPrefix;
@@ -38,7 +40,7 @@ namespace ARPGItemSystem.Common.UI
                 new Color(0, 0, 0, 80));
         }
 
-        public AffixLine(string displayText, int affixIndex, bool isPrefix)
+        public AffixLine(string displayText, string maxText, int affixIndex, bool isPrefix)
         {
             _affixIndex = affixIndex;
             _isPrefix = isPrefix;
@@ -56,6 +58,12 @@ namespace ARPGItemSystem.Common.UI
             _affixText.Left.Set(28, 0f);
             _affixText.VAlign = 0.5f;
             Append(_affixText);
+
+            _maxText = new UIText(maxText, 0.8f);
+            _maxText.TextColor = new Color(140, 140, 140);
+            _maxText.HAlign = 1f;
+            _maxText.VAlign = 0.5f;
+            Append(_maxText);
         }
 
         public void SetPending(bool pending)
@@ -80,6 +88,10 @@ namespace ARPGItemSystem.Common.UI
             var a = mgr.Affixes[_affixIndex];
             string displayText = Language.GetTextValue($"Mods.ARPGItemSystem.Affixes.{a.Id}", a.Magnitude);
             _affixText.SetText(displayText);
+
+            int bestMax = AffixRegistry.Get(a.Id).Tiers[mgr.Category][utils.GetBestTier()].Max;
+            string maxText = Language.GetTextValue("Mods.ARPGItemSystem.UI.ReforgePanel.BestFormat", bestMax);
+            _maxText.SetText(maxText);
         }
 
         // Clickable lock icon using vanilla Terraria lock textures.

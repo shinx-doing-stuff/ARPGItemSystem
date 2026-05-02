@@ -62,5 +62,6 @@ UI: {
 		UnlockTooltip: Unlock affix
 		AddAffixTooltip: Add a random affix
 		AllLockedHint: Unlock at least one affix to reforge
+		BestFormat: max {0}
 	}
 }
