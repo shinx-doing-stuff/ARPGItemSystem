@@ -199,7 +199,7 @@ namespace ARPGItemSystem.Common.Affixes
                 },
                 new AffixDef {
                     Id = AffixId.VelocityIncrease,
-                    Kind = AffixKind.Suffix,
+                    Kind = AffixKind.Prefix,
                     Tiers = new Dictionary<ItemCategory, List<Tier>>
                     {
                         [ItemCategory.Weapon] = new List<Tier> {
@@ -213,7 +213,7 @@ namespace ARPGItemSystem.Common.Affixes
                 // ============== WEAPON SUFFIXES — ELEMENTAL ==============
                 new AffixDef {
                     Id = AffixId.IncreasedFireDamage,
-                    Kind = AffixKind.Suffix,
+                    Kind = AffixKind.Prefix,
                     Tiers = new Dictionary<ItemCategory, List<Tier>>
                     {
                         [ItemCategory.Weapon] = new List<Tier> {
@@ -225,7 +225,7 @@ namespace ARPGItemSystem.Common.Affixes
                 },
                 new AffixDef {
                     Id = AffixId.IncreasedColdDamage,
-                    Kind = AffixKind.Suffix,
+                    Kind = AffixKind.Prefix,
                     Tiers = new Dictionary<ItemCategory, List<Tier>>
                     {
                         [ItemCategory.Weapon] = new List<Tier> {
@@ -237,7 +237,7 @@ namespace ARPGItemSystem.Common.Affixes
                 },
                 new AffixDef {
                     Id = AffixId.IncreasedLightningDamage,
-                    Kind = AffixKind.Suffix,
+                    Kind = AffixKind.Prefix,
                     Tiers = new Dictionary<ItemCategory, List<Tier>>
                     {
                         [ItemCategory.Weapon] = new List<Tier> {
@@ -313,7 +313,7 @@ namespace ARPGItemSystem.Common.Affixes
                 },
                 new AffixDef {
                     Id = AffixId.PercentageGenericDamageIncrease,
-                    Kind = AffixKind.Suffix,
+                    Kind = AffixKind.Prefix,
                     Tiers = new Dictionary<ItemCategory, List<Tier>>
                     {
                         [ItemCategory.Armor] = new List<Tier> {
@@ -329,7 +329,7 @@ namespace ARPGItemSystem.Common.Affixes
                 },
                 new AffixDef {
                     Id = AffixId.PercentageMeleeDamageIncrease,
-                    Kind = AffixKind.Suffix,
+                    Kind = AffixKind.Prefix,
                     Tiers = new Dictionary<ItemCategory, List<Tier>>
                     {
                         [ItemCategory.Armor] = new List<Tier> {
@@ -345,7 +345,7 @@ namespace ARPGItemSystem.Common.Affixes
                 },
                 new AffixDef {
                     Id = AffixId.PercentageRangedDamageIncrease,
-                    Kind = AffixKind.Suffix,
+                    Kind = AffixKind.Prefix,
                     Tiers = new Dictionary<ItemCategory, List<Tier>>
                     {
                         [ItemCategory.Armor] = new List<Tier> {
@@ -361,7 +361,7 @@ namespace ARPGItemSystem.Common.Affixes
                 },
                 new AffixDef {
                     Id = AffixId.PercentageMagicDamageIncrease,
-                    Kind = AffixKind.Suffix,
+                    Kind = AffixKind.Prefix,
                     Tiers = new Dictionary<ItemCategory, List<Tier>>
                     {
                         [ItemCategory.Armor] = new List<Tier> {
@@ -377,7 +377,7 @@ namespace ARPGItemSystem.Common.Affixes
                 },
                 new AffixDef {
                     Id = AffixId.PercentageSummonDamageIncrease,
-                    Kind = AffixKind.Suffix,
+                    Kind = AffixKind.Prefix,
                     Tiers = new Dictionary<ItemCategory, List<Tier>>
                     {
                         [ItemCategory.Armor] = new List<Tier> {
@@ -531,7 +531,7 @@ namespace ARPGItemSystem.Common.Affixes
                 },
                 new AffixDef {
                     Id = AffixId.ManaCostReduction,
-                    Kind = AffixKind.Suffix,
+                    Kind = AffixKind.Prefix,
                     Tiers = new Dictionary<ItemCategory, List<Tier>>
                     {
                         [ItemCategory.Weapon] = new List<Tier> {
