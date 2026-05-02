@@ -87,8 +87,8 @@ namespace ARPGItemSystem.Common.Affixes
                             new(25,30), new(19,24), new(13,18), new(7,12),  new(1,6)
                         },
                         [ItemCategory.Accessory] = new List<Tier> {
-                            new(14,17), new(13,14), new(10,13), new(9,10), new(7,9),
-                            new(6,7),   new(4,6),   new(3,4),   new(1,3),  new(1,1)
+                            new(17,20), new(16,17), new(12,16), new(11,12), new(8,11),
+                            new(7,8),   new(5,7),   new(4,5),   new(1,4),   new(1,1)
                         }
                     },
                     AllowedDamageClasses = null
@@ -103,8 +103,8 @@ namespace ARPGItemSystem.Common.Affixes
                             new(16,18), new(12,14), new(8,11),  new(5,7),   new(1,4)
                         },
                         [ItemCategory.Accessory] = new List<Tier> {
-                            new(7,9), new(7,7), new(6,7), new(6,6), new(4,6),
-                            new(4,4), new(3,4), new(3,3), new(1,1), new(1,1)
+                            new(8,11), new(8,8), new(7,8), new(7,7), new(5,7),
+                            new(5,5),  new(4,5), new(4,4), new(1,1), new(1,1)
                         }
                     },
                     AllowedDamageClasses = null
@@ -273,8 +273,8 @@ namespace ARPGItemSystem.Common.Affixes
                             new(25,30), new(19,24), new(13,18), new(7,12),  new(1,6)
                         },
                         [ItemCategory.Accessory] = new List<Tier> {
-                            new(19,22), new(19,22), new(14,17), new(14,17), new(7,13),
-                            new(7,13),  new(6,9),   new(6,9),   new(1,4),   new(1,4)
+                            new(23,26), new(23,26), new(17,20), new(17,20), new(8,16),
+                            new(8,16),  new(7,11),  new(7,11),  new(1,5),   new(1,5)
                         }
                     },
                     AllowedDamageClasses = null
@@ -289,8 +289,8 @@ namespace ARPGItemSystem.Common.Affixes
                             new(16,18), new(12,14), new(8,11),  new(5,7),   new(1,4)
                         },
                         [ItemCategory.Accessory] = new List<Tier> {
-                            new(7,9), new(7,7), new(6,6), new(6,6), new(4,4),
-                            new(4,4), new(3,3), new(3,3), new(1,1), new(1,1)
+                            new(8,11), new(8,8), new(7,7), new(7,7), new(5,5),
+                            new(5,5),  new(4,4), new(4,4), new(1,1), new(1,1)
                         }
                     },
                     AllowedDamageClasses = null
@@ -305,8 +305,8 @@ namespace ARPGItemSystem.Common.Affixes
                             new(25,30), new(19,24), new(13,18), new(7,12),  new(1,6)
                         },
                         [ItemCategory.Accessory] = new List<Tier> {
-                            new(40,43), new(36,39), new(32,35), new(27,30), new(23,26),
-                            new(19,22), new(14,17), new(10,13), new(6,9),   new(1,4)
+                            new(48,52), new(43,47), new(38,42), new(32,36), new(28,31),
+                            new(23,26), new(17,20), new(12,16), new(7,11),  new(1,5)
                         }
                     },
                     AllowedDamageClasses = null
@@ -321,8 +321,8 @@ namespace ARPGItemSystem.Common.Affixes
                             new(6,6),   new(5,5),   new(4,4),   new(2,2),  new(1,1)
                         },
                         [ItemCategory.Accessory] = new List<Tier> {
-                            new(6,7), new(6,7), new(4,6), new(4,6), new(3,4),
-                            new(3,4), new(1,3), new(1,3), new(1,1), new(1,1)
+                            new(7,8), new(7,8), new(5,7), new(5,7), new(4,5),
+                            new(4,5), new(1,4), new(1,4), new(1,1), new(1,1)
                         }
                     },
                     AllowedDamageClasses = null
@@ -337,8 +337,8 @@ namespace ARPGItemSystem.Common.Affixes
                             new(6,12),  new(5,10),  new(4,7),   new(2,5),  new(1,2)
                         },
                         [ItemCategory.Accessory] = new List<Tier> {
-                            new(9,10), new(7,9), new(6,7), new(6,7), new(4,6),
-                            new(4,6),  new(3,4), new(3,4), new(1,3), new(1,3)
+                            new(11,12), new(8,11), new(7,8), new(7,8), new(5,7),
+                            new(5,7),   new(4,5),  new(4,5), new(1,4), new(1,4)
                         }
                     },
                     AllowedDamageClasses = null
@@ -353,8 +353,8 @@ namespace ARPGItemSystem.Common.Affixes
                             new(6,12),  new(5,10),  new(4,7),   new(2,5),  new(1,2)
                         },
                         [ItemCategory.Accessory] = new List<Tier> {
-                            new(9,10), new(7,9), new(6,7), new(6,7), new(4,6),
-                            new(4,6),  new(3,4), new(3,4), new(1,3), new(1,3)
+                            new(11,12), new(8,11), new(7,8), new(7,8), new(5,7),
+                            new(5,7),   new(4,5),  new(4,5), new(1,4), new(1,4)
                         }
                     },
                     AllowedDamageClasses = null
@@ -369,8 +369,8 @@ namespace ARPGItemSystem.Common.Affixes
                             new(6,12),  new(5,10),  new(4,7),   new(2,5),  new(1,2)
                         },
                         [ItemCategory.Accessory] = new List<Tier> {
-                            new(9,10), new(7,9), new(6,7), new(6,7), new(4,6),
-                            new(4,6),  new(3,4), new(3,4), new(1,3), new(1,3)
+                            new(11,12), new(8,11), new(7,8), new(7,8), new(5,7),
+                            new(5,7),   new(4,5),  new(4,5), new(1,4), new(1,4)
                         }
                     },
                     AllowedDamageClasses = null
@@ -385,8 +385,8 @@ namespace ARPGItemSystem.Common.Affixes
                             new(6,12),  new(5,10),  new(4,7),   new(2,5),  new(1,2)
                         },
                         [ItemCategory.Accessory] = new List<Tier> {
-                            new(9,10), new(7,9), new(6,7), new(6,7), new(4,6),
-                            new(4,6),  new(3,4), new(3,4), new(1,3), new(1,3)
+                            new(11,12), new(8,11), new(7,8), new(7,8), new(5,7),
+                            new(5,7),   new(4,5),  new(4,5), new(1,4), new(1,4)
                         }
                     },
                     AllowedDamageClasses = null
@@ -403,8 +403,8 @@ namespace ARPGItemSystem.Common.Affixes
                             new(16,18), new(12,14), new(8,11),  new(5,7),   new(1,4)
                         },
                         [ItemCategory.Accessory] = new List<Tier> {
-                            new(7,9), new(7,9), new(6,7), new(6,7), new(4,6),
-                            new(4,6), new(3,4), new(3,4), new(1,3), new(1,3)
+                            new(8,11), new(8,11), new(7,8), new(7,8), new(5,7),
+                            new(5,7),  new(4,5),  new(4,5), new(1,4), new(1,4)
                         }
                     },
                     AllowedDamageClasses = null
@@ -419,8 +419,8 @@ namespace ARPGItemSystem.Common.Affixes
                             new(16,18), new(12,14), new(8,11),  new(5,7),   new(1,4)
                         },
                         [ItemCategory.Accessory] = new List<Tier> {
-                            new(7,9), new(7,9), new(6,7), new(6,7), new(4,6),
-                            new(4,6), new(3,4), new(3,4), new(1,3), new(1,3)
+                            new(8,11), new(8,11), new(7,8), new(7,8), new(5,7),
+                            new(5,7),  new(4,5),  new(4,5), new(1,4), new(1,4)
                         }
                     },
                     AllowedDamageClasses = null
@@ -435,8 +435,8 @@ namespace ARPGItemSystem.Common.Affixes
                             new(16,18), new(12,14), new(8,11),  new(5,7),   new(1,4)
                         },
                         [ItemCategory.Accessory] = new List<Tier> {
-                            new(7,9), new(7,9), new(6,7), new(6,7), new(4,6),
-                            new(4,6), new(3,4), new(3,4), new(1,3), new(1,3)
+                            new(8,11), new(8,11), new(7,8), new(7,8), new(5,7),
+                            new(5,7),  new(4,5),  new(4,5), new(1,4), new(1,4)
                         }
                     },
                     AllowedDamageClasses = null
@@ -453,8 +453,8 @@ namespace ARPGItemSystem.Common.Affixes
                             new(16,18), new(12,14), new(8,11),  new(5,7),   new(1,4)
                         },
                         [ItemCategory.Accessory] = new List<Tier> {
-                            new(7,9), new(7,7), new(6,7), new(6,6), new(4,6),
-                            new(4,4), new(3,4), new(3,3), new(1,1), new(1,1)
+                            new(8,11), new(8,8), new(7,8), new(7,7), new(5,7),
+                            new(5,5),  new(4,5), new(4,4), new(1,1), new(1,1)
                         }
                     },
                     AllowedDamageClasses = null
@@ -469,8 +469,8 @@ namespace ARPGItemSystem.Common.Affixes
                             new(16,18), new(12,14), new(8,11),  new(5,7),   new(1,4)
                         },
                         [ItemCategory.Accessory] = new List<Tier> {
-                            new(7,9), new(7,7), new(6,7), new(6,6), new(4,6),
-                            new(4,4), new(3,4), new(3,3), new(1,1), new(1,1)
+                            new(8,11), new(8,8), new(7,8), new(7,7), new(5,7),
+                            new(5,5),  new(4,5), new(4,4), new(1,1), new(1,1)
                         }
                     },
                     AllowedDamageClasses = null
@@ -485,8 +485,8 @@ namespace ARPGItemSystem.Common.Affixes
                             new(16,18), new(12,14), new(8,11),  new(5,7),   new(1,4)
                         },
                         [ItemCategory.Accessory] = new List<Tier> {
-                            new(7,9), new(7,7), new(6,7), new(6,6), new(4,6),
-                            new(4,4), new(3,4), new(3,3), new(1,1), new(1,1)
+                            new(8,11), new(8,8), new(7,8), new(7,7), new(5,7),
+                            new(5,5),  new(4,5), new(4,4), new(1,1), new(1,1)
                         }
                     },
                     AllowedDamageClasses = null
@@ -501,8 +501,8 @@ namespace ARPGItemSystem.Common.Affixes
                             new(8,10),  new(6,7),   new(5,6),   new(2,4),   new(1,2)
                         },
                         [ItemCategory.Accessory] = new List<Tier> {
-                            new(4,4), new(3,4), new(3,4), new(3,3), new(3,3),
-                            new(1,3), new(1,3), new(1,1), new(1,1), new(1,1)
+                            new(5,5), new(4,5), new(4,5), new(4,4), new(4,4),
+                            new(1,4), new(1,4), new(1,1), new(1,1), new(1,1)
                         }
                     },
                     AllowedDamageClasses = null
@@ -523,8 +523,8 @@ namespace ARPGItemSystem.Common.Affixes
                             new(4,7),  new(2,5),  new(2,5),  new(1,2),  new(1,2)
                         },
                         [ItemCategory.Accessory] = new List<Tier> {
-                            new(4,6), new(4,6), new(4,6), new(3,4), new(3,4),
-                            new(3,4), new(1,3), new(1,3), new(1,3), new(1,3)
+                            new(5,7), new(5,7), new(5,7), new(4,5), new(4,5),
+                            new(4,5), new(1,4), new(1,4), new(1,4), new(1,4)
                         }
                     },
                     AllowedDamageClasses = null
@@ -543,8 +543,8 @@ namespace ARPGItemSystem.Common.Affixes
                             new(2,5),  new(2,5),  new(2,5), new(1,2), new(1,2)
                         },
                         [ItemCategory.Accessory] = new List<Tier> {
-                            new(6,7), new(4,6), new(4,6), new(3,4), new(3,4),
-                            new(3,3), new(1,3), new(1,3), new(1,1), new(1,1)
+                            new(7,8), new(5,7), new(5,7), new(4,5), new(4,5),
+                            new(4,4), new(1,4), new(1,4), new(1,1), new(1,1)
                         }
                     },
                     AllowedDamageClasses = magicOnly
