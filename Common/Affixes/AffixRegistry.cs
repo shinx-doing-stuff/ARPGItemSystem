@@ -399,8 +399,8 @@ namespace ARPGItemSystem.Common.Affixes
                     Tiers = new Dictionary<ItemCategory, List<Tier>>
                     {
                         [ItemCategory.Armor] = new List<Tier> {
-                            new(13,15), new(12,14), new(10,12), new(9,11), new(7,9),
-                            new(6,8),   new(5,7),   new(4,5),   new(2,4),  new(1,2)
+                            new(28,30), new(25,27), new(22,24), new(19,21), new(16,18),
+                            new(13,15), new(10,12), new(7,9),   new(4,6),   new(1,3)
                         },
                         [ItemCategory.Accessory] = new List<Tier> {
                             new(5,6), new(5,6), new(4,5), new(4,5), new(3,4),
@@ -415,8 +415,8 @@ namespace ARPGItemSystem.Common.Affixes
                     Tiers = new Dictionary<ItemCategory, List<Tier>>
                     {
                         [ItemCategory.Armor] = new List<Tier> {
-                            new(13,15), new(12,14), new(10,12), new(9,11), new(7,9),
-                            new(6,8),   new(5,7),   new(4,5),   new(2,4),  new(1,2)
+                            new(28,30), new(25,27), new(22,24), new(19,21), new(16,18),
+                            new(13,15), new(10,12), new(7,9),   new(4,6),   new(1,3)
                         },
                         [ItemCategory.Accessory] = new List<Tier> {
                             new(5,6), new(5,6), new(4,5), new(4,5), new(3,4),
@@ -431,8 +431,8 @@ namespace ARPGItemSystem.Common.Affixes
                     Tiers = new Dictionary<ItemCategory, List<Tier>>
                     {
                         [ItemCategory.Armor] = new List<Tier> {
-                            new(13,15), new(12,14), new(10,12), new(9,11), new(7,9),
-                            new(6,8),   new(5,7),   new(4,5),   new(2,4),  new(1,2)
+                            new(28,30), new(25,27), new(22,24), new(19,21), new(16,18),
+                            new(13,15), new(10,12), new(7,9),   new(4,6),   new(1,3)
                         },
                         [ItemCategory.Accessory] = new List<Tier> {
                             new(5,6), new(5,6), new(4,5), new(4,5), new(3,4),
