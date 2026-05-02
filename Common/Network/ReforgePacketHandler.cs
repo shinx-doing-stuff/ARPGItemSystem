@@ -60,12 +60,12 @@ namespace ARPGItemSystem.Common.Network
         //     repeat numUnlocked times:
         //       byte affixIndex
         //       byte AffixKind
-        //       int  storedTier  (used for cost calc only — server rolls fresh tier per replacement)
         //   byte    numLocked
         //     repeat numLocked times:
         //       byte AffixKind
         //       int  AffixId
-        //       int  storedTier  (needed so server can include locked costs in total)
+        // Note: storedTier removed from both lists — cost is based on GetBestTier()
+        // uniformly, so individual affix tiers are not needed for billing.
         //
         // Wire format (Result, after the type byte):
         //   byte    numResults
@@ -79,8 +79,8 @@ namespace ARPGItemSystem.Common.Network
 
         public static void SendRerollAllUnlockedRequest(
             ItemCategory cat, WeaponDamageCategory damCat, int itemValue,
-            List<(byte index, AffixKind kind, int storedTier)> unlocked,
-            List<(AffixKind kind, AffixId id, int storedTier)> locked)
+            List<(byte index, AffixKind kind)> unlocked,
+            List<(AffixKind kind, AffixId id)> locked)
         {
             var packet = ModContent.GetInstance<ARPGItemSystem>().GetPacket();
             packet.Write((byte)ReforgePacketType.RerollAllUnlockedRequest);
@@ -92,14 +92,12 @@ namespace ARPGItemSystem.Common.Network
             {
                 packet.Write(u.index);
                 packet.Write((byte)u.kind);
-                packet.Write(u.storedTier);
             }
             packet.Write((byte)locked.Count);
             foreach (var l in locked)
             {
                 packet.Write((byte)l.kind);
                 packet.Write((int)l.id);
-                packet.Write(l.storedTier);
             }
             packet.Send();
         }
@@ -111,26 +109,24 @@ namespace ARPGItemSystem.Common.Network
             int itemValue = reader.ReadInt32();
 
             byte numUnlocked = reader.ReadByte();
-            var unlocked = new List<(byte index, AffixKind kind, int storedTier)>(numUnlocked);
+            var unlocked = new List<(byte index, AffixKind kind)>(numUnlocked);
             for (int i = 0; i < numUnlocked; i++)
             {
                 byte index = reader.ReadByte();
                 var kind = (AffixKind)reader.ReadByte();
-                int storedTier = reader.ReadInt32();
-                unlocked.Add((index, kind, storedTier));
+                unlocked.Add((index, kind));
             }
 
             byte numLocked = reader.ReadByte();
-            var locked = new List<(AffixKind kind, AffixId id, int storedTier)>(numLocked);
+            var locked = new List<(AffixKind kind, AffixId id)>(numLocked);
             for (int i = 0; i < numLocked; i++)
             {
                 var kind = (AffixKind)reader.ReadByte();
                 var id = (AffixId)reader.ReadInt32();
-                int storedTier = reader.ReadInt32();
-                locked.Add((kind, id, storedTier));
+                locked.Add((kind, id));
             }
 
-            int totalCost = ComputeRerollAllUnlockedCost(itemValue, unlocked, locked);
+            int totalCost = ComputeRerollAllUnlockedCost(itemValue, unlocked.Count + locked.Count, locked.Count);
             var player = Main.player[whoAmI];
 
             if (!player.BuyItem(totalCost))
@@ -189,10 +185,10 @@ namespace ARPGItemSystem.Common.Network
 
         public static void DoRerollAllUnlockedDirectly(
             Item item, ItemCategory cat, WeaponDamageCategory damCat, int itemValue,
-            List<(byte index, AffixKind kind, int storedTier)> unlocked,
-            List<(AffixKind kind, AffixId id, int storedTier)> locked)
+            List<(byte index, AffixKind kind)> unlocked,
+            List<(AffixKind kind, AffixId id)> locked)
         {
-            int totalCost = ComputeRerollAllUnlockedCost(itemValue, unlocked, locked);
+            int totalCost = ComputeRerollAllUnlockedCost(itemValue, unlocked.Count + locked.Count, locked.Count);
 
             if (!Main.LocalPlayer.BuyItem(totalCost))
             {
@@ -211,25 +207,17 @@ namespace ARPGItemSystem.Common.Network
                 panel?.RefreshAffix(r.index);
         }
 
-        private static int ComputeRerollAllUnlockedCost(
-            int itemValue,
-            List<(byte index, AffixKind kind, int storedTier)> unlocked,
-            List<(AffixKind kind, AffixId id, int storedTier)> locked)
+        private static int ComputeRerollAllUnlockedCost(int itemValue, int numAffixes, int numLocked)
         {
-            // Charge based on ALL affix tiers (unlocked + locked) so that locking
-            // more lines always increases cost rather than reducing the base sum.
-            long sum = 0;
-            foreach (var u in unlocked)
-                sum += ReforgeConfig.CalculateCost(itemValue, u.storedTier);
-            foreach (var l in locked)
-                sum += ReforgeConfig.CalculateCost(itemValue, l.storedTier);
-            return (int)(sum * ReforgeConfig.LockMultiplier(locked.Count));
+            return (int)(ReforgeConfig.CalculateCost(itemValue, utils.GetBestTier())
+                         * numAffixes
+                         * ReforgeConfig.LockMultiplier(numLocked));
         }
 
         private static List<(byte index, AffixId id, int magnitude, int tier)> RollMultipleReplacements(
             ItemCategory cat, WeaponDamageCategory damCat,
-            List<(byte index, AffixKind kind, int storedTier)> unlocked,
-            List<(AffixKind kind, AffixId id, int storedTier)> locked)
+            List<(byte index, AffixKind kind)> unlocked,
+            List<(AffixKind kind, AffixId id)> locked)
         {
             // Per-kind running exclude lists. Start with locked affixes of each kind.
             // As we roll each unlocked replacement, add its ID to its kind's exclude list

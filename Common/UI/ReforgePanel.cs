@@ -305,15 +305,10 @@ namespace ARPGItemSystem.Common.UI
             }
 
             int itemValue = _slot.SlotItem.value;
-            long sum = 0;
-            var mgr = GetManager(_slot.SlotItem);
-            if (mgr != null)
-            {
-                // Sum ALL affix tiers (locked + unlocked) — matches server-side formula.
-                for (int i = 0; i < _affixLines.Count && i < mgr.Affixes.Count; i++)
-                    sum += ReforgeConfig.CalculateCost(itemValue, mgr.Affixes[i].Tier);
-            }
-            _reforgeCost.Cost = (int)(sum * ReforgeConfig.LockMultiplier(lockedCount));
+            int numAffixes = GetManager(_slot.SlotItem)?.Affixes.Count ?? 0;
+            _reforgeCost.Cost = (int)(ReforgeConfig.CalculateCost(itemValue, utils.GetBestTier())
+                                      * numAffixes
+                                      * ReforgeConfig.LockMultiplier(lockedCount));
             _reforgeHint.SetText("");
         }
 
@@ -324,17 +319,17 @@ namespace ARPGItemSystem.Common.UI
             var mgr = GetManager(_slot.SlotItem);
             if (mgr == null) return;
 
-            var unlocked = new List<(byte index, AffixKind kind, int storedTier)>();
-            var locked = new List<(AffixKind kind, AffixId id, int storedTier)>();
+            var unlocked = new List<(byte index, AffixKind kind)>();
+            var locked = new List<(AffixKind kind, AffixId id)>();
 
             for (int i = 0; i < _affixLines.Count && i < mgr.Affixes.Count; i++)
             {
                 var a = mgr.Affixes[i];
                 var kind = AffixRegistry.Get(a.Id).Kind;
                 if (_affixLines[i].Locked)
-                    locked.Add((kind, a.Id, a.Tier));
+                    locked.Add((kind, a.Id));
                 else
-                    unlocked.Add(((byte)i, kind, a.Tier));
+                    unlocked.Add(((byte)i, kind));
             }
 
             if (unlocked.Count == 0) return;
