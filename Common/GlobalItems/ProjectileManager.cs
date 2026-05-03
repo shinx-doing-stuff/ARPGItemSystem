@@ -3,9 +3,11 @@ using System.Linq;
 using ARPGItemSystem.Common.Affixes;
 using ARPGItemSystem.Common.Elements;
 using ARPGItemSystem.Common.GlobalItems.Weapon;
+using EnemyConfigClient = ARPGEnemySystem.Common.Configs.ConfigClient;
 using Microsoft.Xna.Framework;
 using Terraria;
 using Terraria.DataStructures;
+using Terraria.ID;
 using Terraria.ModLoader;
 
 namespace ARPGItemSystem.Common.GlobalItems
@@ -44,6 +46,9 @@ namespace ARPGItemSystem.Common.GlobalItems
             if (Affixes.Count == 0) return;
 
             var player = Main.player[projectile.owner];
+            bool logEnabled = player.whoAmI == Main.myPlayer
+                && Main.netMode != NetmodeID.Server
+                && ModContent.GetInstance<EnemyConfigClient>()?.EnableElementalDamageLog == true;
 
             foreach (var a in Affixes)
             {
@@ -53,26 +58,46 @@ namespace ARPGItemSystem.Common.GlobalItems
                         modifiers.CritDamage += a.Magnitude / 100f;
                         break;
                     case AffixId.NearbyDamageBonus:
-                        if (Vector2.Distance(player.Center, target.Center) <= 256f)
+                    {
+                        float dist = Vector2.Distance(player.Center, target.Center);
+                        bool applied = dist <= 256f;
+                        if (applied)
                             modifiers.SourceDamage += a.Magnitude / 100f;
+                        if (logEnabled)
+                            Main.NewText($"  [Nearby] dist={dist / 16f:F1}t (≤16t)  applied={applied}  +{a.Magnitude}%", applied ? Color.LightGreen : Color.Gray);
                         break;
+                    }
                     case AffixId.DistantDamageBonus:
-                        if (Vector2.Distance(player.Center, target.Center) >= 768f)
+                    {
+                        float dist = Vector2.Distance(player.Center, target.Center);
+                        bool applied = dist >= 768f;
+                        if (applied)
                             modifiers.SourceDamage += a.Magnitude / 100f;
+                        if (logEnabled)
+                            Main.NewText($"  [Distant] dist={dist / 16f:F1}t (≥48t)  applied={applied}  +{a.Magnitude}%", applied ? Color.LightGreen : Color.Gray);
                         break;
+                    }
                     case AffixId.LowHpDamageBonus:
                     {
                         float hpPct = player.statLifeMax2 > 0
                             ? player.statLife / (float)player.statLifeMax2
                             : 1f;
                         float factor = MathHelper.Clamp((0.70f - hpPct) / 0.45f, 0f, 1f);
-                        modifiers.SourceDamage += a.Magnitude * factor / 100f;
+                        float bonus = a.Magnitude * factor / 100f;
+                        modifiers.SourceDamage += bonus;
+                        if (logEnabled)
+                            Main.NewText($"  [LowHp] hp={hpPct:P0}  factor={factor:F2}  bonus=+{bonus * 100f:F1}% (max +{a.Magnitude}%)", factor > 0 ? Color.LightGreen : Color.Gray);
                         break;
                     }
                     case AffixId.FullHpDamageBonus:
-                        if (player.statLife >= player.statLifeMax2)
+                    {
+                        bool applied = player.statLife >= player.statLifeMax2;
+                        if (applied)
                             modifiers.SourceDamage += a.Magnitude / 100f;
+                        if (logEnabled)
+                            Main.NewText($"  [FullHp] hp={player.statLife}/{player.statLifeMax2}  applied={applied}  +{a.Magnitude}%", applied ? Color.LightGreen : Color.Gray);
                         break;
+                    }
                 }
             }
 
