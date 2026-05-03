@@ -128,7 +128,21 @@ namespace ARPGItemSystem.Common.Players
             {
                 info.Damage = finalDamage;
 
-                // Mana-absorb hooks in here in Task 8.
+                // Mana-absorb (spec §4.6): % of damage routed to mana, capped by per-hit ceiling
+                // (25% of statManaMax2) and by current mana available. Triggers regen delay.
+                var sp = Player.GetModPlayer<PlayerSurvivalPlayer>();
+                int absorbed = 0;
+                if (sp.ManaAbsorbPercent > 0 && info.Damage > 0 && Player.statManaMax2 > 0)
+                {
+                    int routed      = (int)(info.Damage * sp.ManaAbsorbPercent / 100f);
+                    int perHitCap   = (int)(Player.statManaMax2 * 0.25f);
+                    int cappedRoute = Math.Min(routed, perHitCap);
+                    absorbed        = Math.Min(cappedRoute, Player.statMana);
+
+                    Player.statMana       -= absorbed;
+                    Player.manaRegenDelay  = Math.Max(Player.manaRegenDelay, 40);
+                    info.Damage           -= absorbed;
+                }
 
                 if (logEnabled)
                 {
@@ -138,7 +152,12 @@ namespace ARPGItemSystem.Common.Players
                     if (fpct > 0) Main.NewText($"  Fire:  {ff,6:F1}  (raw:{fp,5:F1}  res:{fr:F1}%)",  new Color(255, 120, 50));
                     if (cpct > 0) Main.NewText($"  Cold:  {cf,6:F1}  (raw:{cp,5:F1}  res:{cr:F1}%)",  new Color(100, 200, 255));
                     if (lpct > 0) Main.NewText($"  Light: {lf,6:F1}  (raw:{lp,5:F1}  res:{lr:F1}%)", new Color(255, 240, 80));
-                    Main.NewText($"  Total: {info.Damage}", Color.OrangeRed);
+                    Main.NewText($"  Total: {finalDamage}", Color.OrangeRed);
+                    if (absorbed > 0)
+                    {
+                        Main.NewText($"  Absorb: {absorbed} (mana: {Player.statMana + absorbed} → {Player.statMana})", new Color(180, 100, 200));
+                        Main.NewText($"  After absorb: {info.Damage}", Color.OrangeRed);
+                    }
                 }
             };
         }
