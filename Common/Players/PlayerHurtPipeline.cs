@@ -161,5 +161,30 @@ namespace ARPGItemSystem.Common.Players
                 }
             };
         }
+
+        public override void OnHurt(Player.HurtInfo info)
+        {
+            var sp = Player.GetModPlayer<PlayerSurvivalPlayer>();
+            if (sp.ThornsPercent <= 0) return;
+
+            // Direct NPC contact only — skip projectile hits per spec A.3
+            if (info.DamageSource.SourceProjectileLocalIndex >= 0) return;
+            int npcIdx = info.DamageSource.SourceNPCIndex;
+            if (npcIdx < 0) return;
+            var npc = Main.npc[npcIdx];
+            if (!npc.active || npc.whoAmI != npcIdx) return;
+
+            int reflected = (int)(info.Damage * sp.ThornsPercent / 100f);
+            if (reflected <= 0) return;
+
+            // StrikeNPC auto-broadcasts in MP; no custom packet needed.
+            npc.StrikeNPC(npc.CalculateHitInfo(reflected, 0, false, 0f, DamageClass.Default, true));
+
+            bool logEnabled = Main.netMode != NetmodeID.Server
+                && Player.whoAmI == Main.myPlayer
+                && ModContent.GetInstance<EnemyConfigClient>()?.EnableElementalDamageLog == true;
+            if (logEnabled)
+                Main.NewText($"  Thorns: {reflected} → {npc.GivenOrTypeName}", Color.LightGreen);
+        }
     }
 }

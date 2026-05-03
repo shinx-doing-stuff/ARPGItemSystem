@@ -44,7 +44,7 @@ Affixes: {
 	// Batch-1 (2026-05-03)
 	LifeRegeneration: "+{0} Life Regen"
 	ManaRegeneration: "+{0} Mana Regen"
-	ThornDamage: "Reflects {0}% of melee damage taken"
+	ThornDamage: "Reflects {0}% of contact damage taken"
 	DamageToManaBeforeLife: "{0}% of damage absorbed by mana first (cap 40%)"
 	NearbyDamageBonus: "+{0}% damage to nearby enemies"
 	DistantDamageBonus: "+{0}% damage to distant enemies"
