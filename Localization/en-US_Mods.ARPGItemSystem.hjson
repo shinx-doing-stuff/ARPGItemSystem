@@ -42,14 +42,14 @@ Affixes: {
 	LightningPenetration: "{0}% Lightning Penetration"
 	AllElementalPenetration: "{0}% All Elemental Penetration"
 	// Batch-1 (2026-05-03)
-	LifeRegeneration: "+{0} Life Regen"
-	ManaRegeneration: "+{0} Mana Regen"
-	ThornDamage: "Reflects {0}% of contact damage taken"
+	LifeRegeneration: +{0} Life Regen
+	ManaRegeneration: +{0} Mana Regen
+	ThornDamage: Reflects {0}% of contact damage taken
 	DamageToManaBeforeLife: "{0}% of damage absorbed by mana first (cap 40%)"
-	NearbyDamageBonus: "+{0}% damage to nearby enemies"
-	DistantDamageBonus: "+{0}% damage to distant enemies"
-	LowHpDamageBonus: "Up to +{0}% damage as Life decreases (max at 25%)"
-	FullHpDamageBonus: "+{0}% damage at full Life"
+	NearbyDamageBonus: +{0}% damage to nearby enemies
+	DistantDamageBonus: +{0}% damage to distant enemies
+	LowHpDamageBonus: Up to +{0}% damage as Life decreases (max at 25%)
+	FullHpDamageBonus: +{0}% damage at full Life
 }
 
 UI: {
