@@ -962,7 +962,7 @@ Replace the placeholder comment with the mana-absorb logic. The lambda body beco
                     absorbed        = Math.Min(cappedRoute, Player.statMana);
 
                     Player.statMana       -= absorbed;
-                    Player.manaRegenDelay  = Math.Max(Player.manaRegenDelay, 40);
+                    Player.manaRegenDelay  = Math.Max(Player.manaRegenDelay, 60);
                     info.Damage           -= absorbed;
                 }
 

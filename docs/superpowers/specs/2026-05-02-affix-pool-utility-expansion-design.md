@@ -5,7 +5,7 @@
 
 ## Overview
 
-Catalog of new affix candidates that expand the pool beyond pure stat scaling. Where the existing 33 affixes are mostly numeric multipliers (damage, defense, resistance), these add **functional / behavioral** modifiers — things that change *how* combat plays out, not just by how much.
+Catalog of new affix candidates that expand the pool beyond pure stat scaling. Where the existing 33 affixes are mostly numeric multipliers (damage, defense, resistance), these add **functional / behavioral** modifiers — things that change _how_ combat plays out, not just by how much.
 
 This document is a **catalog**, not a tight implementation bundle. Each affix is documented with enough detail (slot, kind, magnitude semantics, tier table proposal, hook, multiplayer notes) to be implemented independently. Pick what to ship in any order.
 
@@ -37,7 +37,7 @@ Affixes are grouped by theme. Each entry is implementable independently of the o
 - **Tier table proposal:**
 
   | Tier | Armor | Accessory |
-  |------|-------|-----------|
+  | ---- | ----- | --------- |
   | T0   | 5–6   | 3–4       |
   | T1   | 4–5   | 3–3       |
   | T2   | 4–4   | 2–3       |
@@ -61,7 +61,7 @@ Affixes are grouped by theme. Each entry is implementable independently of the o
 - **Tier table proposal:**
 
   | Tier | Armor | Accessory |
-  |------|-------|-----------|
+  | ---- | ----- | --------- |
   | T0   | 10–12 | 6–8       |
   | T1   | 8–10  | 5–7       |
   | T2   | 7–9   | 4–6       |
@@ -86,7 +86,7 @@ Affixes are grouped by theme. Each entry is implementable independently of the o
 - **Tier table proposal (same for Armor and Accessory):**
 
   | Tier | Min | Max |
-  |------|-----|-----|
+  | ---- | --- | --- |
   | T0   | 30  | 35  |
   | T1   | 25  | 30  |
   | T2   | 20  | 25  |
@@ -112,7 +112,7 @@ Affixes are grouped by theme. Each entry is implementable independently of the o
 - **Tier table proposal:**
 
   | Tier | Armor | Accessory |
-  |------|-------|-----------|
+  | ---- | ----- | --------- |
   | T0   | 35–40 | 20–25     |
   | T1   | 30–35 | 18–22     |
   | T2   | 25–30 | 15–18     |
@@ -145,7 +145,7 @@ These four affixes change projectile behavior and share the **Unified Percentage
 - **Tier table proposal:**
 
   | Tier | Min % | Max % |
-  |------|-------|-------|
+  | ---- | ----- | ----- |
   | T0   | 80    | 100   |
   | T1   | 65    | 80    |
   | T2   | 50    | 65    |
@@ -175,7 +175,7 @@ These four affixes change projectile behavior and share the **Unified Percentage
 - **Tier table proposal (max% never exceeds 100 — triggers cap anyway):**
 
   | Tier | Min % | Max % |
-  |------|-------|-------|
+  | ---- | ----- | ----- |
   | T0   | 80    | 100   |
   | T1   | 65    | 80    |
   | T2   | 50    | 65    |
@@ -201,7 +201,7 @@ These four affixes change projectile behavior and share the **Unified Percentage
 - **Tier table proposal (conservative — pierce trivializes crowd content):**
 
   | Tier | Min % | Max % |
-  |------|-------|-------|
+  | ---- | ----- | ----- |
   | T0   | 75    | 100   |
   | T1   | 60    | 75    |
   | T2   | 45    | 60    |
@@ -227,7 +227,7 @@ These four affixes change projectile behavior and share the **Unified Percentage
 - **Tier table proposal (tight — extras compound damage output):**
 
   | Tier | Min % | Max % |
-  |------|-------|-------|
+  | ---- | ----- | ----- |
   | T0   | 45    | 60    |
   | T1   | 35    | 45    |
   | T2   | 28    | 35    |
@@ -256,7 +256,7 @@ These four affixes change projectile behavior and share the **Unified Percentage
 - **Tier table proposal:**
 
   | Tier | Min | Max |
-  |------|-----|-----|
+  | ---- | --- | --- |
   | T0   | 60  | 70  |
   | T1   | 50  | 60  |
   | T2   | 42  | 50  |
@@ -287,25 +287,25 @@ These four affixes change projectile behavior and share the **Unified Percentage
 - **Slot:** Weapon
 - **Kind:** Prefix
 - **Magnitude unit:** Percent damage bonus
-- **Behavior:** On each hit, check if `player.statMana >= manaCost` where `manaCost = Math.Max(1, magnitude / 5)`. If yes: drain mana (`player.statMana -= manaCost; player.manaRegenDelay = Math.Max(player.manaRegenDelay, 40)`), apply `+magnitude%` damage bonus. If no mana: no bonus, no penalty.
+- **Behavior:** On each hit, check if `player.statMana >= manaCost` where `manaCost = Math.Max(1, magnitude / 5)`. If yes: drain mana (`player.statMana -= manaCost; player.manaRegenDelay = Math.Max(Player.manaRegenDelay, 60)`), apply `+magnitude%` damage bonus. If no mana: no bonus, no penalty.
   - **Design intent:** Melee and Ranged players have a mana pool that vanilla never draws on. This affix gives them a reason to invest in `FlatManaIncrease` affixes on armor/accessories — more mana pool = more hits before the bonus runs out. The finite mana creates a natural burst window rather than passive sustain. Fast weapons drain faster, creating build tension around attack speed vs. mana pool size.
-  - **Interaction with ManaCostReduction:** `ManaCostReduction` applies to weapon *use* cost (via `ModifyManaCost`) — that is a separate mechanism and does not interact with the per-hit drain from this affix.
+  - **Interaction with ManaCostReduction:** `ManaCostReduction` applies to weapon _use_ cost (via `ModifyManaCost`) — that is a separate mechanism and does not interact with the per-hit drain from this affix.
   - **Interaction with DamageToManaBeforeLife:** Stacking both means incoming hits drain the same mana pool that ManaFueledDamage uses. Intentional — high-risk, high-reward mana management.
 - **Restrictions:** Any damage class. Melee/Ranged players benefit most (their mana is otherwise unused). Magic players already have incentive for mana — this gives them a secondary use.
 - **Tier table proposal:**
 
   | Tier | Damage bonus | Mana cost per hit (approx) |
-  |------|-------------|---------------------------|
-  | T0   | 80–100%     | 16–20                     |
-  | T1   | 65–80%      | 13–16                     |
-  | T2   | 52–65%      | 11–13                     |
-  | T3   | 42–52%      | 9–11                      |
-  | T4   | 33–42%      | 7–9                       |
-  | T5   | 25–33%      | 5–7                       |
-  | T6   | 18–25%      | 4–5                       |
-  | T7   | 12–18%      | 3–4                       |
-  | T8   | 7–12%       | 2–3                       |
-  | T9   | 3–7%        | 1–2                       |
+  | ---- | ------------ | -------------------------- |
+  | T0   | 80–100%      | 16–20                      |
+  | T1   | 65–80%       | 13–16                      |
+  | T2   | 52–65%       | 11–13                      |
+  | T3   | 42–52%       | 9–11                       |
+  | T4   | 33–42%       | 7–9                        |
+  | T5   | 25–33%       | 5–7                        |
+  | T6   | 18–25%       | 4–5                        |
+  | T7   | 12–18%       | 3–4                        |
+  | T8   | 7–12%        | 2–3                        |
+  | T9   | 3–7%         | 1–2                        |
 
 - **Hook:** `WeaponManager.ModifyHitNPC` + `ProjectileManager.ModifyHitNPC`
 - **MP:** Mana drain (`player.statMana`) is per-player and computed on the owner client. No extra sync — vanilla syncs player stats.
@@ -325,7 +325,7 @@ These four affixes change projectile behavior and share the **Unified Percentage
 - **Tier table proposal:**
 
   | Tier | Min | Max |
-  |------|-----|-----|
+  | ---- | --- | --- |
   | T0   | 50  | 60  |
   | T1   | 42  | 50  |
   | T2   | 35  | 42  |
@@ -359,7 +359,7 @@ Shared formula for **ProjectileBounce**, **ProjectileHoming**, **ProjectilePierc
 
 ### E.1 Magnitude Semantics
 
-Affix magnitude is in **percent units** representing the *expected number of activations per projectile / per shot*.
+Affix magnitude is in **percent units** representing the _expected number of activations per projectile / per shot_.
 
 - < 100%: probability of one activation
 - = 100%: guaranteed one activation
@@ -373,16 +373,16 @@ if (Main.rand.NextFloat() < (magnitude % 100) / 100f)
     triggers++;
 ```
 
-**Exception — ProjectileHoming:** After this formula, clamp: `triggers = Math.Min(triggers, 1)`. Homing is binary (armed or not) — no chain behavior. The percentage only controls *whether* the projectile homes, not how many enemies it chains through.
+**Exception — ProjectileHoming:** After this formula, clamp: `triggers = Math.Min(triggers, 1)`. Homing is binary (armed or not) — no chain behavior. The percentage only controls _whether_ the projectile homes, not how many enemies it chains through.
 
 ### E.2 Examples
 
-| Magnitude | Bounce | Homing | ExtraProj | Piercing |
-|-----------|--------|--------|-----------|---------|
-| 50%  | 50% chance × 1 bounce | 50% chance to home | 50% chance × 1 extra | 50% chance × 1 pierce |
-| 100% | 1 bounce guaranteed | Homes guaranteed | 1 extra guaranteed | 1 pierce guaranteed |
-| 150% | 1 bounce + 50% for 2nd | Homes (capped at 1) | 1 extra + 50% for 2nd | 1 pierce + 50% for 2nd |
-| 350% | 3 bounces + 50% for 4th | Homes (capped at 1) | 3 extras + 50% for 4th | 3 pierces + 50% for 4th |
+| Magnitude | Bounce                  | Homing              | ExtraProj              | Piercing                |
+| --------- | ----------------------- | ------------------- | ---------------------- | ----------------------- |
+| 50%       | 50% chance × 1 bounce   | 50% chance to home  | 50% chance × 1 extra   | 50% chance × 1 pierce   |
+| 100%      | 1 bounce guaranteed     | Homes guaranteed    | 1 extra guaranteed     | 1 pierce guaranteed     |
+| 150%      | 1 bounce + 50% for 2nd  | Homes (capped at 1) | 1 extra + 50% for 2nd  | 1 pierce + 50% for 2nd  |
+| 350%      | 3 bounces + 50% for 4th | Homes (capped at 1) | 3 extras + 50% for 4th | 3 pierces + 50% for 4th |
 
 ### E.3 When Triggers Are Rolled
 
@@ -418,12 +418,12 @@ When implementing piecemeal, append in the order chosen — never go back and re
 
 Required synced fields:
 
-| Field | Used by | Type |
-|-------|---------|------|
-| `BouncesRemaining` | Bounce | byte |
-| `HomingArmed` | Homing | bool |
-| `HomingTargetIndex` | Homing | short (NPC.whoAmI, −1 = none) |
-| `HomingDelayTimer` | Homing | byte (0–10) |
+| Field               | Used by | Type                          |
+| ------------------- | ------- | ----------------------------- |
+| `BouncesRemaining`  | Bounce  | byte                          |
+| `HomingArmed`       | Homing  | bool                          |
+| `HomingTargetIndex` | Homing  | short (NPC.whoAmI, −1 = none) |
+| `HomingDelayTimer`  | Homing  | byte (0–10)                   |
 
 Total: ~5 bytes per projectile. Only write non-default values to avoid bloating every projectile's sync packet.
 
@@ -455,31 +455,31 @@ Keys must exactly match `AffixId` enum names.
 
 ### F.4 Stat-Apply Hook Routing
 
-| Affix | Hook(s) |
-|---|---|
-| LifeRegeneration | `ArmorManager.UpdateEquip` + `AccessoryManager.UpdateAccessory` |
-| ManaRegeneration | `ArmorManager.UpdateEquip` + `AccessoryManager.UpdateAccessory` |
-| ThornDamage | `PlayerElementalPlayer.OnHurt` (or new `ModPlayer`) — aggregate via `PostUpdateEquips` |
-| DamageToManaBeforeLife | `PlayerElementalPlayer.ModifyHurt` — `ModifyHurtInfo` callback, after resistance |
-| ProjectileBounce | `ProjectileManager.OnSpawn` + `ProjectileManager.OnTileCollide` |
-| ProjectileHoming | `ProjectileManager.OnSpawn` + `ProjectileManager.PostAI` |
-| ProjectilePiercing | `ProjectileManager.OnSpawn` only |
-| ExtraProjectileChance | `WeaponManager.Shoot` |
-| NearbyDamageBonus | `WeaponManager.ModifyHitNPC` + `ProjectileManager.ModifyHitNPC` |
-| DistantDamageBonus | `WeaponManager.ModifyHitNPC` + `ProjectileManager.ModifyHitNPC` |
-| LowHpDamageBonus | `WeaponManager.ModifyHitNPC` + `ProjectileManager.ModifyHitNPC` |
-| FullHpDamageBonus | `WeaponManager.ModifyHitNPC` + `ProjectileManager.ModifyHitNPC` |
-| ManaFueledDamage | `WeaponManager.ModifyHitNPC` + `ProjectileManager.ModifyHitNPC` |
+| Affix                  | Hook(s)                                                                                |
+| ---------------------- | -------------------------------------------------------------------------------------- |
+| LifeRegeneration       | `ArmorManager.UpdateEquip` + `AccessoryManager.UpdateAccessory`                        |
+| ManaRegeneration       | `ArmorManager.UpdateEquip` + `AccessoryManager.UpdateAccessory`                        |
+| ThornDamage            | `PlayerElementalPlayer.OnHurt` (or new `ModPlayer`) — aggregate via `PostUpdateEquips` |
+| DamageToManaBeforeLife | `PlayerElementalPlayer.ModifyHurt` — `ModifyHurtInfo` callback, after resistance       |
+| ProjectileBounce       | `ProjectileManager.OnSpawn` + `ProjectileManager.OnTileCollide`                        |
+| ProjectileHoming       | `ProjectileManager.OnSpawn` + `ProjectileManager.PostAI`                               |
+| ProjectilePiercing     | `ProjectileManager.OnSpawn` only                                                       |
+| ExtraProjectileChance  | `WeaponManager.Shoot`                                                                  |
+| NearbyDamageBonus      | `WeaponManager.ModifyHitNPC` + `ProjectileManager.ModifyHitNPC`                        |
+| DistantDamageBonus     | `WeaponManager.ModifyHitNPC` + `ProjectileManager.ModifyHitNPC`                        |
+| LowHpDamageBonus       | `WeaponManager.ModifyHitNPC` + `ProjectileManager.ModifyHitNPC`                        |
+| FullHpDamageBonus      | `WeaponManager.ModifyHitNPC` + `ProjectileManager.ModifyHitNPC`                        |
+| ManaFueledDamage       | `WeaponManager.ModifyHitNPC` + `ProjectileManager.ModifyHitNPC`                        |
 
 For all weapon damage-modifier affixes, add new `case AffixId.X:` blocks alongside the existing `CritMultiplier` case in `WeaponManager`/`ProjectileManager.ModifyHitNPC`.
 
 ### F.5 Aggregate Caps
 
-| Affix | Suggested cap |
-|---|---|
-| ThornDamage | 80% (prevents deadlock if two enemies both have thorns-like abilities) |
-| DamageToManaBeforeLife | 80% (preserve a HP-damage path) |
-| All others | None |
+| Affix                  | Suggested cap                                                          |
+| ---------------------- | ---------------------------------------------------------------------- |
+| ThornDamage            | 80% (prevents deadlock if two enemies both have thorns-like abilities) |
+| DamageToManaBeforeLife | 80% (preserve a HP-damage path)                                        |
+| All others             | None                                                                   |
 
 Caps applied in `PlayerElementalPlayer.PostUpdateEquips` alongside existing resistance aggregation.
 
@@ -496,19 +496,19 @@ Verification is manual in-game. Smoke-test checklist per affix:
 
 ## G. Deferred / Out of Scope
 
-| Idea | Reason |
-|---|---|
-| Lifesteal, Heal-on-kill, Mana steal | Trivialization — sustain encourages standing still |
-| Movement speed | Trivialization — kiting bosses |
+| Idea                                                | Reason                                                                                           |
+| --------------------------------------------------- | ------------------------------------------------------------------------------------------------ |
+| Lifesteal, Heal-on-kill, Mana steal                 | Trivialization — sustain encourages standing still                                               |
+| Movement speed                                      | Trivialization — kiting bosses                                                                   |
 | Energy shield (custom HP-before-life resource pool) | Significant scope — needs its own design session (custom resource UI, regen system, net packets) |
-| Dodge chance | Invincibility-frame handling is complex; vanilla Black Belt already in this space |
-| Block chance / damage reduction | Redundant with PercentageDefenseIncrease |
-| Damage vs specific enemy types | No clean enemy category API in tModLoader — would need custom tagging |
-| Bonus damage by biome / day-night | Thematic clarity; deferred |
-| Recovery on kill | Same family as lifesteal |
-| Reflect-as-projectile (visible bounce shot) | Visual polish — ThornDamage covers the mechanic |
-| Pickup magnet range | Vanilla accessory niche |
-| Jump speed / extra jumps | Vanilla accessory niche |
+| Dodge chance                                        | Invincibility-frame handling is complex; vanilla Black Belt already in this space                |
+| Block chance / damage reduction                     | Redundant with PercentageDefenseIncrease                                                         |
+| Damage vs specific enemy types                      | No clean enemy category API in tModLoader — would need custom tagging                            |
+| Bonus damage by biome / day-night                   | Thematic clarity; deferred                                                                       |
+| Recovery on kill                                    | Same family as lifesteal                                                                         |
+| Reflect-as-projectile (visible bounce shot)         | Visual polish — ThornDamage covers the mechanic                                                  |
+| Pickup magnet range                                 | Vanilla accessory niche                                                                          |
+| Jump speed / extra jumps                            | Vanilla accessory niche                                                                          |
 
 If any are revisited, they get their own design doc.
 
@@ -537,41 +537,41 @@ If any are revisited, they get their own design doc.
 
 The current pool has 11 prefixes vs 22 suffixes (1 : 2). With the 13 new affixes added (4 prefix + 9 suffix), the imbalance worsens to 15 : 31.
 
-The new affixes mostly *should* be suffixes — they describe situational/conditional/reactive properties ("of Berserker", "of Burning Reflection", "of Bouncing Shots"). The fix is to rebalance the **existing** pool by promoting intrinsic-property suffixes to prefixes, preserving the new affixes as designed.
+The new affixes mostly _should_ be suffixes — they describe situational/conditional/reactive properties ("of Berserker", "of Burning Reflection", "of Bouncing Shots"). The fix is to rebalance the **existing** pool by promoting intrinsic-property suffixes to prefixes, preserving the new affixes as designed.
 
 ### I.1 Suffixes Promoted to Prefixes
 
 10 existing affixes change from `AffixKind.Suffix` to `AffixKind.Prefix`:
 
-| AffixId | Reasoning |
-|---|---|
-| `VelocityIncrease` | "Swift Bow" — describes how the weapon shoots, intrinsic |
-| `ManaCostReduction` | "Efficient Wand" — efficiency is a quality of the item |
-| `PercentageGenericDamageIncrease` | "Devastating Helmet" — armor enchanted for raw power |
-| `PercentageMeleeDamageIncrease` | "Brutal Armor" — class-aligned intrinsic |
-| `PercentageRangedDamageIncrease` | "Steady Armor" — class-aligned intrinsic |
-| `PercentageMagicDamageIncrease` | "Mystic Armor" — class-aligned intrinsic |
-| `PercentageSummonDamageIncrease` | "Commanding Armor" — class-aligned intrinsic |
-| `IncreasedFireDamage` | "Burning Sword" — describes the weapon's elemental nature |
-| `IncreasedColdDamage` | "Freezing Sword" — same |
-| `IncreasedLightningDamage` | "Shocking Sword" — same; pairs naturally with the existing `GainPercentAsX` prefixes (the prefix slot becomes "elemental nature of the weapon") |
+| AffixId                           | Reasoning                                                                                                                                       |
+| --------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
+| `VelocityIncrease`                | "Swift Bow" — describes how the weapon shoots, intrinsic                                                                                        |
+| `ManaCostReduction`               | "Efficient Wand" — efficiency is a quality of the item                                                                                          |
+| `PercentageGenericDamageIncrease` | "Devastating Helmet" — armor enchanted for raw power                                                                                            |
+| `PercentageMeleeDamageIncrease`   | "Brutal Armor" — class-aligned intrinsic                                                                                                        |
+| `PercentageRangedDamageIncrease`  | "Steady Armor" — class-aligned intrinsic                                                                                                        |
+| `PercentageMagicDamageIncrease`   | "Mystic Armor" — class-aligned intrinsic                                                                                                        |
+| `PercentageSummonDamageIncrease`  | "Commanding Armor" — class-aligned intrinsic                                                                                                    |
+| `IncreasedFireDamage`             | "Burning Sword" — describes the weapon's elemental nature                                                                                       |
+| `IncreasedColdDamage`             | "Freezing Sword" — same                                                                                                                         |
+| `IncreasedLightningDamage`        | "Shocking Sword" — same; pairs naturally with the existing `GainPercentAsX` prefixes (the prefix slot becomes "elemental nature of the weapon") |
 
 ### I.2 Suffixes That Stay as Suffix
 
-| AffixId | Why kept |
-|---|---|
-| `FlatArmorPen`, `PercentageArmorPen` | Recently moved to Suffix in 2026-05-01 — preserve consistency with rest of penetration family |
-| `FirePenetration`, `ColdPenetration`, `LightningPenetration`, `AllElementalPenetration` | Penetration cluster is suffix |
-| `FireResistance`, `ColdResistance`, `LightningResistance` | Canonical "of Fire Resistance" pattern |
-| `PercentageCritChance`, `CritMultiplier`, `FlatCritChance` | Could go either way — leave alone to minimize churn |
+| AffixId                                                                                 | Why kept                                                                                      |
+| --------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------- |
+| `FlatArmorPen`, `PercentageArmorPen`                                                    | Recently moved to Suffix in 2026-05-01 — preserve consistency with rest of penetration family |
+| `FirePenetration`, `ColdPenetration`, `LightningPenetration`, `AllElementalPenetration` | Penetration cluster is suffix                                                                 |
+| `FireResistance`, `ColdResistance`, `LightningResistance`                               | Canonical "of Fire Resistance" pattern                                                        |
+| `PercentageCritChance`, `CritMultiplier`, `FlatCritChance`                              | Could go either way — leave alone to minimize churn                                           |
 
 ### I.3 Resulting Balance
 
-| | Prefixes | Suffixes |
-|---|---|---|
-| Existing (current) | 11 | 22 |
-| After 10 promotions | 21 | 12 |
-| Plus 13 new affixes (4 prefix + 9 suffix) | **25** | **21** |
+|                                           | Prefixes | Suffixes |
+| ----------------------------------------- | -------- | -------- |
+| Existing (current)                        | 11       | 22       |
+| After 10 promotions                       | 21       | 12       |
+| Plus 13 new affixes (4 prefix + 9 suffix) | **25**   | **21**   |
 
 Net result: **25 : 21** — slightly prefix-leaning but essentially balanced (compared to 1 : 2 today).
 

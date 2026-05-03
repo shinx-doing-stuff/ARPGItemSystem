@@ -19,16 +19,16 @@ Out of scope for this batch: ProjectileBounce, ProjectileHoming, ProjectilePierc
 
 ## Affixes In This Batch
 
-| # | Affix | Slot | Kind | Source in parent spec |
-|---|---|---|---|---|
-| 1 | LifeRegeneration | Armor + Accessory | Prefix | A.1 |
-| 2 | ManaRegeneration | Armor + Accessory | Prefix | A.2 |
-| 3 | ThornDamage | Armor + Accessory | Suffix | A.3 |
-| 4 | DamageToManaBeforeLife | Armor + Accessory | **Prefix** | A.4 *(modified — see §4)* |
-| 5 | NearbyDamageBonus | Weapon | Suffix | D.1 |
-| 6 | DistantDamageBonus | Weapon | Suffix | D.2 |
-| 7 | LowHpDamageBonus | Weapon | Suffix | C.1 *(modified — see §3)* |
-| 8 | FullHpDamageBonus | Weapon | Suffix | C.2 |
+| #   | Affix                  | Slot              | Kind       | Source in parent spec     |
+| --- | ---------------------- | ----------------- | ---------- | ------------------------- |
+| 1   | LifeRegeneration       | Armor + Accessory | Prefix     | A.1                       |
+| 2   | ManaRegeneration       | Armor + Accessory | Prefix     | A.2                       |
+| 3   | ThornDamage            | Armor + Accessory | Suffix     | A.3                       |
+| 4   | DamageToManaBeforeLife | Armor + Accessory | **Prefix** | A.4 _(modified — see §4)_ |
+| 5   | NearbyDamageBonus      | Weapon            | Suffix     | D.1                       |
+| 6   | DistantDamageBonus     | Weapon            | Suffix     | D.2                       |
+| 7   | LowHpDamageBonus       | Weapon            | Suffix     | C.1 _(modified — see §3)_ |
+| 8   | FullHpDamageBonus      | Weapon            | Suffix     | C.2                       |
 
 Tier tables for affixes 1, 2, 3, 5, 6, 8 are taken **verbatim** from the parent spec. Affix 7 (LowHpDamageBonus) has a revised tier table — see §3. Affix 4 (DamageToManaBeforeLife) has revised Kind, magnitudes, cap, and per-hit math — see §4.
 
@@ -59,11 +59,11 @@ The two affixes that hook into the player's hurt pipeline (ThornDamage and Damag
 
 ### 2.1 The three files
 
-| File | Responsibility | Hooks |
-|---|---|---|
-| `Common/Players/PlayerElementalPlayer.cs` *(existing — unchanged)* | Aggregate elemental resistance and penetration values from gear | `PostUpdateEquips` only |
-| `Common/Players/PlayerSurvivalPlayer.cs` *(new)* | Aggregate survival affix values (`ThornsPercent`, `ManaAbsorbPercent`) | `PostUpdateEquips` only |
-| `Common/Players/PlayerHurtPipeline.cs` *(new)* | Apply all incoming-damage modifiers and reactions | `ModifyHurt` + `OnHurt` |
+| File                                                               | Responsibility                                                         | Hooks                   |
+| ------------------------------------------------------------------ | ---------------------------------------------------------------------- | ----------------------- |
+| `Common/Players/PlayerElementalPlayer.cs` _(existing — unchanged)_ | Aggregate elemental resistance and penetration values from gear        | `PostUpdateEquips` only |
+| `Common/Players/PlayerSurvivalPlayer.cs` _(new)_                   | Aggregate survival affix values (`ThornsPercent`, `ManaAbsorbPercent`) | `PostUpdateEquips` only |
+| `Common/Players/PlayerHurtPipeline.cs` _(new)_                     | Apply all incoming-damage modifiers and reactions                      | `ModifyHurt` + `OnHurt` |
 
 `PlayerSurvivalPlayer` and `PlayerElementalPlayer` are **pure aggregators**: walk armor + accessory affixes, sum values, write fields. They do not touch the hurt pipeline. `PlayerHurtPipeline` is the **single owner** of all "what happens when this player is hit" logic: it reads from both aggregators and applies the result.
 
@@ -75,10 +75,10 @@ The existing elemental resistance code lives across two GlobalXXX files: `Projec
 
 ### 2.3 Refactor — files removed / changed
 
-| File | Change |
-|---|---|
-| `Common/GlobalNPCs/ElementalHitFromNPCGlobalNPC.cs` | **Deleted.** Logic absorbed into `PlayerHurtPipeline.ModifyHurt` (NPC contact branch). |
-| `Common/GlobalItems/ProjectileManager.cs` | **`ModifyHitPlayer` method removed.** Logic absorbed into `PlayerHurtPipeline.ModifyHurt` (projectile branch). The rest of the class — `OnSpawn` (player→enemy affix capture) and `ModifyHitNPC` (player→enemy elemental + new conditional bonuses) — stays. |
+| File                                                | Change                                                                                                                                                                                                                                                       |
+| --------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `Common/GlobalNPCs/ElementalHitFromNPCGlobalNPC.cs` | **Deleted.** Logic absorbed into `PlayerHurtPipeline.ModifyHurt` (NPC contact branch).                                                                                                                                                                       |
+| `Common/GlobalItems/ProjectileManager.cs`           | **`ModifyHitPlayer` method removed.** Logic absorbed into `PlayerHurtPipeline.ModifyHurt` (projectile branch). The rest of the class — `OnSpawn` (player→enemy affix capture) and `ModifyHitNPC` (player→enemy elemental + new conditional bonuses) — stays. |
 
 The cross-mod constraint from `CLAUDE.md` ("enemy projectile resistance lives in ARPGItemSystem because it requires `PlayerElementalPlayer`") is preserved: `PlayerHurtPipeline` is in ARPGItemSystem and reads `PlayerElementalPlayer` directly.
 
@@ -224,16 +224,16 @@ public override void OnHurt(Player.HurtInfo info)
 
 ### 2.7 Hook lives where, and why
 
-| Affix | Hook | Reason |
-|---|---|---|
-| LifeRegeneration | `ArmorManager.UpdateEquip` + `AccessoryManager.UpdateAccessory` | Direct write to `Player.lifeRegen`; per-tick aggregation |
-| ManaRegeneration | Same | Direct write to `Player.manaRegen` |
-| ThornDamage | `PlayerSurvivalPlayer.PostUpdateEquips` (aggregate) + `PlayerHurtPipeline.OnHurt` (apply) | `OnHurt` is "react to a hit"; thorns doesn't modify `info.Damage`, so no need for `ModifyHurt` |
-| DamageToManaBeforeLife | `PlayerSurvivalPlayer.PostUpdateEquips` (aggregate) + `PlayerHurtPipeline.ModifyHurt` callback (apply) | Modifies `info.Damage`; must register a `ModifyHurtInfo` callback |
-| NearbyDamageBonus | `WeaponManager.ModifyHitNPC` + `ProjectileManager.ModifyHitNPC` | Same pattern as existing weapon damage cases |
-| DistantDamageBonus | Same | Same |
-| LowHpDamageBonus | Same | Same |
-| FullHpDamageBonus | Same | Same |
+| Affix                  | Hook                                                                                                   | Reason                                                                                         |
+| ---------------------- | ------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------- |
+| LifeRegeneration       | `ArmorManager.UpdateEquip` + `AccessoryManager.UpdateAccessory`                                        | Direct write to `Player.lifeRegen`; per-tick aggregation                                       |
+| ManaRegeneration       | Same                                                                                                   | Direct write to `Player.manaRegen`                                                             |
+| ThornDamage            | `PlayerSurvivalPlayer.PostUpdateEquips` (aggregate) + `PlayerHurtPipeline.OnHurt` (apply)              | `OnHurt` is "react to a hit"; thorns doesn't modify `info.Damage`, so no need for `ModifyHurt` |
+| DamageToManaBeforeLife | `PlayerSurvivalPlayer.PostUpdateEquips` (aggregate) + `PlayerHurtPipeline.ModifyHurt` callback (apply) | Modifies `info.Damage`; must register a `ModifyHurtInfo` callback                              |
+| NearbyDamageBonus      | `WeaponManager.ModifyHitNPC` + `ProjectileManager.ModifyHitNPC`                                        | Same pattern as existing weapon damage cases                                                   |
+| DistantDamageBonus     | Same                                                                                                   | Same                                                                                           |
+| LowHpDamageBonus       | Same                                                                                                   | Same                                                                                           |
+| FullHpDamageBonus      | Same                                                                                                   | Same                                                                                           |
 
 ---
 
@@ -252,11 +252,11 @@ float bonus  = a.Magnitude * factor;
 modifiers.SourceDamage += bonus / 100f;
 ```
 
-| Player HP | Damage bonus |
-|---|---|
-| ≥ 70% | 0 |
+| Player HP        | Damage bonus     |
+| ---------------- | ---------------- |
+| ≥ 70%            | 0                |
 | 47.5% (midpoint) | 50% of magnitude |
-| ≤ 25% | full magnitude |
+| ≤ 25%            | full magnitude   |
 
 The rolled magnitude is the **cap** the player reaches at low HP, not a flat applied bonus.
 
@@ -265,7 +265,7 @@ The rolled magnitude is the **cap** the player reaches at low HP, not a flat app
 Parent spec values multiplied by 0.9 (multiplicative — preserves curve shape; flat −10pp would push T8/T9 negative). Boundaries align (`T_n.min == T_(n-1).max`) — same pattern as the original.
 
 | Tier | Min | Max |
-|------|-----|-----|
+| ---- | --- | --- |
 | T0   | 54  | 63  |
 | T1   | 45  | 54  |
 | T2   | 38  | 45  |
@@ -305,22 +305,23 @@ Parent spec proposed 80%. Lowered to 40% because:
 
 ### 4.3 Magnitudes: revised tier table
 
-Parent spec values multiplied by ~0.22 (slight bump from the 0.2 draft). The combined effect of low magnitudes + 40% aggregate cap + per-hit cap is to make this affix a *gear-wide investment* rather than a one-roll powerhouse — even maxed rolls require broad coverage to approach the cap.
+Parent spec values multiplied by ~0.22 (slight bump from the 0.2 draft). The combined effect of low magnitudes + 40% aggregate cap + per-hit cap is to make this affix a _gear-wide investment_ rather than a one-roll powerhouse — even maxed rolls require broad coverage to approach the cap.
 
 | Tier | Armor | Accessory |
-|------|-------|-----------|
-| T0   |  8– 9 |  5– 6     |
-| T1   |  7– 8 |  4– 5     |
-| T2   |  6– 7 |  3– 4     |
-| T3   |  5– 6 |  2– 3     |
-| T4   |  4– 5 |  2– 2     |
-| T5   |  4– 4 |  2– 2     |
-| T6   |  3– 4 |  1– 2     |
-| T7   |  2– 3 |  1– 1     |
-| T8   |  2– 2 |  1– 1     |
-| T9   |  1– 2 |  1– 1     |
+| ---- | ----- | --------- |
+| T0   | 8– 9  | 5– 6      |
+| T1   | 7– 8  | 4– 5      |
+| T2   | 6– 7  | 3– 4      |
+| T3   | 5– 6  | 2– 3      |
+| T4   | 4– 5  | 2– 2      |
+| T5   | 4– 4  | 2– 2      |
+| T6   | 3– 4  | 1– 2      |
+| T7   | 2– 3  | 1– 1      |
+| T8   | 2– 2  | 1– 1      |
+| T9   | 1– 2  | 1– 1      |
 
 With cap 40%, full investment yields:
+
 - 4× T0 armor (max 9 each) = 36 → 4% under cap; armor alone still cannot reach cap.
 - 4× T0 armor + 5× T0 accessory (max 6 each) = 36 + 30 = 66 → caps at 40, with 26 magnitude as overflow buffer (losing one or two pieces doesn't immediately drop below cap).
 - 4× T9 armor (max 2 each) = 8 → 8% effective; the affix is barely felt at trash tiers.
@@ -353,7 +354,7 @@ if (sp.ManaAbsorbPercent > 0 && info.Damage > 0 && Player.statManaMax2 > 0)
     int cappedRoute = Math.Min(routed, perHitCap);                    // §4.4
     int absorbed    = Math.Min(cappedRoute, Player.statMana);         // can't drain past current mana
     Player.statMana -= absorbed;
-    Player.manaRegenDelay = Math.Max(Player.manaRegenDelay, 40);
+    Player.manaRegenDelay = Math.Max(Player.manaRegenDelay, 60);
     info.Damage -= absorbed;
 }
 ```
@@ -364,12 +365,12 @@ Three nested mins enforce: routed = % of damage; cappedRoute = clamped to per-hi
 
 ## §5 Resolved Design Decisions
 
-| Question | Decision |
-|---|---|
+| Question                                         | Decision                                                                                                                            |
+| ------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------- |
 | Thorns reflects pre- or post-mana-absorb damage? | **Post-absorb.** `info.Damage` in `OnHurt` is already the final HP-damage value. Naturally falls out of putting thorns in `OnHurt`. |
-| Mana-absorb sets `manaRegenDelay`? | **Yes.** `Player.manaRegenDelay = Math.Max(Player.manaRegenDelay, 40)` after each absorb. Prevents passive sustain. |
-| C.1 tooltip wording? | `"Up to +{0}% damage as Life decreases (max at 25%)"` |
-| DamageToManaBeforeLife class-balance fix? | Three-lever approach (§4): Prefix kind, 40% cap, per-hit cap = 25% × statManaMax2. |
+| Mana-absorb sets `manaRegenDelay`?               | **Yes.** `Player.manaRegenDelay = Math.Max(Player.manaRegenDelay, 60)` after each absorb. Prevents passive sustain.                 |
+| C.1 tooltip wording?                             | `"Up to +{0}% damage as Life decreases (max at 25%)"`                                                                               |
+| DamageToManaBeforeLife class-balance fix?        | Three-lever approach (§4): Prefix kind, 40% cap, per-hit cap = 25% × statManaMax2.                                                  |
 
 ---
 
@@ -403,21 +404,21 @@ Logging is single-client (`Main.netMode != Server && target.whoAmI == Main.myPla
 
 ## §7 Cross-Cutting Concerns Verified
 
-| Concern | Resolution |
-|---|---|
-| Save format | Unchanged — `AffixIds`/`Magnitudes`/`Tiers`/`Kinds` lists handle new IDs by integer |
-| MP affix sync | `AffixItemManager.NetSend/NetReceive` covers the new affixes transparently |
-| Thorns MP | `npc.StrikeNPC` net-syncs vanilla-style, no custom packet |
-| Mana-absorb MP | `Player.statMana` is per-player; computed on hit-owner's client |
-| LifeRegen / ManaRegen MP | `Player.lifeRegen` / `manaRegen` are per-player, recomputed each tick |
-| `LowHpDamageBonus` divide-by-zero | Guard: `statLifeMax2 > 0 ? ... : 1f` (treats invalid state as full HP, no bonus) |
-| Distance affixes on minion sub-projectiles | `Main.player[projectile.owner]` — owner is valid because affixes are only present on player-spawned projectiles |
-| `ModifyHurt` for unmanaged sources (lava/fall/drown) | Early return; vanilla math unchanged |
-| NPC despawn between hit and callback | Guard: `npc.active && npc.whoAmI == src.SourceNPCIndex` |
-| Reforge UI / near-max ding | Reads tier max from registry — works once new defs are registered, no UI changes needed |
-| Aggregate caps | Thorns capped at 80%; mana-absorb capped at **40%** (§4.2) — both clamped in `PlayerSurvivalPlayer.PostUpdateEquips` |
-| Per-hit absorb cap | `min(routed, statManaMax2 × 0.25)` clamps the worst-case burst absorb (§4.4) |
-| Mana-absorb low-investment benefit | Per-hit cap scales with `statManaMax2` so even 0-investment classes still absorb chip damage proportional to their pool (§4.4) |
+| Concern                                              | Resolution                                                                                                                     |
+| ---------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------ |
+| Save format                                          | Unchanged — `AffixIds`/`Magnitudes`/`Tiers`/`Kinds` lists handle new IDs by integer                                            |
+| MP affix sync                                        | `AffixItemManager.NetSend/NetReceive` covers the new affixes transparently                                                     |
+| Thorns MP                                            | `npc.StrikeNPC` net-syncs vanilla-style, no custom packet                                                                      |
+| Mana-absorb MP                                       | `Player.statMana` is per-player; computed on hit-owner's client                                                                |
+| LifeRegen / ManaRegen MP                             | `Player.lifeRegen` / `manaRegen` are per-player, recomputed each tick                                                          |
+| `LowHpDamageBonus` divide-by-zero                    | Guard: `statLifeMax2 > 0 ? ... : 1f` (treats invalid state as full HP, no bonus)                                               |
+| Distance affixes on minion sub-projectiles           | `Main.player[projectile.owner]` — owner is valid because affixes are only present on player-spawned projectiles                |
+| `ModifyHurt` for unmanaged sources (lava/fall/drown) | Early return; vanilla math unchanged                                                                                           |
+| NPC despawn between hit and callback                 | Guard: `npc.active && npc.whoAmI == src.SourceNPCIndex`                                                                        |
+| Reforge UI / near-max ding                           | Reads tier max from registry — works once new defs are registered, no UI changes needed                                        |
+| Aggregate caps                                       | Thorns capped at 80%; mana-absorb capped at **40%** (§4.2) — both clamped in `PlayerSurvivalPlayer.PostUpdateEquips`           |
+| Per-hit absorb cap                                   | `min(routed, statManaMax2 × 0.25)` clamps the worst-case burst absorb (§4.4)                                                   |
+| Mana-absorb low-investment benefit                   | Per-hit cap scales with `statManaMax2` so even 0-investment classes still absorb chip damage proportional to their pool (§4.4) |
 
 ---
 
@@ -454,16 +455,16 @@ No automated tests — verification is manual. Per affix:
 
 Specific cases:
 
-| Affix | Verify |
-|---|---|
-| LifeRegeneration | Health bar tick rate increases proportionally to magnitude |
-| ManaRegeneration | Mana bar tick rate increases |
-| ThornDamage | Touching a hostile NPC deals reflect damage; NPC projectile hits do **not** trigger reflect; debug log shows reflected amount |
+| Affix                  | Verify                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
+| ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| LifeRegeneration       | Health bar tick rate increases proportionally to magnitude                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
+| ManaRegeneration       | Mana bar tick rate increases                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
+| ThornDamage            | Touching a hostile NPC deals reflect damage; NPC projectile hits do **not** trigger reflect; debug log shows reflected amount                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
 | DamageToManaBeforeLife | (a) Hit with full mana → mana drops, HP drops less. (b) Hit with empty mana → all damage falls through. (c) `manaRegenDelay` triggers (mana doesn't insta-regenerate). (d) **Per-hit cap:** with high mana pool (e.g. 400 mana) and a single big hit (200 dmg) at 40% absorb — verify drained mana ≤ `statManaMax2 × 0.25` (i.e., ≤ 100 in this example), not the full routed 80. (e) **Aggregate cap:** stacking 4× T0 armor + 5× T0 accessory rolls (≈66 total magnitude) — verify effective absorb does not exceed 40%. (f) **Low-investment benefit:** with 20 mana max (no investment), small chip hits (e.g. 5 dmg) still partially absorbed proportional to mana pool (per-hit cap = 5). (g) **Gear-wide investment:** 4× T0 armor only (max 36 total) → effective absorb is up to 36%, **not** capped — confirm cap is approached only with broad accessory investment (per §4.3). |
-| NearbyDamageBonus | Hit enemy at <16 tiles → bonus applied; >16 tiles → no bonus |
-| DistantDamageBonus | Inverse of above at 48 tiles |
-| LowHpDamageBonus | Hit at 100% HP → no bonus; 47% HP → ~half magnitude; 20% HP → full magnitude (use damage tooltip / log to verify) |
-| FullHpDamageBonus | Bonus at exact full HP; lost any HP → no bonus |
+| NearbyDamageBonus      | Hit enemy at <16 tiles → bonus applied; >16 tiles → no bonus                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
+| DistantDamageBonus     | Inverse of above at 48 tiles                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
+| LowHpDamageBonus       | Hit at 100% HP → no bonus; 47% HP → ~half magnitude; 20% HP → full magnitude (use damage tooltip / log to verify)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
+| FullHpDamageBonus      | Bonus at exact full HP; lost any HP → no bonus                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
 
 Refactor regression check:
 
