@@ -49,6 +49,16 @@ namespace ARPGItemSystem.Common.Affixes
 
         // All categories
         FlatCritChance,
-        ManaCostReduction
+        ManaCostReduction,
+
+        // Batch-1 (2026-05-03): hurt-pipeline + conditional + distance affixes
+        LifeRegeneration,
+        ManaRegeneration,
+        ThornDamage,
+        DamageToManaBeforeLife,
+        NearbyDamageBonus,
+        DistantDamageBonus,
+        LowHpDamageBonus,
+        FullHpDamageBonus
     }
 }
