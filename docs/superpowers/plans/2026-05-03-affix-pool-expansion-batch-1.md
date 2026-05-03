@@ -428,7 +428,7 @@ becomes:
                             modifiers.SourceDamage += a.Magnitude / 100f;
                         break;
                     case AffixId.DistantDamageBonus:
-                        if (Vector2.Distance(player.Center, target.Center) >= 640f)
+                        if (Vector2.Distance(player.Center, target.Center) >= 608f)
                             modifiers.SourceDamage += a.Magnitude / 100f;
                         break;
                     case AffixId.LowHpDamageBonus:
@@ -495,7 +495,7 @@ with:
                             modifiers.SourceDamage += a.Magnitude / 100f;
                         break;
                     case AffixId.DistantDamageBonus:
-                        if (Vector2.Distance(player.Center, target.Center) >= 640f)
+                        if (Vector2.Distance(player.Center, target.Center) >= 608f)
                             modifiers.SourceDamage += a.Magnitude / 100f;
                         break;
                     case AffixId.LowHpDamageBonus:
