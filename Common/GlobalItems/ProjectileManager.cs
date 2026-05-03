@@ -70,11 +70,11 @@ namespace ARPGItemSystem.Common.GlobalItems
                     case AffixId.DistantDamageBonus:
                     {
                         float dist = Vector2.Distance(player.Center, target.Center);
-                        bool applied = dist >= 768f;
+                        bool applied = dist >= 640f;
                         if (applied)
                             modifiers.SourceDamage += a.Magnitude / 100f;
                         if (logEnabled)
-                            Main.NewText($"  [Distant] dist={dist / 16f:F1}t (≥48t)  applied={applied}  +{a.Magnitude}%", applied ? Color.LightGreen : Color.Gray);
+                            Main.NewText($"  [Distant] dist={dist / 16f:F1}t (≥40t)  applied={applied}  +{a.Magnitude}%", applied ? Color.LightGreen : Color.Gray);
                         break;
                     }
                     case AffixId.LowHpDamageBonus:

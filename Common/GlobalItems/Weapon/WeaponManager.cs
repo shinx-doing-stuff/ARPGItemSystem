@@ -76,7 +76,7 @@ namespace ARPGItemSystem.Common.GlobalItems.Weapon
                     case AffixId.DistantDamageBonus:
                     {
                         float dist = Vector2.Distance(player.Center, target.Center);
-                        bool applied = dist >= 768f;
+                        bool applied = dist >= 640f;
                         if (applied)
                             modifiers.SourceDamage += a.Magnitude / 100f;
                         if (logEnabled)
