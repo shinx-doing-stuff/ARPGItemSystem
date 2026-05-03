@@ -53,10 +53,33 @@ namespace ARPGItemSystem.Common.GlobalItems.Weapon
         {
             foreach (var a in Affixes)
             {
-                if (a.Id == AffixId.CritMultiplier)
-                    modifiers.CritDamage += a.Magnitude / 100f;
-                // PercentageArmorPen removed — now handled inside ElementalDamageCalculator
-                // as a reduction to enemy physical resistance before the cap
+                switch (a.Id)
+                {
+                    case AffixId.CritMultiplier:
+                        modifiers.CritDamage += a.Magnitude / 100f;
+                        break;
+                    case AffixId.NearbyDamageBonus:
+                        if (Vector2.Distance(player.Center, target.Center) <= 256f)
+                            modifiers.SourceDamage += a.Magnitude / 100f;
+                        break;
+                    case AffixId.DistantDamageBonus:
+                        if (Vector2.Distance(player.Center, target.Center) >= 768f)
+                            modifiers.SourceDamage += a.Magnitude / 100f;
+                        break;
+                    case AffixId.LowHpDamageBonus:
+                    {
+                        float hpPct = player.statLifeMax2 > 0
+                            ? player.statLife / (float)player.statLifeMax2
+                            : 1f;
+                        float factor = MathHelper.Clamp((0.70f - hpPct) / 0.45f, 0f, 1f);
+                        modifiers.SourceDamage += a.Magnitude * factor / 100f;
+                        break;
+                    }
+                    case AffixId.FullHpDamageBonus:
+                        if (player.statLife >= player.statLifeMax2)
+                            modifiers.SourceDamage += a.Magnitude / 100f;
+                        break;
+                }
             }
 
             ElementalDamageCalculator.ApplyToHit(Affixes, player, target, ref modifiers);
