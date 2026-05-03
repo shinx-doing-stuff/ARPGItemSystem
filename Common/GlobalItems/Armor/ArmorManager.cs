@@ -54,6 +54,12 @@ namespace ARPGItemSystem.Common.GlobalItems.Armor
                     case AffixId.ManaCostReduction:
                         player.manaCost -= a.Magnitude / 100f;
                         break;
+                    case AffixId.LifeRegeneration:
+                        player.lifeRegen += a.Magnitude;
+                        break;
+                    case AffixId.ManaRegeneration:
+                        player.manaRegen += a.Magnitude;
+                        break;
                 }
             }
         }
