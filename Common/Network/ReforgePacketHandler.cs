@@ -379,7 +379,20 @@ namespace ARPGItemSystem.Common.Network
                     : (AffixItemManager)item.GetGlobalItem<ArmorManager>();
 
             if (mgr == null || id == AffixId.None) return;
-            mgr.Affixes.Add(new Affix(id, magnitude, tier));
+
+            var affix = new Affix(id, magnitude, tier);
+            if (AffixRegistry.Get(id).Kind == AffixKind.Prefix)
+            {
+                int insertAt = mgr.Affixes.FindIndex(a => AffixRegistry.Get(a.Id).Kind == AffixKind.Suffix);
+                if (insertAt >= 0)
+                    mgr.Affixes.Insert(insertAt, affix);
+                else
+                    mgr.Affixes.Add(affix);
+            }
+            else
+            {
+                mgr.Affixes.Add(affix);
+            }
         }
 
         private static void RollReplacement(ItemCategory cat, AffixKind kind,
