@@ -9,6 +9,7 @@
 **Tech Stack:** C# 12 / .NET 8.0, tModLoader 2026-02 (TML_2026_02), MonoGame/XNA. Cross-mod reference to ARPGEnemySystem (via `build.txt` modReferences + `.csproj` `<Reference>`).
 
 **Spec references:**
+
 - Batch-1 spec: `docs/superpowers/specs/2026-05-03-affix-pool-expansion-batch-1-design.md`
 - Parent spec: `docs/superpowers/specs/2026-05-02-affix-pool-utility-expansion-design.md`
 - CLAUDE.md (root of `ARPGItemSystem/`) — read this first; covers architecture, save format, MP rules, and the AffixId append-only constraint.
@@ -16,6 +17,7 @@
 **Testing model:** tModLoader has no automated test harness. Each task ends with a `dotnet build` compile check, and behavior-changing tasks add a tModLoader Build & Reload + an in-game verification step. The verification steps in this plan come from §9 of the batch-1 spec.
 
 **Build commands:**
+
 - Compile-only (fast feedback): `dotnet build` from `ARPGItemSystem/` (requires `../ARPGEnemySystem/bin/Debug/net8.0/ARPGEnemySystem.dll` to exist — build ARPGEnemySystem once first if it doesn't).
 - Full deploy: in tModLoader → Workshop → Mod Sources → `ARPGItemSystem` → **Build & Reload**. This is the only path that gets the changes into a running game session.
 - All paths in this plan are relative to `ARPGItemSystem/`.
@@ -24,18 +26,18 @@
 
 ## File Map
 
-| Path | Action | Responsibility |
-|---|---|---|
-| `Common/Affixes/AffixId.cs` | Modify (append 8) | Enum of stable persisted affix IDs |
-| `Common/Affixes/AffixRegistry.cs` | Modify (add 8 defs) | Single source of truth for affix definitions |
-| `Localization/en-US_Mods.ARPGItemSystem.hjson` | Modify (add 8 keys) | Tooltip strings |
-| `Common/GlobalItems/Weapon/WeaponManager.cs` | Modify (4 cases in `ModifyHitNPC`) | Weapon affix application during direct hits |
-| `Common/GlobalItems/ProjectileManager.cs` | Modify (4 new cases in `ModifyHitNPC`; **delete** `ModifyHitPlayer`) | Player→enemy projectile path; was also enemy→player resistance (now removed) |
-| `Common/GlobalItems/Armor/ArmorManager.cs` | Modify (2 cases in `UpdateEquip`) | Per-frame armor effects |
-| `Common/GlobalItems/Accessory/AccessoryManager.cs` | Modify (2 cases in `UpdateAccessory`) | Per-frame accessory effects |
-| `Common/Players/PlayerSurvivalPlayer.cs` | **Create** | Aggregates `ThornsPercent` + `ManaAbsorbPercent` from gear |
-| `Common/Players/PlayerHurtPipeline.cs` | **Create** | Owns `ModifyHurt` and `OnHurt` for all incoming-damage modification (resistance, mana-absorb, thorns) |
-| `Common/GlobalNPCs/ElementalHitFromNPCGlobalNPC.cs` | **Delete** | Replaced by `PlayerHurtPipeline.ModifyHurt` (NPC contact branch) |
+| Path                                                | Action                                                               | Responsibility                                                                                        |
+| --------------------------------------------------- | -------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------- |
+| `Common/Affixes/AffixId.cs`                         | Modify (append 8)                                                    | Enum of stable persisted affix IDs                                                                    |
+| `Common/Affixes/AffixRegistry.cs`                   | Modify (add 8 defs)                                                  | Single source of truth for affix definitions                                                          |
+| `Localization/en-US_Mods.ARPGItemSystem.hjson`      | Modify (add 8 keys)                                                  | Tooltip strings                                                                                       |
+| `Common/GlobalItems/Weapon/WeaponManager.cs`        | Modify (4 cases in `ModifyHitNPC`)                                   | Weapon affix application during direct hits                                                           |
+| `Common/GlobalItems/ProjectileManager.cs`           | Modify (4 new cases in `ModifyHitNPC`; **delete** `ModifyHitPlayer`) | Player→enemy projectile path; was also enemy→player resistance (now removed)                          |
+| `Common/GlobalItems/Armor/ArmorManager.cs`          | Modify (2 cases in `UpdateEquip`)                                    | Per-frame armor effects                                                                               |
+| `Common/GlobalItems/Accessory/AccessoryManager.cs`  | Modify (2 cases in `UpdateAccessory`)                                | Per-frame accessory effects                                                                           |
+| `Common/Players/PlayerSurvivalPlayer.cs`            | **Create**                                                           | Aggregates `ThornsPercent` + `ManaAbsorbPercent` from gear                                            |
+| `Common/Players/PlayerHurtPipeline.cs`              | **Create**                                                           | Owns `ModifyHurt` and `OnHurt` for all incoming-damage modification (resistance, mana-absorb, thorns) |
+| `Common/GlobalNPCs/ElementalHitFromNPCGlobalNPC.cs` | **Delete**                                                           | Replaced by `PlayerHurtPipeline.ModifyHurt` (NPC contact branch)                                      |
 
 ---
 
@@ -58,6 +60,7 @@ The 9 tasks below follow the implementation order from §11 of the batch-1 spec,
 ## Task 1: Append 8 AffixId enum entries
 
 **Files:**
+
 - Modify: `Common/Affixes/AffixId.cs`
 
 The integer value of each enum member is persisted in item save tags. Inserting or moving entries corrupts every saved item that holds an affix with a shifted ID. **Append-only — never reorder.**
@@ -111,9 +114,11 @@ git commit -m "feat: append 8 batch-1 AffixId entries"
 ## Task 2: Add 8 AffixDef registry entries
 
 **Files:**
+
 - Modify: `Common/Affixes/AffixRegistry.cs`
 
 Each `AffixDef` requires:
+
 - `Id` — matches the enum value
 - `Kind` — `AffixKind.Prefix` or `AffixKind.Suffix`
 - `Tiers` — Dictionary keyed by `ItemCategory`, each value a `List<Tier>` of **exactly 10** entries (T0 best → T9 worst). `BuildRegistry()` validates this on load and throws if violated.
@@ -263,7 +268,7 @@ This affix uses `Kind = AffixKind.Prefix` per §4.1 (not Suffix from the parent)
 
 - [ ] **Step 2.8: Add LowHpDamageBonus def (revised tiers from §3.2)**
 
-Tiers are 10% lower than parent spec (multiplicative, preserves curve shape). Boundaries align: T_n.max == T_(n-1).min.
+Tiers are 10% lower than parent spec (multiplicative, preserves curve shape). Boundaries align: T*n.max == T*(n-1).min.
 
 ```csharp
                 // C.1 — LowHpDamageBonus: Weapon, Suffix. Graduated ramp — full magnitude at HP ≤25%,
@@ -327,6 +332,7 @@ git commit -m "feat: register 8 batch-1 AffixDef entries"
 ## Task 3: Add 8 localization keys
 
 **Files:**
+
 - Modify: `Localization/en-US_Mods.ARPGItemSystem.hjson`
 
 Keys must exactly match the `AffixId` enum names. The `{0}` placeholder is replaced with the rolled magnitude at draw time.
@@ -376,6 +382,7 @@ git commit -m "feat: add localization for 8 batch-1 affixes"
 ## Task 4: Weapon-damage cases in WeaponManager + ProjectileManager.ModifyHitNPC
 
 **Files:**
+
 - Modify: `Common/GlobalItems/Weapon/WeaponManager.cs` (in `ModifyHitNPC`, ~line 52)
 - Modify: `Common/GlobalItems/ProjectileManager.cs` (in `ModifyHitNPC`, ~line 49)
 
@@ -421,7 +428,7 @@ becomes:
                             modifiers.SourceDamage += a.Magnitude / 100f;
                         break;
                     case AffixId.DistantDamageBonus:
-                        if (Vector2.Distance(player.Center, target.Center) >= 768f)
+                        if (Vector2.Distance(player.Center, target.Center) >= 640f)
                             modifiers.SourceDamage += a.Magnitude / 100f;
                         break;
                     case AffixId.LowHpDamageBonus:
@@ -488,7 +495,7 @@ with:
                             modifiers.SourceDamage += a.Magnitude / 100f;
                         break;
                     case AffixId.DistantDamageBonus:
-                        if (Vector2.Distance(player.Center, target.Center) >= 768f)
+                        if (Vector2.Distance(player.Center, target.Center) >= 640f)
                             modifiers.SourceDamage += a.Magnitude / 100f;
                         break;
                     case AffixId.LowHpDamageBonus:
@@ -520,12 +527,12 @@ Expected: build succeeds.
 
 Build & Reload. Smoke-test each of the four affixes in-game:
 
-| Affix | Verification |
-|---|---|
-| NearbyDamageBonus | Stand within 16 tiles of an enemy and hit it with a weapon rolling this affix → bonus applies (visible in damage numbers). Move beyond 16 tiles, hit again → no bonus. |
-| DistantDamageBonus | Inverse: bonus at ≥48 tiles, none at <48. |
-| LowHpDamageBonus | At full HP → no bonus. Take damage to ~50% HP → partial bonus (~half magnitude). Drop below 25% HP → full magnitude. |
-| FullHpDamageBonus | At exact full HP → bonus. Lose any HP → no bonus. |
+| Affix              | Verification                                                                                                                                                           |
+| ------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| NearbyDamageBonus  | Stand within 16 tiles of an enemy and hit it with a weapon rolling this affix → bonus applies (visible in damage numbers). Move beyond 16 tiles, hit again → no bonus. |
+| DistantDamageBonus | Inverse: bonus at ≥48 tiles, none at <48.                                                                                                                              |
+| LowHpDamageBonus   | At full HP → no bonus. Take damage to ~50% HP → partial bonus (~half magnitude). Drop below 25% HP → full magnitude.                                                   |
+| FullHpDamageBonus  | At exact full HP → bonus. Lose any HP → no bonus.                                                                                                                      |
 
 Hard to read damage numbers? Drop into a creative-mode world, get a weak weapon with one of these affixes, hit a target dummy, compare against the same weapon without the affix.
 
@@ -541,6 +548,7 @@ git commit -m "feat: weapon damage cases for nearby, distant, lowhp, fullhp"
 ## Task 5: LifeRegen + ManaRegen cases in ArmorManager + AccessoryManager
 
 **Files:**
+
 - Modify: `Common/GlobalItems/Armor/ArmorManager.cs` (in `UpdateEquip`)
 - Modify: `Common/GlobalItems/Accessory/AccessoryManager.cs` (in `UpdateAccessory`)
 
@@ -595,6 +603,7 @@ git commit -m "feat: life and mana regen affixes in armor and accessory managers
 ## Task 6: Create PlayerSurvivalPlayer (aggregator)
 
 **Files:**
+
 - Create: `Common/Players/PlayerSurvivalPlayer.cs`
 
 Pure aggregator. Walks armor + accessory affixes in `PostUpdateEquips`, sums `ThornsPercent` and `ManaAbsorbPercent` into public fields, applies caps. No hit-pipeline hooks — those are added in Task 7+. Until Task 7 wires it up, this file has no externally visible effect (the values are aggregated but nobody reads them).
@@ -682,6 +691,7 @@ git commit -m "feat: add PlayerSurvivalPlayer aggregator for thorns and mana-abs
 ## Task 7: Create PlayerHurtPipeline (resistance dispatch) + delete old hooks
 
 **Files:**
+
 - Create: `Common/Players/PlayerHurtPipeline.cs`
 - Modify: `Common/GlobalItems/ProjectileManager.cs` (delete `ModifyHitPlayer` method)
 - Delete: `Common/GlobalNPCs/ElementalHitFromNPCGlobalNPC.cs`
@@ -852,6 +862,7 @@ Open `Common/GlobalItems/ProjectileManager.cs`. Locate the `ModifyHitPlayer(...)
 After deletion, the `ProjectileManager` class still has `OnSpawn` (player→enemy affix capture) and `ModifyHitNPC` (player→enemy elemental + new conditional bonuses from Task 4). The class compiles fine without `ModifyHitPlayer` — it was an override and removing it just means tModLoader doesn't call this class for `ModifyHitPlayer` events.
 
 You can also remove the now-unused `using` directives at the top of the file if any are exclusively referenced inside the deleted method:
+
 - `using EnemyProjectileManager = ARPGEnemySystem.Common.GlobalProjectiles.ProjectileManager;` — check if it's used elsewhere in the file. If yes, keep it. If only `ModifyHitPlayer` referenced it, remove the alias.
 - `using ARPGItemSystem.Common.Players;` — check the same way (it was used to reference `PlayerElementalPlayer`).
 
@@ -876,19 +887,19 @@ This is the riskiest step. Build & Reload, then verify both **the regression** (
 
 **Regression check (must continue working):**
 
-| Test | Expected |
-|---|---|
+| Test                                                                                              | Expected                                                        |
+| ------------------------------------------------------------------------------------------------- | --------------------------------------------------------------- |
 | Take a hit from a managed NPC contact (e.g., a zombie with elemental damage from ARPGEnemySystem) | Resistance applies, damage matches what it was before this task |
-| Take a hit from a managed NPC's projectile (e.g., a skeleton archer's arrow) | Resistance applies, damage matches what it was before this task |
-| Enable `EnemyConfigClient.EnableElementalDamageLog` in the config and take any hit | The breakdown log appears in chat with the correct numbers |
+| Take a hit from a managed NPC's projectile (e.g., a skeleton archer's arrow)                      | Resistance applies, damage matches what it was before this task |
+| Enable `EnemyConfigClient.EnableElementalDamageLog` in the config and take any hit                | The breakdown log appears in chat with the correct numbers      |
 
 **Source-branch check:**
 
-| Test | Expected |
-|---|---|
+| Test                                     | Expected                                                   |
+| ---------------------------------------- | ---------------------------------------------------------- |
 | Fall from height onto land (fall damage) | Vanilla damage applied — no resistance recalc, no log line |
-| Walk into lava | Vanilla damage applied — no resistance recalc, no log line |
-| Drown underwater | Vanilla damage applied — no resistance recalc, no log line |
+| Walk into lava                           | Vanilla damage applied — no resistance recalc, no log line |
+| Drown underwater                         | Vanilla damage applied — no resistance recalc, no log line |
 
 If any regression test fails (resistance no longer applied, or applied twice), the most likely cause is that an old hook wasn't deleted. Check that `Common/GlobalNPCs/ElementalHitFromNPCGlobalNPC.cs` is gone and that `ProjectileManager.cs` no longer contains a `ModifyHitPlayer` override.
 
@@ -908,6 +919,7 @@ git commit -m "refactor: consolidate hurt pipeline into PlayerHurtPipeline"
 ## Task 8: Add mana-absorb to PlayerHurtPipeline
 
 **Files:**
+
 - Modify: `Common/Players/PlayerHurtPipeline.cs` (extend the lambda registered in `RegisterHandler`)
 
 Apply the §4.6 math: `routed = info.Damage * ManaAbsorbPercent / 100`, then clamped by per-hit cap `statManaMax2 × 0.25`, then clamped by available mana. Drain mana, set regen delay, subtract from `info.Damage`. Log when the affix actually absorbs (not on every hit).
@@ -983,14 +995,14 @@ Expected: build succeeds.
 
 Build & Reload. Equip armor or accessories with `DamageToManaBeforeLife` rolled and test these specific cases (from spec §9):
 
-| Case | Test | Expected |
-|---|---|---|
-| (a) Full mana, hit lands | Take a hit with full mana | Mana drops, HP drops less than the raw incoming damage. With log on, `Absorb:` and `After absorb:` lines appear. |
-| (b) Empty mana, hit lands | Drain mana to 0, take a hit | All damage falls through; mana stays 0; no `Absorb:` log line. |
-| (c) Regen delay | Right after an absorb, watch mana | Mana doesn't regenerate for ≥2/3 sec (40 ticks at 60fps). |
-| (d) Per-hit cap | Boost mana to ~400 (potions + FlatManaIncrease), take a single big hit (e.g., a Wall of Flesh slam at ~200 dmg) | `Absorb:` line shows ≤ `statManaMax2 × 0.25`, NOT the full routed amount. (e.g., with 400 mana, max absorb per hit is 100.) |
-| (e) Aggregate cap | Stack T0 armor + T0 accessory rolls (~66 magnitude total), take a hit | Effective absorb behaves as if `ManaAbsorbPercent = 40` (capped). Easiest check: equip rolls totaling 66 absorb%; hit a 100-damage source; absorb should be 40 (= 40% × 100), not 66. |
-| (f) Low-investment chip | With `statManaMax2 = 20` (no investment), take a 5-damage chip hit at 40% absorb | Absorbed = 5 × 0.4 = 2, capped by per-hit (20 × 0.25 = 5) → not the binding constraint here; absorbed = 2. |
+| Case                      | Test                                                                                                            | Expected                                                                                                                                                                              |
+| ------------------------- | --------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| (a) Full mana, hit lands  | Take a hit with full mana                                                                                       | Mana drops, HP drops less than the raw incoming damage. With log on, `Absorb:` and `After absorb:` lines appear.                                                                      |
+| (b) Empty mana, hit lands | Drain mana to 0, take a hit                                                                                     | All damage falls through; mana stays 0; no `Absorb:` log line.                                                                                                                        |
+| (c) Regen delay           | Right after an absorb, watch mana                                                                               | Mana doesn't regenerate for ≥2/3 sec (40 ticks at 60fps).                                                                                                                             |
+| (d) Per-hit cap           | Boost mana to ~400 (potions + FlatManaIncrease), take a single big hit (e.g., a Wall of Flesh slam at ~200 dmg) | `Absorb:` line shows ≤ `statManaMax2 × 0.25`, NOT the full routed amount. (e.g., with 400 mana, max absorb per hit is 100.)                                                           |
+| (e) Aggregate cap         | Stack T0 armor + T0 accessory rolls (~66 magnitude total), take a hit                                           | Effective absorb behaves as if `ManaAbsorbPercent = 40` (capped). Easiest check: equip rolls totaling 66 absorb%; hit a 100-damage source; absorb should be 40 (= 40% × 100), not 66. |
+| (f) Low-investment chip   | With `statManaMax2 = 20` (no investment), take a 5-damage chip hit at 40% absorb                                | Absorbed = 5 × 0.4 = 2, capped by per-hit (20 × 0.25 = 5) → not the binding constraint here; absorbed = 2.                                                                            |
 
 If absorb numbers seem off, enable `EnableElementalDamageLog` and read the breakdown line-by-line.
 
@@ -1006,6 +1018,7 @@ git commit -m "feat: mana-absorb (DamageToManaBeforeLife) with per-hit cap"
 ## Task 9: Add thorns OnHurt to PlayerHurtPipeline
 
 **Files:**
+
 - Modify: `Common/Players/PlayerHurtPipeline.cs` (add `OnHurt` override)
 
 Thorns reflects damage to the attacker — only on direct NPC contact (not projectile hits). It runs in `OnHurt` because `info.Damage` at that point is fully settled (post-resistance, post-mana-absorb), which is exactly the value the spec wants reflected (post-absorb thorns, per the design decisions in §5).
@@ -1052,13 +1065,13 @@ Expected: build succeeds.
 
 Build & Reload. Equip armor/accessories with `ThornDamage` rolled and verify:
 
-| Case | Test | Expected |
-|---|---|---|
-| Direct contact reflect | Stand still, let a Zombie walk into you | Zombie loses HP equal to ~`ThornsPercent%` of the damage you took. With log on, `Thorns:` line appears. |
-| Projectile filter | Get hit by a Skeleton Archer's arrow | NO reflect — projectile hits don't trigger thorns. No `Thorns:` log line. |
-| Aggregate cap | Stack thorns rolls totaling >80% across gear | Effective reflect behaves as if `ThornsPercent = 80` (capped in `PlayerSurvivalPlayer`). |
-| Reflect after absorb | With both ThornDamage AND DamageToManaBeforeLife rolled — take a hit | Thorns reflects from `info.Damage` AFTER mana absorb (i.e., reduced if mana absorbed some). Log order: resistance → absorb → thorns. |
-| Multiplayer | Host + join, stand near host with thorns equipped, let zombie hit host | Reflected damage visible to both clients (vanilla `StrikeNPC` net-syncs). |
+| Case                   | Test                                                                   | Expected                                                                                                                             |
+| ---------------------- | ---------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------ |
+| Direct contact reflect | Stand still, let a Zombie walk into you                                | Zombie loses HP equal to ~`ThornsPercent%` of the damage you took. With log on, `Thorns:` line appears.                              |
+| Projectile filter      | Get hit by a Skeleton Archer's arrow                                   | NO reflect — projectile hits don't trigger thorns. No `Thorns:` log line.                                                            |
+| Aggregate cap          | Stack thorns rolls totaling >80% across gear                           | Effective reflect behaves as if `ThornsPercent = 80` (capped in `PlayerSurvivalPlayer`).                                             |
+| Reflect after absorb   | With both ThornDamage AND DamageToManaBeforeLife rolled — take a hit   | Thorns reflects from `info.Damage` AFTER mana absorb (i.e., reduced if mana absorbed some). Log order: resistance → absorb → thorns. |
+| Multiplayer            | Host + join, stand near host with thorns equipped, let zombie hit host | Reflected damage visible to both clients (vanilla `StrikeNPC` net-syncs).                                                            |
 
 - [ ] **Step 9.4: Commit**
 
