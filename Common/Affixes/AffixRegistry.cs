@@ -548,6 +548,145 @@ namespace ARPGItemSystem.Common.Affixes
                         }
                     },
                     AllowedDamageClasses = magicOnly
+                },
+
+                // ============== BATCH-1 AFFIXES (2026-05-03) ==============
+
+                // A.1 — LifeRegeneration: Armor + Accessory, Prefix.
+                // Magnitude is in vanilla Player.lifeRegen units (2 = 1 HP/second).
+                new AffixDef {
+                    Id = AffixId.LifeRegeneration,
+                    Kind = AffixKind.Prefix,
+                    Tiers = new Dictionary<ItemCategory, List<Tier>>
+                    {
+                        [ItemCategory.Armor] = new List<Tier> {
+                            new(5,6), new(4,5), new(4,4), new(3,4), new(3,3),
+                            new(2,3), new(2,2), new(1,2), new(1,1), new(1,1)
+                        },
+                        [ItemCategory.Accessory] = new List<Tier> {
+                            new(3,4), new(3,3), new(2,3), new(2,3), new(2,2),
+                            new(1,2), new(1,2), new(1,1), new(1,1), new(1,1)
+                        }
+                    },
+                    AllowedDamageClasses = null
+                },
+
+                // A.2 — ManaRegeneration: Armor + Accessory, Prefix.
+                // Magnitude is in vanilla Player.manaRegen units.
+                new AffixDef {
+                    Id = AffixId.ManaRegeneration,
+                    Kind = AffixKind.Prefix,
+                    Tiers = new Dictionary<ItemCategory, List<Tier>>
+                    {
+                        [ItemCategory.Armor] = new List<Tier> {
+                            new(10,12), new(8,10), new(7,9), new(6,8), new(5,7),
+                            new(4,6),   new(3,5),  new(2,4), new(1,2), new(1,1)
+                        },
+                        [ItemCategory.Accessory] = new List<Tier> {
+                            new(6,8), new(5,7), new(4,6), new(3,5), new(3,4),
+                            new(2,3), new(2,3), new(1,2), new(1,2), new(1,1)
+                        }
+                    },
+                    AllowedDamageClasses = null
+                },
+
+                // A.3 — ThornDamage: Armor + Accessory, Suffix. Aggregate cap 80%.
+                // Magnitude is percent of incoming damage reflected to attacker.
+                new AffixDef {
+                    Id = AffixId.ThornDamage,
+                    Kind = AffixKind.Suffix,
+                    Tiers = new Dictionary<ItemCategory, List<Tier>>
+                    {
+                        [ItemCategory.Armor] = new List<Tier> {
+                            new(30,35), new(25,30), new(20,25), new(16,20), new(13,16),
+                            new(10,13), new(7,10),  new(5,7),   new(3,5),   new(1,3)
+                        },
+                        [ItemCategory.Accessory] = new List<Tier> {
+                            new(30,35), new(25,30), new(20,25), new(16,20), new(13,16),
+                            new(10,13), new(7,10),  new(5,7),   new(3,5),   new(1,3)
+                        }
+                    },
+                    AllowedDamageClasses = null
+                },
+
+                // A.4 — DamageToManaBeforeLife: Armor + Accessory, PREFIX (per spec §4.1).
+                // Aggregate cap 40% (§4.2). Magnitudes ≈0.22× parent (§4.3).
+                // Per-hit cap = 25% of statManaMax2 applied at hit time (see PlayerHurtPipeline).
+                new AffixDef {
+                    Id = AffixId.DamageToManaBeforeLife,
+                    Kind = AffixKind.Prefix,
+                    Tiers = new Dictionary<ItemCategory, List<Tier>>
+                    {
+                        [ItemCategory.Armor] = new List<Tier> {
+                            new(8,9), new(7,8), new(6,7), new(5,6), new(4,5),
+                            new(4,4), new(3,4), new(2,3), new(2,2), new(1,2)
+                        },
+                        [ItemCategory.Accessory] = new List<Tier> {
+                            new(5,6), new(4,5), new(3,4), new(2,3), new(2,2),
+                            new(2,2), new(1,2), new(1,1), new(1,1), new(1,1)
+                        }
+                    },
+                    AllowedDamageClasses = null
+                },
+
+                // D.1 — NearbyDamageBonus: Weapon, Suffix. Bonus when target ≤ 256px (16 tiles).
+                new AffixDef {
+                    Id = AffixId.NearbyDamageBonus,
+                    Kind = AffixKind.Suffix,
+                    Tiers = new Dictionary<ItemCategory, List<Tier>>
+                    {
+                        [ItemCategory.Weapon] = new List<Tier> {
+                            new(50,60), new(42,50), new(35,42), new(28,35), new(22,28),
+                            new(17,22), new(12,17), new(8,12),  new(4,8),   new(1,4)
+                        }
+                    },
+                    AllowedDamageClasses = null
+                },
+
+                // D.2 — DistantDamageBonus: Weapon, Suffix. Bonus when target ≥ 768px (48 tiles).
+                // Same magnitudes as NearbyDamageBonus — coexistence creates a mid-range dead zone.
+                new AffixDef {
+                    Id = AffixId.DistantDamageBonus,
+                    Kind = AffixKind.Suffix,
+                    Tiers = new Dictionary<ItemCategory, List<Tier>>
+                    {
+                        [ItemCategory.Weapon] = new List<Tier> {
+                            new(50,60), new(42,50), new(35,42), new(28,35), new(22,28),
+                            new(17,22), new(12,17), new(8,12),  new(4,8),   new(1,4)
+                        }
+                    },
+                    AllowedDamageClasses = null
+                },
+
+                // C.1 — LowHpDamageBonus: Weapon, Suffix. Graduated ramp — full magnitude at HP ≤25%,
+                // zero at HP ≥70%, linear between (see §3.1 of spec). Tiers are §3.2 (×0.9 of parent).
+                new AffixDef {
+                    Id = AffixId.LowHpDamageBonus,
+                    Kind = AffixKind.Suffix,
+                    Tiers = new Dictionary<ItemCategory, List<Tier>>
+                    {
+                        [ItemCategory.Weapon] = new List<Tier> {
+                            new(54,63), new(45,54), new(38,45), new(32,38), new(25,32),
+                            new(20,25), new(14,20), new(10,14), new(5,10),  new(1,5)
+                        }
+                    },
+                    AllowedDamageClasses = null
+                },
+
+                // C.2 — FullHpDamageBonus: Weapon, Suffix. Bonus when statLife >= statLifeMax2.
+                // Magnitudes verbatim from parent spec (60-70 down to 1-6) — kept asymmetric with C.1
+                // because C.1's ramped scaling reduces its effective average; binary FullHp keeps full value.
+                new AffixDef {
+                    Id = AffixId.FullHpDamageBonus,
+                    Kind = AffixKind.Suffix,
+                    Tiers = new Dictionary<ItemCategory, List<Tier>>
+                    {
+                        [ItemCategory.Weapon] = new List<Tier> {
+                            new(60,70), new(50,60), new(42,50), new(35,42), new(28,35),
+                            new(22,28), new(16,22), new(11,16), new(6,11),  new(1,6)
+                        }
+                    },
+                    AllowedDamageClasses = null
                 }
             };
 
