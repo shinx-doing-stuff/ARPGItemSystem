@@ -60,8 +60,9 @@ Applied each frame via:
   UpdateEquip                                                         (ArmorManager)
   UpdateAccessory                                                     (AccessoryManager)
   ModifyHitNPC → ElementalDamageCalculator.ApplyToHit                (ProjectileManager + WeaponManager)
-  ModifyHitPlayer → player resistance applied to enemy projectile hits  (ProjectileManager)
   PostUpdateEquips → PlayerElementalPlayer aggregates physRes + elem resistances from gear
+  PostUpdateEquips → PlayerSurvivalPlayer aggregates ThornsPercent + ManaAbsorbPercent from gear
+  ModifyHurt / OnHurt → PlayerHurtPipeline applies resistance + mana-absorb + thorns on all incoming hits
 ```
 
 ### Key Files
@@ -70,10 +71,11 @@ Applied each frame via:
 - **`Common/Affixes/AffixItemManager.cs`** — Abstract `GlobalItem` base class shared by all three managers. Owns `List<Affix> Affixes`, handles `SaveData`/`LoadData`, `NetSend`/`NetReceive`, `Clone`, `ModifyTooltips`, and the `Reroll` entry point. Save format uses tag keys `"AffixIds"`, `"Magnitudes"`, `"Tiers"`, `"Kinds"` — absence of `"AffixIds"` means pre-refactor save and triggers a fresh reroll.
 - **`Common/Affixes/AffixRoller.cs`** — Picks a random eligible `AffixDef` from the pool (filtered by category, kind, DamageClass, and existing-affix deduplication) and rolls a magnitude. Uses `Main.rand`.
 - **`Common/GlobalItems/utils.cs`** — `GetTier()` and six `GetAmountOf*()` methods. Boss-progression logic lives here.
-- **`Common/GlobalItems/ProjectileManager.cs`** — Dual role: **player→enemy** (snapshots weapon affixes in `OnSpawn`, calls `ElementalDamageCalculator.ApplyToHit` in `ModifyHitNPC`) and **enemy→player** (`ModifyHitPlayer` reads the source NPC's elemental profile from `ARPGEnemySystem.Common.GlobalProjectiles.ProjectileManager` on the same projectile instance and applies player resistance). `OnSpawn` handles three spawn sources: `EntitySource_ItemUse` (player weapons), `EntitySource_Parent` where parent is a player projectile (sentry/minion sub-shots inherit parent affixes), and everything else is left empty (no affixes = no elemental). Enemy projectile resistance lives here rather than in ARPGEnemySystem because it requires `PlayerElementalPlayer` which is in ARPGItemSystem (one-way dependency constraint).
+- **`Common/GlobalItems/ProjectileManager.cs`** — **Player→enemy only.** Snapshots weapon affixes in `OnSpawn`, applies conditional damage bonuses (Nearby/Distant/LowHp/FullHp) and calls `ElementalDamageCalculator.ApplyToHit` in `ModifyHitNPC`. `OnSpawn` handles three sources: `EntitySource_ItemUse` (player weapons), `EntitySource_Parent` where parent is a player projectile (sentry/minion sub-shots inherit parent affixes), and everything else is left empty. `ModifyHitPlayer` was removed — enemy→player resistance is now in `PlayerHurtPipeline`.
 - **`Common/Elements/ElementalDamageCalculator.cs`** — Core player→enemy hit math. Called from both `WeaponManager.ModifyHitNPC` and `ProjectileManager.ModifyHitNPC`. Reads enemy resistances from `NPCManager`/`BossManager`; derives enemy `physRes` from `target.defense` via `ConvertDefenseToResistance` (read before `NPCManager.ModifyIncomingHit` zeroes it — hook order guarantee). Registers a `ModifyHitInfo` callback where `info.Damage` is used as elemental base (crit already included, no undo). `PercentageArmorPen` and `FlatArmorPen` apply to **effective defense** before the physRes conversion — percentage is applied first (scales raw defense), then flat is subtracted from the result. This order means flat pen is a guaranteed fixed bypass on top of the already-scaled defense.
 - **`Common/Players/PlayerElementalPlayer.cs`** — `ModPlayer`. `PostUpdateEquips` computes `PhysRes = ConvertDefenseToResistance(Player.statDefense, ratio, cap)` (so `FlatDefenseIncrease`/`PercentageDefenseIncrease` affixes naturally contribute via `statDefense` — no code needed in those affix cases). Then sums `PhysicalResistance`, `FireResistance`, `ColdResistance`, `LightningResistance` affix bonuses additively. `GetResistance(Element)` returns the matching field.
-- **`Common/GlobalNPCs/ElementalHitFromNPCGlobalNPC.cs`** — `GlobalNPC.ModifyHitPlayer`. Handles **NPC direct contact** → player. Reads NPC elemental profile, reads player's `PlayerElementalPlayer` resistance, overrides damage via `ModifyHurtInfo` callback. Uses `Main.DamageVar(npc.damage)` for hit variance. NPC **projectile** hits are handled in `ProjectileManager.ModifyHitPlayer` (not here).
+- **`Common/Players/PlayerSurvivalPlayer.cs`** — `ModPlayer`. Pure aggregator: `PostUpdateEquips` walks armor + accessory slots, sums `ThornsPercent` (capped 80%) and `ManaAbsorbPercent` (capped 40%) from `ThornDamage` and `DamageToManaBeforeLife` affixes. Does not touch the hurt pipeline.
+- **`Common/Players/PlayerHurtPipeline.cs`** — **Single owner of all incoming-damage logic.** `ModifyHurt` dispatches on source: enemy projectile branch (reads elemental profile from `ARPGEnemySystem.Common.GlobalProjectiles.ProjectileManager`) and NPC contact branch (reads from `NPCManager`/`BossManager`). Registers a `ModifyHurtInfo` callback that applies elemental resistance then mana-absorb in sequence. `OnHurt` handles thorns (NPC contact only, post-resist post-absorb). Replaces deleted `ElementalHitFromNPCGlobalNPC` and `ProjectileManager.ModifyHitPlayer`. Debug logging (gated by `EnableElementalDamageLog`) lives here for the enemy→player path.
 
 ### Persistence Pattern
 
@@ -120,6 +122,8 @@ The key must exactly match the `AffixId` enum name. `{0}` is replaced with the r
 **Step 5 (projectiles only):** Add a case in `ProjectileManager.ModifyHitNPC`.
 
 **Exception — elemental affixes:** `GainPercentAsX`, `IncreasedXDamage`, `FlatArmorPen`, and `PercentageArmorPen` are handled entirely inside `ElementalDamageCalculator.ApplyToHit` via `GetMagnitude`. Do NOT add switch cases for these in `WeaponManager.ModifyHitNPC` or `ProjectileManager.ModifyHitNPC`. Resistance affixes (`PhysicalResistance`, `FireResistance`, `ColdResistance`, `LightningResistance`) are read in `PlayerElementalPlayer.PostUpdateEquips` — no switch cases needed in `ArmorManager` or `AccessoryManager`.
+
+**Exception — hurt-pipeline affixes** (`ThornDamage`, `DamageToManaBeforeLife`): Aggregated in `PlayerSurvivalPlayer.PostUpdateEquips` (Step 4 → `PlayerSurvivalPlayer.Apply`), applied in `PlayerHurtPipeline` (`ModifyHurt` for mana-absorb, `OnHurt` for thorns). Do NOT add cases in `ArmorManager`/`AccessoryManager`.
 
 That's it. The new affix automatically enters the roll pool, saves/loads by ID, and syncs over the network — no other files to touch.
 
