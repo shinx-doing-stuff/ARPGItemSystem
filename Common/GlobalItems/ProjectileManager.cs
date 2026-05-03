@@ -82,6 +82,8 @@ namespace ARPGItemSystem.Common.GlobalItems
                         float hpPct = player.statLifeMax2 > 0
                             ? player.statLife / (float)player.statLifeMax2
                             : 1f;
+                        // Linear ramp: 0 bonus at ≥70% HP, full bonus at ≤25% HP.
+                        // Dividing by 0.45 (= 0.70 - 0.25) maps the [0.25, 0.70] range onto [0, 1].
                         float factor = MathHelper.Clamp((0.70f - hpPct) / 0.45f, 0f, 1f);
                         float bonus = a.Magnitude * factor / 100f;
                         modifiers.SourceDamage += bonus;
