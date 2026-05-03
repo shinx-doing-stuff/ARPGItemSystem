@@ -636,14 +636,13 @@ namespace ARPGItemSystem.Common.Affixes
                     Tiers = new Dictionary<ItemCategory, List<Tier>>
                     {
                         [ItemCategory.Weapon] = new List<Tier> {
-                            new(50,60), new(42,50), new(35,42), new(28,35), new(22,28),
-                            new(17,22), new(12,17), new(8,12),  new(4,8),   new(1,4)
+                            new(15,18), new(13,15), new(11,13), new(9,11), new(7,9),
+                            new(5,7),   new(4,5),   new(3,4),   new(2,3),  new(1,2)
                         }
                     },
                     AllowedDamageClasses = null
                 },
 
-                // D.2 — DistantDamageBonus: Weapon, Suffix. Bonus when target ≥ 768px (48 tiles).
                 // Same magnitudes as NearbyDamageBonus — coexistence creates a mid-range dead zone.
                 new AffixDef {
                     Id = AffixId.DistantDamageBonus,
@@ -651,23 +650,23 @@ namespace ARPGItemSystem.Common.Affixes
                     Tiers = new Dictionary<ItemCategory, List<Tier>>
                     {
                         [ItemCategory.Weapon] = new List<Tier> {
-                            new(50,60), new(42,50), new(35,42), new(28,35), new(22,28),
-                            new(17,22), new(12,17), new(8,12),  new(4,8),   new(1,4)
+                            new(15,18), new(13,15), new(11,13), new(9,11), new(7,9),
+                            new(5,7),   new(4,5),   new(3,4),   new(2,3),  new(1,2)
                         }
                     },
                     AllowedDamageClasses = null
                 },
 
                 // C.1 — LowHpDamageBonus: Weapon, Suffix. Graduated ramp — full magnitude at HP ≤25%,
-                // zero at HP ≥70%, linear between (see §3.1 of spec). Tiers are §3.2 (×0.9 of parent).
+                // zero at HP ≥70%, linear between (see §3.1 of spec).
                 new AffixDef {
                     Id = AffixId.LowHpDamageBonus,
                     Kind = AffixKind.Suffix,
                     Tiers = new Dictionary<ItemCategory, List<Tier>>
                     {
                         [ItemCategory.Weapon] = new List<Tier> {
-                            new(54,63), new(45,54), new(38,45), new(32,38), new(25,32),
-                            new(20,25), new(14,20), new(10,14), new(5,10),  new(1,5)
+                            new(16,19), new(13,16), new(11,13), new(9,11), new(7,9),
+                            new(5,7),   new(4,5),   new(3,4),   new(2,3),  new(1,2)
                         }
                     },
                     AllowedDamageClasses = null
