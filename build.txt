@@ -1,4 +1,4 @@
 displayName = ARPG Item System
 author = Shinx
-version = 0.9.1.1
+version = 0.9.1.2
 modReferences = ARPGEnemySystem
