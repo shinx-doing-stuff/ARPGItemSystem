@@ -15,7 +15,7 @@ ARPG Item System replaces Terraria's vanilla prefix/reforge system with somethin
 ---------------------------------------------------------------------------------------------------
 
 Mod features:
-
+-Rewrote the whole damage/resitance system of terraria. Now you have elemental damage and elemental/physical resistance instead of the defense stat.
 - Weapons, armor, and accessories roll ARPG-style prefixes and suffixes on creation
 - Affix magnitudes scale with boss progression — early-game rolls are weaker, late-game rolls are stronger
 - Lock individual affixes to keep them across rerolls
