@@ -5,10 +5,10 @@ namespace ARPGItemSystem.Common.Config
     public static class ReforgeConfig
     {
         // Linear scale applied to all costs. Lower = cheaper across the board.
-        public const float Scale = 0.45f;
+        public const float Scale = 0.42f;
 
         // Base of the exponential curve. Lower = flatter late-game cost increase.
-        public const float Base = 1.4f;
+        public const float Base = 1.3f;
 
         // Multiplier per locked affix: cost x LockTax^locks.
         public const float LockTax = 1.5f;
