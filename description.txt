@@ -1,24 +1,32 @@
-Major update: Accessory modifier
-Accessory can now roll modifier up to a maximum of 1 prefix and 1 suffix.
-With this update, all weapons, armors and accessories can now roll modifier.
+v0.9.0 — Elemental Update (Public Testing)
+Requires ARPG Enemy System.
 
-I will now move on to develop other RPG modules and will revisit this mod once I have learned how to create UI elements.
-If the RPG modules ever come out, this mod will receive new special fitting modifiers such as chance to inflict DoT, debuff, mana shield, on-hit effect, etc... and even cursed modifiers that only drop from bosses.
-Hopefully I won't fail miserably and end up giving up on modding.
------------------------------------------------------------------------------------------
-ARPG Item System is a mod that aims to completely replace the modifier system of vanilla Terraria with the popular ARPG item system.
------------------------------------------------------------------------------------------
-A weapon will be able to have maximum 6 modifiers, including 3 prefixes and 3 suffixes.
-An armor will be able to have maximum 4 modifiers, including 2 prefixes and 2 suffixes.
-An accessory will be able to have maximum 2 modifiers, including 1 prefixes and 1 suffixes.
+The biggest addition in this update is the elemental affix layer. Weapons can now roll affixes that convert a portion of their damage to Fire, Cold, or Lightning, deal bonus elemental damage, or penetrate enemy armor and elemental resistances. Armor and accessories can roll physical and elemental resistance affixes that reduce incoming damage from matching sources.
 
-The amount and tier of modifiers you can roll will increase as you progress through the game. In the beginning you will only be able to roll 1 prefix and 1 suffix.
------------------------------------------------------------------------------------------
-Items can no longer be reforged or put into Goblin Tinkerer's reforge slot.
-In order to reroll your item, use the "craft" keybind while holding said item. For now, you only need to pay the buying value of the item. This will change in later updates.
------------------------------------------------------------------------------------------
-This mod is supposed to complement my upcoming RPG mod (not yet started). As this is my first ever mod, update will come very slowly as I learn how to mod better.
-Since this mod is a pure power up to player, I'd recommend playing it with difficulty mods like my latest mod: [url=https://steamcommunity.com/sharedfiles/filedetails/?id=3027691283] ARPG Enemy System [/url]
-Multiplayer should work.
-Have fun.
+All of this feeds directly into the elemental resistance system on enemies added by ARPG Enemy System. The two mods are designed to work as a pair — but ARPG Item System handles all its own UI, networking, and stat math independently.
+
+Player resistances (Fire, Cold, Lightning, Physical) are displayed as shield icons next to the accessory slots, updating in real time as you equip and remove gear.
+
+This is a public testing release (v0.9.0). Balance, affix values, and UI are still being refined. Reports and suggestions are appreciated. You can enable logging feature in client config (of ARPG Enemy System) to help testing feature.
+---------------------------------------------------------------------------------------------------
+
+ARPG Item System replaces Terraria's vanilla prefix/reforge system with something closer to what you'd find in an action RPG. Every weapon, armor piece, and accessory you pick up rolls random affixes — a prefix and a suffix with values tied to your current boss progression. The Goblin Tinkerer's reforge button is replaced with a proper reroll panel where you can lock affixes you like and reroll the rest.
+
+---------------------------------------------------------------------------------------------------
+
+Mod features:
+
+- Weapons, armor, and accessories roll ARPG-style prefixes and suffixes on creation
+- Affix magnitudes scale with boss progression — early-game rolls are weaker, late-game rolls are stronger
+- Press C (default) while holding an item to reroll its modifiers for a coin cost
+- Lock individual affixes to keep them across rerolls
+- The vanilla reforge system is fully suppressed — no conflicting prefix rolls
+
+All my mods are built with multiplayer and mod compatibility in mind
+
+---------------------------------------------------------------------------------------------------
+CREDIT
+
+Big thanks to the super helpful tModloader Community for all the help.
+
 [quote=tModLoader]Developed By Shinx[/quote]
