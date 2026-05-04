@@ -1,6 +1,6 @@
 v0.9.0 — Elemental Update (Public Testing)
 Requires ARPG Enemy System.
-
+[img]https://i.ibb.co/S7Pv7p5R/image.png[/img]
 The biggest addition in this update is the elemental affix layer. Weapons can now roll affixes that convert a portion of their damage to Fire, Cold, or Lightning, deal bonus elemental damage, or penetrate enemy armor and elemental resistances. Armor and accessories can roll physical and elemental resistance affixes that reduce incoming damage from matching sources.
 
 All of this feeds directly into the elemental resistance system on enemies added by ARPG Enemy System. The two mods are designed to work as a pair.
