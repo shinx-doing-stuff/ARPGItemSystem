@@ -77,6 +77,12 @@ Applied each frame via:
 - **`Common/Players/PlayerSurvivalPlayer.cs`** — `ModPlayer`. Pure aggregator: `PostUpdateEquips` walks armor + accessory slots, sums `ThornsPercent` (capped 80%) and `ManaAbsorbPercent` (capped 40%) from `ThornDamage` and `DamageToManaBeforeLife` affixes. Does not touch the hurt pipeline.
 - **`Common/Players/PlayerHurtPipeline.cs`** — **Single owner of all incoming-damage logic.** `ModifyHurt` dispatches on source: enemy projectile branch (reads elemental profile from `ARPGEnemySystem.Common.GlobalProjectiles.ProjectileManager`) and NPC contact branch (reads from `NPCManager`/`BossManager`). Registers a `ModifyHurtInfo` callback that applies elemental resistance then mana-absorb in sequence. `OnHurt` handles thorns (NPC contact only, post-resist post-absorb). Replaces deleted `ElementalHitFromNPCGlobalNPC` and `ProjectileManager.ModifyHitPlayer`. Debug logging (gated by `EnableElementalDamageLog`) lives here for the enemy→player path.
 
+### Weapon Tooltip — Elemental Damage Breakdown
+
+`WeaponManager.ModifyTooltips` overrides the base to insert one colored line per active `GainPercentAsFire/Cold/Lightning` affix directly under the vanilla `"Damage"` line. The displayed gained number is derived by **regex-parsing the integer already shown on the Damage line** (`Mod=="Terraria", Name=="Damage"`) so the math is verifiable to the player — `displayed × gain% × (1 + increased%)`, rounded. The increased% factor mirrors `ElementalDamageCalculator`'s pre-resistance formula. Colors match the chat-debug palette: Fire `(255,120,50)`, Cold `(100,200,255)`, Lightning `(255,240,80)`. Localization keys live under `WeaponTooltip.GainedFire/Cold/Lightning` in `en-US_Mods.ARPGItemSystem.hjson`.
+
+Lines are skipped when `gain <= 0` or rounded `gained == 0`, so weapons without elemental affixes get no extra clutter. Tooltip rendering is per-client; multiplayer sync is already covered by `AffixItemManager.NetSend/NetReceive`. The base `ModifyTooltips` (which appends affix lines at the end) still runs first, so nothing about the affix-list rendering changes — only weapons get the inline elemental breakdown.
+
 ### Persistence Pattern
 
 `AffixItemManager` writes four parallel `List<int/byte>` entries to `TagCompound`: `AffixIds`, `Magnitudes`, `Tiers`, `Kinds`. Read order matches write order. Tooltips are **not** stored — they are looked up at draw time from the registry. Migration: if `"AffixIds"` key is absent (old save), `LoadData` calls `Reroll()` immediately.
