@@ -36,12 +36,17 @@ namespace ARPGItemSystem.Common.Players
                 if (!proj.TryGetGlobalProjectile<EnemyProjectileManager>(out var pm)) return;
 
                 float firePct, coldPct, lightPct;
+                float firePen, coldPen, lightPen, sunderingPct;
                 string sourceName;
                 if (pm.modNPC != null)
                 {
                     firePct  = pm.modNPC.FireDamagePct;
                     coldPct  = pm.modNPC.ColdDamagePct;
                     lightPct = pm.modNPC.LightningDamagePct;
+                    firePen      = pm.modNPC.FirePen;
+                    coldPen      = pm.modNPC.ColdPen;
+                    lightPen     = pm.modNPC.LightningPen;
+                    sunderingPct = pm.modNPC.SunderingPct;
                     sourceName = pm.npcIndex >= 0 && pm.npcIndex < Main.npc.Length
                         ? Main.npc[pm.npcIndex].GivenOrTypeName : "Unknown";
                 }
@@ -50,13 +55,20 @@ namespace ARPGItemSystem.Common.Players
                     firePct  = pm.modBossNPC.FireDamagePct;
                     coldPct  = pm.modBossNPC.ColdDamagePct;
                     lightPct = pm.modBossNPC.LightningDamagePct;
+                    firePen      = pm.modBossNPC.FirePen;
+                    coldPen      = pm.modBossNPC.ColdPen;
+                    lightPen     = pm.modBossNPC.LightningPen;
+                    sunderingPct = pm.modBossNPC.SunderingPct;
                     sourceName = pm.npcIndex >= 0 && pm.npcIndex < Main.npc.Length
                         ? Main.npc[pm.npcIndex].GivenOrTypeName : "Unknown";
                 }
                 else return;
 
                 // Projectile damage is pre-scaled in ARPGEnemySystem; vanilla doesn't apply DamageVar to it.
-                RegisterHandler(ref modifiers, proj.damage, firePct, coldPct, lightPct, sourceName, isProj: true);
+                RegisterHandler(ref modifiers, proj.damage,
+                    firePct, coldPct, lightPct,
+                    firePen, coldPen, lightPen, sunderingPct,
+                    sourceName, isProj: true);
                 return;
             }
 
@@ -67,22 +79,34 @@ namespace ARPGItemSystem.Common.Players
                 if (!npc.active) return;
 
                 float firePct, coldPct, lightPct;
+                float firePen, coldPen, lightPen, sunderingPct;
                 if (npc.TryGetGlobalNPC<NPCManager>(out var nd))
                 {
                     firePct  = nd.FireDamagePct;
                     coldPct  = nd.ColdDamagePct;
                     lightPct = nd.LightningDamagePct;
+                    firePen      = nd.FirePen;
+                    coldPen      = nd.ColdPen;
+                    lightPen     = nd.LightningPen;
+                    sunderingPct = nd.SunderingPct;
                 }
                 else if (npc.TryGetGlobalNPC<BossManager>(out var bd))
                 {
                     firePct  = bd.FireDamagePct;
                     coldPct  = bd.ColdDamagePct;
                     lightPct = bd.LightningDamagePct;
+                    firePen      = bd.FirePen;
+                    coldPen      = bd.ColdPen;
+                    lightPen     = bd.LightningPen;
+                    sunderingPct = bd.SunderingPct;
                 }
                 else return;
 
                 // Contact hits use vanilla ±15% damage variance.
-                RegisterHandler(ref modifiers, Main.DamageVar(npc.damage), firePct, coldPct, lightPct, npc.GivenOrTypeName, isProj: false);
+                RegisterHandler(ref modifiers, Main.DamageVar(npc.damage),
+                    firePct, coldPct, lightPct,
+                    firePen, coldPen, lightPen, sunderingPct,
+                    npc.GivenOrTypeName, isProj: false);
                 return;
             }
 
@@ -92,6 +116,7 @@ namespace ARPGItemSystem.Common.Players
         private void RegisterHandler(ref Player.HurtModifiers modifiers,
                                       float baseDamage,
                                       float firePct, float coldPct, float lightPct,
+                                      float firePen, float coldPen, float lightPen, float sunderingPct,
                                       string sourceName, bool isProj)
         {
             var cfg = ModContent.GetInstance<EnemyConfig>();
@@ -99,16 +124,27 @@ namespace ARPGItemSystem.Common.Players
 
             var elem = Player.GetModPlayer<PlayerElementalPlayer>();
 
-            float totalElemPct = (firePct + coldPct + lightPct) / 100f;
-            float physPortion  = baseDamage * Math.Max(0f, 1f - totalElemPct);
+            // Bonus model: physical portion is full base damage; elemental portions are added on top.
+            // (Was: physPortion = baseDamage * (1 - totalElemPct/100). Flipped per spec §3.)
+            float physPortion  = baseDamage;
             float firePortion  = baseDamage * firePct  / 100f;
             float coldPortion  = baseDamage * coldPct  / 100f;
             float lightPortion = baseDamage * lightPct / 100f;
 
-            float physFinal  = ElementalMath.ApplyResistance(physPortion,  elem.PhysRes,      cap);
-            float fireFinal  = ElementalMath.ApplyResistance(firePortion,  elem.FireRes,      cap);
-            float coldFinal  = ElementalMath.ApplyResistance(coldPortion,  elem.ColdRes,      cap);
-            float lightFinal = ElementalMath.ApplyResistance(lightPortion, elem.LightningRes, cap);
+            // Effective player defense after Sundering (% subtraction). Recompute physRes from it.
+            int   effDef       = Math.Max(0, (int)(Player.statDefense * (1f - sunderingPct / 100f)));
+            float effPhysRes   = ElementalMath.ConvertDefenseToResistance(
+                                     effDef, cfg.PhysResHalfPoint, cfg.PlayerPhysResCap);
+
+            // Effective elemental resistances after pen (flat-point subtraction, floored at 0).
+            float effFireRes  = Math.Max(0f, elem.FireRes      - firePen);
+            float effColdRes  = Math.Max(0f, elem.ColdRes      - coldPen);
+            float effLightRes = Math.Max(0f, elem.LightningRes - lightPen);
+
+            float physFinal  = ElementalMath.ApplyResistance(physPortion,  effPhysRes,  cap);
+            float fireFinal  = ElementalMath.ApplyResistance(firePortion,  effFireRes,  cap);
+            float coldFinal  = ElementalMath.ApplyResistance(coldPortion,  effColdRes,  cap);
+            float lightFinal = ElementalMath.ApplyResistance(lightPortion, effLightRes, cap);
 
             int finalDamage = Math.Max(1, (int)Math.Round(physFinal + fireFinal + coldFinal + lightFinal));
 
@@ -119,8 +155,10 @@ namespace ARPGItemSystem.Common.Players
             // Capture log values for the closure.
             float pf = physFinal,  ff = fireFinal,  cf = coldFinal,  lf = lightFinal;
             float pp = physPortion, fp = firePortion, cp = coldPortion, lp = lightPortion;
-            float pr = elem.PhysRes, fr = elem.FireRes, cr = elem.ColdRes, lr = elem.LightningRes;
+            float pr = effPhysRes,  fr = effFireRes,  cr = effColdRes,  lr = effLightRes;
             float fpct = firePct, cpct = coldPct, lpct = lightPct;
+            float fpen = firePen, cpen = coldPen, lpen = lightPen, spct = sunderingPct;
+            int   ed = effDef;
             string srcName = sourceName;
             bool wasProj = isProj;
 
@@ -128,7 +166,7 @@ namespace ARPGItemSystem.Common.Players
             {
                 info.Damage = finalDamage;
 
-                // Mana-absorb (spec §4.6): % of damage routed to mana, capped by per-hit ceiling
+                // Mana-absorb (spec §4.6 of affix-pool batch 1): % of damage routed to mana, capped by per-hit ceiling
                 // (25% of statManaMax2) and by current mana available. Triggers regen delay.
                 var sp = Player.GetModPlayer<PlayerSurvivalPlayer>();
                 int absorbed = 0;
@@ -148,10 +186,10 @@ namespace ARPGItemSystem.Common.Players
                 {
                     string tag = wasProj ? "[proj] " : "";
                     Main.NewText($"← {tag}{srcName} hit you", Color.OrangeRed);
-                    Main.NewText($"  Phys:  {pf,6:F1}  (raw:{pp,5:F1}  res:{pr:F1}%)", Color.Silver);
-                    if (fpct > 0) Main.NewText($"  Fire:  {ff,6:F1}  (raw:{fp,5:F1}  res:{fr:F1}%)",  new Color(255, 120, 50));
-                    if (cpct > 0) Main.NewText($"  Cold:  {cf,6:F1}  (raw:{cp,5:F1}  res:{cr:F1}%)",  new Color(100, 200, 255));
-                    if (lpct > 0) Main.NewText($"  Light: {lf,6:F1}  (raw:{lp,5:F1}  res:{lr:F1}%)", new Color(255, 240, 80));
+                    Main.NewText($"  Phys:  {pf,6:F1}  (raw:{pp,5:F1}  res:{pr:F1}%  effDef:{ed}  sunder:{spct:F0}%)", Color.Silver);
+                    if (fpct > 0) Main.NewText($"  Fire:  {ff,6:F1}  (raw:{fp,5:F1}  res:{fr:F1}%  pen:{fpen:F0})",  new Color(255, 120, 50));
+                    if (cpct > 0) Main.NewText($"  Cold:  {cf,6:F1}  (raw:{cp,5:F1}  res:{cr:F1}%  pen:{cpen:F0})",  new Color(100, 200, 255));
+                    if (lpct > 0) Main.NewText($"  Light: {lf,6:F1}  (raw:{lp,5:F1}  res:{lr:F1}%  pen:{lpen:F0})", new Color(255, 240, 80));
                     Main.NewText($"  Total: {finalDamage}", Color.OrangeRed);
                     if (absorbed > 0)
                     {
