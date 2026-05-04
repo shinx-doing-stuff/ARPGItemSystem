@@ -52,6 +52,12 @@ Affixes: {
 	FullHpDamageBonus: +{0}% damage at full Life
 }
 
+WeaponTooltip: {
+	GainedFire: "{0} Fire damage"
+	GainedCold: "{0} Cold damage"
+	GainedLightning: "{0} Lightning damage"
+}
+
 UI: {
 	ReforgePanel: {
 		Title: Modifier Reforge
