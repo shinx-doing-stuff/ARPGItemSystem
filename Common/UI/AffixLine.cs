@@ -37,7 +37,7 @@ namespace ARPGItemSystem.Common.UI
             var dim = GetDimensions();
             sb.Draw(Terraria.GameContent.TextureAssets.MagicPixel.Value,
                 new Rectangle((int)dim.X, (int)dim.Y, (int)dim.Width, (int)dim.Height),
-                new Color(0, 0, 0, 80));
+                new Color(0, 0, 0, 130));
         }
 
         public AffixLine(string displayText, string maxText, int affixIndex, bool isPrefix)
