@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using ARPGItemSystem.Common.Affixes;
-using ARPGItemSystem.Common.Elements;
 using EnemyConfigClient = ARPGEnemySystem.Common.Configs.ConfigClient;
 using Microsoft.Xna.Framework;
 using Terraria;
@@ -113,7 +112,6 @@ namespace ARPGItemSystem.Common.GlobalItems.Weapon
                 }
             }
 
-            ElementalDamageCalculator.ApplyToHit(Affixes, player, target, ref modifiers);
         }
 
         public override void ModifyWeaponKnockback(Item item, Player player, ref StatModifier knockback)
@@ -156,7 +154,7 @@ namespace ARPGItemSystem.Common.GlobalItems.Weapon
         // Inserts +X Fire/Cold/Lightning lines directly under the vanilla "Damage" line.
         // Gained number is derived from the integer already shown in the Damage line so the
         // math is verifiable: 20% of displayed 175 = 35. Increased% is folded in to match
-        // ElementalDamageCalculator's pre-resistance formula (raw = phys × gain × (1+inc)).
+        // ARPGCharacterSystem.Common.Combat.ElementalDamageCalculator's pre-resistance formula (raw = phys × gain × (1+inc)).
         public override void ModifyTooltips(Item item, List<TooltipLine> tooltips)
         {
             base.ModifyTooltips(item, tooltips);

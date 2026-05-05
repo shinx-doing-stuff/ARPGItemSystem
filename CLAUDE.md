@@ -23,6 +23,8 @@ using EnemyConfig = ARPGEnemySystem.Common.Configs.Config;
 using EnemyConfigClient = ARPGEnemySystem.Common.Configs.ConfigClient;
 ```
 
+**ARPGCharacterSystem is also a hard runtime requirement.** `ARPGItemSystem.cs` does a `HasMod("ARPGCharacterSystem")` check in `PostSetupContent` and throws if absent — symmetric with the check ARPGCharacterSystem already does. Mutual `modReferences` (load-order) and mutual `<Reference>` (compile-time) are both impossible (cycles), so this runtime check is the strongest enforcement available.
+
 ## In-game Reroll
 
 Press **C** (default `CraftKeyBind`) while holding a weapon, armor piece, or accessory to reroll its modifiers. Cost is 2× the item's buy value. Implemented in `Common/Players/Keybind.cs`; keybind registered in `Common/Systems/KeyBindSystem.cs`.
@@ -59,10 +61,9 @@ Applied each frame via:
   ModifyShootStats                                                    (WeaponManager)
   UpdateEquip                                                         (ArmorManager)
   UpdateAccessory                                                     (AccessoryManager)
-  ModifyHitNPC → ElementalDamageCalculator.ApplyToHit                (ProjectileManager + WeaponManager)
-  PostUpdateEquips → PlayerElementalPlayer aggregates physRes + elem resistances from gear
-  PostUpdateEquips → PlayerSurvivalPlayer aggregates ThornsPercent + ManaAbsorbPercent from gear
-  ModifyHurt / OnHurt → PlayerHurtPipeline applies resistance + mana-absorb + thorns on all incoming hits
+  ModifyHitNPC → conditional damage cases only (Nearby/Distant/LowHp/FullHp); elemental application now in CharacterSystem.OutgoingHitPlayer
+  (elemental + survival aggregation now in ARPGCharacterSystem)
+  (incoming-damage pipeline now in ARPGCharacterSystem)
 ```
 
 ### Key Files
@@ -71,11 +72,8 @@ Applied each frame via:
 - **`Common/Affixes/AffixItemManager.cs`** — Abstract `GlobalItem` base class shared by all three managers. Owns `List<Affix> Affixes`, handles `SaveData`/`LoadData`, `NetSend`/`NetReceive`, `Clone`, `ModifyTooltips`, and the `Reroll` entry point. Save format uses tag keys `"AffixIds"`, `"Magnitudes"`, `"Tiers"`, `"Kinds"` — absence of `"AffixIds"` means pre-refactor save and triggers a fresh reroll. The list is order-significant: all prefixes precede all suffixes. `ReforgePacketHandler.AddAffix` enforces this by inserting new prefixes before the first existing suffix (tooltip line order reflects list order).
 - **`Common/Affixes/AffixRoller.cs`** — Picks a random eligible `AffixDef` from the pool (filtered by category, kind, DamageClass, and existing-affix deduplication) and rolls a magnitude. Uses `Main.rand`.
 - **`Common/GlobalItems/utils.cs`** — `GetTier()` and six `GetAmountOf*()` methods. Boss-progression logic lives here.
-- **`Common/GlobalItems/ProjectileManager.cs`** — **Player→enemy only.** Snapshots weapon affixes in `OnSpawn`, applies conditional damage bonuses (Nearby/Distant/LowHp/FullHp) and calls `ElementalDamageCalculator.ApplyToHit` in `ModifyHitNPC`. `OnSpawn` handles three sources: `EntitySource_ItemUse` (player weapons), `EntitySource_Parent` where parent is a player projectile (sentry/minion sub-shots inherit parent affixes), and everything else is left empty. `ModifyHitPlayer` was removed — enemy→player resistance is now in `PlayerHurtPipeline`.
-- **`Common/Elements/ElementalDamageCalculator.cs`** — Core player→enemy hit math. Called from both `WeaponManager.ModifyHitNPC` and `ProjectileManager.ModifyHitNPC`. Reads enemy resistances from `NPCManager`/`BossManager`; derives enemy `physRes` from `target.defense` via `ConvertDefenseToResistance` (read before `NPCManager.ModifyIncomingHit` zeroes it — hook order guarantee). Registers a `ModifyHitInfo` callback where `info.Damage` is used as elemental base (crit already included, no undo). `PercentageArmorPen` and `FlatArmorPen` apply to **effective defense** before the physRes conversion — percentage is applied first (scales raw defense), then flat is subtracted from the result. This order means flat pen is a guaranteed fixed bypass on top of the already-scaled defense.
-- **`Common/Players/PlayerElementalPlayer.cs`** — `ModPlayer`. `PostUpdateEquips` computes `PhysRes = ConvertDefenseToResistance(Player.statDefense, ratio, cap)` (so `FlatDefenseIncrease`/`PercentageDefenseIncrease` affixes naturally contribute via `statDefense` — no code needed in those affix cases). Then sums `PhysicalResistance`, `FireResistance`, `ColdResistance`, `LightningResistance` affix bonuses additively. `GetResistance(Element)` returns the matching field.
-- **`Common/Players/PlayerSurvivalPlayer.cs`** — `ModPlayer`. Pure aggregator: `PostUpdateEquips` walks armor + accessory slots, sums `ThornsPercent` (capped 80%) and `ManaAbsorbPercent` (capped 40%) from `ThornDamage` and `DamageToManaBeforeLife` affixes. Does not touch the hurt pipeline.
-- **`Common/Players/PlayerHurtPipeline.cs`** — **Single owner of all incoming-damage logic.** `ModifyHurt` dispatches on source: enemy projectile branch (reads elemental profile from `ARPGEnemySystem.Common.GlobalProjectiles.ProjectileManager`) and NPC contact branch (reads from `NPCManager`/`BossManager`). Registers a `ModifyHurtInfo` callback that applies elemental resistance then mana-absorb in sequence. `OnHurt` handles thorns (NPC contact only, post-resist post-absorb). Replaces deleted `ElementalHitFromNPCGlobalNPC` and `ProjectileManager.ModifyHitPlayer`. Debug logging (gated by `EnableElementalDamageLog`) lives here for the enemy→player path.
+- **`Common/GlobalItems/ProjectileManager.cs`** — **Player→enemy only.** Snapshots weapon affixes in `OnSpawn`, applies conditional damage bonuses (Nearby/Distant/LowHp/FullHp) in `ModifyHitNPC`. `OnSpawn` handles three sources: `EntitySource_ItemUse` (player weapons), `EntitySource_Parent` where parent is a player projectile (sentry/minion sub-shots inherit parent affixes), and everything else is left empty. Elemental math is handled by `ARPGCharacterSystem.Common.Players.OutgoingHitPlayer.ModifyHitNPCWithProj`, which reads the snapshot affixes from this manager.
+- Player-stat aggregators, the incoming-damage pipeline, and the outgoing-hit elemental calculator now live in `ARPGCharacterSystem` — see that mod's CLAUDE.md.
 
 ### Weapon Tooltip — Elemental Damage Breakdown
 
@@ -139,7 +137,7 @@ The reforge panel (`Common/UI/`) replaces the Goblin Tinkerer's vanilla reforge 
 
 ### Key Files
 - **`Common/Systems/ReforgeUISystem.cs`** — `ModSystem` that inserts the reforge panel layer after `"Vanilla: Inventory"`. Suppresses `Main.InReforgeMenu` before inventory draws so vanilla's slot doesn't render. Intercepts ESC to close in one press.
-- **`Common/Systems/ResistanceShieldUISystem.cs`** — Client-only `ModSystem` that draws four tinted shields (Physical / Fire / Cold / Lightning) in the inventory column left of the accessory slots. Hooks `On_Main.DrawDefenseCounter` — skips `orig` (suppresses vanilla icon) and draws our column instead. Texture: `TextureAssets.Extra[ExtrasID.DefenseShield]`. Position anchor: `AccessorySlotLoader.DefenseIconPosition - new Vector2(120, -20)`. The offset is required because `DefenseIconPosition` is a *layout* position set by `DrawAccSlots`; vanilla's actual draw in `DrawDefenseCounter` computes its own position from `(inventoryX, inventoryY)` parameters (the inventory panel origin) using internal offsets we don't replicate. The 120px X / −20px Y empirical offset corrects for this gap and is stable across resolutions (but may need re-tuning if `Main.inventoryScale` changes). Reads resistances from `PlayerElementalPlayer`.
+- Resistance shield rendering moved to `ARPGCharacterSystem` (`Common/Systems/ResistanceShieldUISystem.cs`).
 - **`Common/UI/ReforgePanel.cs`** — `UIState` containing the item slot, affix lines, title, placeholder. Syncs `Main.reforgeItem = _slot.SlotItem` each frame so packet/hammer code still reads the correct item.
 - **`Common/UI/UIReforgeSlot.cs`** — Custom `UIElement` item slot. Interaction handled in `DrawSelf` using `Main.mouseLeft && Main.mouseLeftRelease` (first frame of press). Mouse coords suppressed to -9999 before `ItemSlot.Draw` call to prevent double-interaction.
 - **`Common/UI/AffixLine.cs`** — One row per existing modifier: lock toggle on the left, colored affix text in the middle (green for prefix, blue for suffix), right-aligned dim "max N" label showing the magnitude ceiling at current boss progression (computed in `Refresh()` from `def.Tiers[mgr.Category][utils.GetBestTier()].Max`). `Refresh()` is called from `ReforgePanel.RefreshAffix` after a reroll completes; that path also plays `Best_reforge` (custom mod sound at `Assets/Sounds/Best_reforge.wav`) when the new magnitude is ≥ `NearMaxThreshold` (0.85) of the best-tier max. The threshold lives as a `const` on `ReforgePanel`. The ding is per-affix, so a multi-affix reroll where several land near-max will stack.

@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using ARPGItemSystem.Common.Affixes;
-using ARPGItemSystem.Common.Elements;
 using ARPGItemSystem.Common.GlobalItems.Weapon;
 using EnemyConfigClient = ARPGEnemySystem.Common.Configs.ConfigClient;
 using Microsoft.Xna.Framework;
@@ -103,7 +102,6 @@ namespace ARPGItemSystem.Common.GlobalItems
                 }
             }
 
-            ElementalDamageCalculator.ApplyToHit(Affixes, player, target, ref modifiers);
         }
 
     }
