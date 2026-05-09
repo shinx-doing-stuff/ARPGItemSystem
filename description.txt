@@ -1,5 +1,5 @@
-v0.9.0 — Elemental Update (Public Testing)
-Requires ARPG Enemy System.
+[h1]v0.9.0 — Elemental Update (Public Testing)[/h1]
+[b]Requires ARPG Enemy System.[/b]
 [img]https://i.ibb.co/S7Pv7p5R/image.png[/img]
 The biggest addition in this update is the elemental affix layer. Weapons can now roll affixes that convert a portion of their damage to Fire, Cold, or Lightning, deal bonus elemental damage, or penetrate enemy armor and elemental resistances. Armor and accessories can roll physical and elemental resistance affixes that reduce incoming damage from matching sources.
 
@@ -9,23 +9,22 @@ Player resistances (Fire, Cold, Lightning, Physical) are displayed as shield ico
 
 This is a public testing release (v0.9.0). Balance, affix values, and UI are still being refined. Reports and suggestions are appreciated. You can enable logging feature in client config (of ARPG Enemy System) to help testing feature.
 ---------------------------------------------------------------------------------------------------
-
+[h1]INTRO[/h1]
 ARPG Item System replaces Terraria's vanilla prefix/reforge system with something closer to what you'd find in an action RPG. Every weapon, armor piece, and accessory you pick up rolls random affixes — a prefix and a suffix with values tied to your current boss progression. The Goblin Tinkerer's reforge button is replaced with a proper reroll panel where you can lock affixes you like and reroll the rest.
 
 ---------------------------------------------------------------------------------------------------
-
-Mod features:
+[h1]MOD FEATURES[/h1]
 -Rewrote the whole damage/resistance system of Terraria. Now you have elemental damage and elemental/physical resistance instead of the defense stat.
 - Weapons, armor, and accessories roll ARPG-style prefixes and suffixes on creation
 - Affix magnitudes scale with boss progression — early-game rolls are weaker, late-game rolls are stronger
 - Lock individual affixes to keep them across rerolls
 - The vanilla reforge system is fully suppressed — no conflicting prefix rolls
 
-All my mods are built with multiplayer and mod compatibility in mind
+[b]All my mods are built with multiplayer and mod compatibility in mind[/b]
 
 ---------------------------------------------------------------------------------------------------
-CREDIT
-
+[h1]CREDIT[/h1]
 Big thanks to the super helpful tModloader Community for all the help.
 
-[quote=tModLoader]Developed By Shinx[/quote]
+[quote=tModLoader]Developed By Shinx[/quote][quote=tModLoader ARPGItemSystem]
+Developed By Shinx[/quote]
