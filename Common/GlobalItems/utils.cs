@@ -48,9 +48,10 @@ namespace ARPGItemSystem.Common.GlobalItems
         internal static int GetAmountOfSuffixesArmor()
         {
             int maxCount = 1;
-            int minCount = 0;
-            if (NPC.downedBoss2) minCount += 1;
-            if (Main.hardMode) maxCount += 1;
+            int minCount = 1;
+            if (NPC.downedBoss2) maxCount += 1;
+            if (Main.hardMode) minCount += 1;
+            if (NPC.downedMechBossAny) maxCount += 1;
 
             Random random = new Random();
             return random.Next(minCount, maxCount + 1);
@@ -59,7 +60,8 @@ namespace ARPGItemSystem.Common.GlobalItems
         internal static int GetMaxSuffixesArmor()
         {
             int maxCount = 1;
-            if (Main.hardMode) maxCount += 1;
+            if (NPC.downedBoss2) maxCount += 1;
+            if (NPC.downedMechBossAny) maxCount += 1;
             return maxCount;
         }
 
@@ -67,6 +69,8 @@ namespace ARPGItemSystem.Common.GlobalItems
         {
             int maxCount = 1;
             int minCount = 1;
+            if (NPC.downedBoss3) maxCount += 1;
+            if (Main.hardMode) minCount += 1;
             if (NPC.downedGolemBoss) maxCount += 1;
 
             Random random = new Random();
@@ -76,6 +80,7 @@ namespace ARPGItemSystem.Common.GlobalItems
         internal static int GetMaxPrefixesArmor()
         {
             int maxCount = 1;
+            if (NPC.downedBoss3) maxCount += 1;
             if (NPC.downedGolemBoss) maxCount += 1;
             return maxCount;
         }
@@ -85,6 +90,7 @@ namespace ARPGItemSystem.Common.GlobalItems
             int maxCount = 1;
             int minCount = 0;
             if (Main.hardMode) minCount += 1;
+            if (NPC.downedMechBossAny) maxCount += 1;
 
             Random random = new Random();
             return random.Next(minCount, maxCount + 1);
@@ -93,6 +99,7 @@ namespace ARPGItemSystem.Common.GlobalItems
         internal static int GetMaxSuffixesAccessory()
         {
             int maxCount = 1;
+            if (NPC.downedMechBossAny) maxCount += 1;
             return maxCount;
         }
 
@@ -100,6 +107,7 @@ namespace ARPGItemSystem.Common.GlobalItems
         {
             int maxCount = 1;
             int minCount = 0;
+            if (NPC.downedBoss3) maxCount += 1;
             if (NPC.downedGolemBoss) minCount += 1;
 
             Random random = new Random();
@@ -109,6 +117,7 @@ namespace ARPGItemSystem.Common.GlobalItems
         internal static int GetMaxPrefixesAccessory()
         {
             int maxCount = 1;
+            if (NPC.downedBoss3) maxCount += 1;
             return maxCount;
         }
 
