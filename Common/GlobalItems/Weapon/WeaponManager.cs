@@ -35,17 +35,6 @@ namespace ARPGItemSystem.Common.GlobalItems.Weapon
             }
         }
 
-        public override void ModifyWeaponCrit(Item item, Player player, ref float crit)
-        {
-            foreach (var a in Affixes)
-            {
-                if (a.Id == AffixId.FlatCritChance)
-                    crit += a.Magnitude;
-                // PercentageCritChance is applied by ARPGCharacterSystem.Common.Stats.StatPipelinePlayer.ModifyWeaponCrit,
-                // where it is summed additively with attribute crit-% bonuses into a single multiplier.
-            }
-        }
-
         public override void ModifyWeaponKnockback(Item item, Player player, ref StatModifier knockback)
         {
             foreach (var a in Affixes)
