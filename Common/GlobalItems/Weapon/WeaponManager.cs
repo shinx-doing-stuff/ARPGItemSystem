@@ -19,22 +19,6 @@ namespace ARPGItemSystem.Common.GlobalItems.Weapon
         protected override int RollPrefixCount() => utils.GetAmountOfPrefixesWeapon();
         protected override int RollSuffixCount() => utils.GetAmountOfSuffixesWeapon();
 
-        public override void ModifyWeaponDamage(Item item, Player player, ref StatModifier damage)
-        {
-            foreach (var a in Affixes)
-            {
-                switch (a.Id)
-                {
-                    case AffixId.FlatDamageIncrease:
-                        damage.Base += a.Magnitude / 100f * item.OriginalDamage;
-                        break;
-                    case AffixId.PercentageDamageIncrease:
-                        damage *= 1 + a.Magnitude / 100f;
-                        break;
-                }
-            }
-        }
-
         public override void ModifyWeaponKnockback(Item item, Player player, ref StatModifier knockback)
         {
             foreach (var a in Affixes)
