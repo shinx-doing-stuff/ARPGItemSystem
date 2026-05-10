@@ -37,16 +37,6 @@ namespace ARPGItemSystem.Common.GlobalItems.Weapon
             }
         }
 
-        public override float UseSpeedMultiplier(Item item, Player player)
-        {
-            foreach (var a in Affixes)
-            {
-                if (a.Id == AffixId.AttackSpeedIncrease)
-                    return base.UseSpeedMultiplier(item, player) + a.Magnitude / 100f;
-            }
-            return base.UseSpeedMultiplier(item, player);
-        }
-
         public override void ModifyManaCost(Item item, Player player, ref float reduce, ref float mult)
         {
             foreach (var a in Affixes)
