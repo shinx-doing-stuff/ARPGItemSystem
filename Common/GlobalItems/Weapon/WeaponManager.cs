@@ -28,15 +28,6 @@ namespace ARPGItemSystem.Common.GlobalItems.Weapon
             }
         }
 
-        public override void ModifyManaCost(Item item, Player player, ref float reduce, ref float mult)
-        {
-            foreach (var a in Affixes)
-            {
-                if (a.Id == AffixId.ManaCostReduction)
-                    reduce -= a.Magnitude / 100f;
-            }
-        }
-
         // Inserts +X Fire/Cold/Lightning lines directly under the vanilla "Damage" line.
         // Gained number is derived from the integer already shown in the Damage line so the
         // math is verifiable: 20% of displayed 175 = 35. Increased% is folded in to match
