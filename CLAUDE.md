@@ -57,13 +57,14 @@ OnCreated(item) → AffixItemManager.Reroll(item)
   → Affixes stored on GlobalItem instance (InstancePerEntity = true)
        ↓
 Applied each frame via:
-  ModifyWeaponDamage / ModifyWeaponCrit / ModifyHitNPC / UseSpeedMultiplier / ModifyManaCost
-  ModifyShootStats                                                    (WeaponManager)
-  UpdateEquip                                                         (ArmorManager)
-  UpdateAccessory                                                     (AccessoryManager)
-  ModifyHitNPC → conditional damage cases only (Nearby/Distant/LowHp/FullHp); elemental application now in CharacterSystem.OutgoingHitPlayer
-  (elemental + survival aggregation now in ARPGCharacterSystem)
-  (incoming-damage pipeline now in ARPGCharacterSystem)
+  ModifyTooltips                                                  (WeaponManager — display only)
+  ModifyShootStats (VelocityIncrease only)                        (WeaponManager — exception: ModPlayer lacks this hook)
+  UpdateEquip (Flat/PercentageDefenseIncrease only)               (ArmorManager — exception: writes item.defense for vanilla tooltip)
+  OnSpawn (affix data plumbing for projectiles)                   (ProjectileManager)
+  Every other affix is applied by ARPGCharacterSystem player-side hooks:
+    - Per-swing/per-hit  → ARPGCharacterSystem.Common.Players.OutgoingHitPlayer
+    - Equip-time/wide    → ARPGCharacterSystem.Common.Stats.StatPipelinePlayer
+    - Incoming damage    → ARPGCharacterSystem.Common.Players.PlayerHurtPipeline
 ```
 
 ### Key Files
@@ -119,9 +120,12 @@ Affixes: {
 The key must exactly match the `AffixId` enum name. `{0}` is replaced with the rolled magnitude at draw time.
 
 **Step 4 — stat-apply hook:** Add a `case AffixId.YourNewAffix:` in the appropriate place:
-- Weapons → `WeaponManager.cs` (pick the right hook: `ModifyWeaponDamage`, `ModifyWeaponCrit`, `ModifyHitNPC`, etc.)
-- Armor — defense-tooltip-affecting only (`FlatDefenseIncrease`, `PercentageDefenseIncrease`) → `ArmorManager.UpdateEquip`. **Every other player-stat affix on armor or accessories goes into `ARPGCharacterSystem.Common.Stats.Sources.EquipmentStatSource.Dispatch`** — see that mod's CLAUDE.md for the container field surface.
-- Accessories → `EquipmentStatSource.Dispatch` (in CharacterSystem). `AccessoryManager` no longer overrides `UpdateAccessory`.
+- Per-swing or per-hit (damage/crit/knockback/atkspd/manacost/conditional-damage/CritMultiplier) → `ARPGCharacterSystem.Common.Players.OutgoingHitPlayer` in the relevant override (`ModifyWeaponDamage`, `ModifyWeaponCrit`, `ModifyWeaponKnockback`, `UseSpeedMultiplier`, `ModifyManaCost`, `ModifyHitNPCWithItem`/`Proj`).
+- Equip-time player-wide stats (max HP, max mana, defense, life regen, mana regen, flat crit chance, elemental res/pen) → `EquipmentStatSource.Dispatch` (writes to a container; orchestrator pushes to vanilla in `StatPipelinePlayer.PostUpdateEquips`).
+- Velocity → `WeaponManager.ModifyShootStats` (exception — `ModPlayer` lacks this hook).
+- Armor defense (`Flat/PercentageDefenseIncrease` on armor only) → `ArmorManager.UpdateEquip` (exception — writes `item.defense` for the vanilla tooltip).
+
+Do NOT add stat-applying overrides to `WeaponManager`, `AccessoryManager`, or `ProjectileManager`. They are data-only (own affix list + tooltip + spawn plumbing).
 
 **Step 5 (projectiles only):** Add a case in `ProjectileManager.ModifyHitNPC`.
 
