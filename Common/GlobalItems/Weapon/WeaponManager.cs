@@ -2,10 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using ARPGItemSystem.Common.Affixes;
-using EnemyConfigClient = ARPGEnemySystem.Common.Configs.ConfigClient;
 using Microsoft.Xna.Framework;
 using Terraria;
-using Terraria.ID;
 using Terraria.Localization;
 using Terraria.ModLoader;
 
@@ -41,77 +39,11 @@ namespace ARPGItemSystem.Common.GlobalItems.Weapon
         {
             foreach (var a in Affixes)
             {
-                switch (a.Id)
-                {
-                    case AffixId.FlatCritChance:
-                        crit += a.Magnitude;
-                        break;
-                    case AffixId.PercentageCritChance:
-                        crit *= 1 + a.Magnitude / 100f;
-                        break;
-                }
+                if (a.Id == AffixId.FlatCritChance)
+                    crit += a.Magnitude;
+                // PercentageCritChance is applied by ARPGCharacterSystem.Common.Stats.StatPipelinePlayer.ModifyWeaponCrit,
+                // where it is summed additively with attribute crit-% bonuses into a single multiplier.
             }
-        }
-
-        public override void ModifyHitNPC(Item item, Player player, NPC target, ref NPC.HitModifiers modifiers)
-        {
-            bool logEnabled = player.whoAmI == Main.myPlayer
-                && Main.netMode != NetmodeID.Server
-                && ModContent.GetInstance<EnemyConfigClient>()?.EnableElementalDamageLog == true;
-
-            foreach (var a in Affixes)
-            {
-                switch (a.Id)
-                {
-                    case AffixId.CritMultiplier:
-                        modifiers.CritDamage += a.Magnitude / 100f;
-                        break;
-                    case AffixId.NearbyDamageBonus:
-                    {
-                        float dist = Vector2.Distance(player.Center, target.Center);
-                        bool applied = dist <= 256f;
-                        if (applied)
-                            modifiers.SourceDamage += a.Magnitude / 100f;
-                        if (logEnabled)
-                            Main.NewText($"  [Nearby/melee] dist={dist / 16f:F1}t (≤16t)  applied={applied}  +{a.Magnitude}%", applied ? Color.LightGreen : Color.Gray);
-                        break;
-                    }
-                    case AffixId.DistantDamageBonus:
-                    {
-                        float dist = Vector2.Distance(player.Center, target.Center);
-                        bool applied = dist >= 608f;
-                        if (applied)
-                            modifiers.SourceDamage += a.Magnitude / 100f;
-                        if (logEnabled)
-                            Main.NewText($"  [Distant/melee] dist={dist / 16f:F1}t (≥48t)  applied={applied}  +{a.Magnitude}%", applied ? Color.LightGreen : Color.Gray);
-                        break;
-                    }
-                    case AffixId.LowHpDamageBonus:
-                    {
-                        float hpPct = player.statLifeMax2 > 0
-                            ? player.statLife / (float)player.statLifeMax2
-                            : 1f;
-                        // Linear ramp: 0 bonus at ≥70% HP, full bonus at ≤25% HP.
-                        // Dividing by 0.45 (= 0.70 - 0.25) maps the [0.25, 0.70] range onto [0, 1].
-                        float factor = MathHelper.Clamp((0.70f - hpPct) / 0.45f, 0f, 1f);
-                        float bonus = a.Magnitude * factor / 100f;
-                        modifiers.SourceDamage += bonus;
-                        if (logEnabled)
-                            Main.NewText($"  [LowHp/melee] hp={hpPct:P0}  factor={factor:F2}  bonus=+{bonus * 100f:F1}% (max +{a.Magnitude}%)", factor > 0 ? Color.LightGreen : Color.Gray);
-                        break;
-                    }
-                    case AffixId.FullHpDamageBonus:
-                    {
-                        bool applied = player.statLife >= player.statLifeMax2;
-                        if (applied)
-                            modifiers.SourceDamage += a.Magnitude / 100f;
-                        if (logEnabled)
-                            Main.NewText($"  [FullHp/melee] hp={player.statLife}/{player.statLifeMax2}  applied={applied}  +{a.Magnitude}%", applied ? Color.LightGreen : Color.Gray);
-                        break;
-                    }
-                }
-            }
-
         }
 
         public override void ModifyWeaponKnockback(Item item, Player player, ref StatModifier knockback)
