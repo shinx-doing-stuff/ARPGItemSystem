@@ -19,15 +19,6 @@ namespace ARPGItemSystem.Common.GlobalItems.Weapon
         protected override int RollPrefixCount() => utils.GetAmountOfPrefixesWeapon();
         protected override int RollSuffixCount() => utils.GetAmountOfSuffixesWeapon();
 
-        public override void ModifyWeaponKnockback(Item item, Player player, ref StatModifier knockback)
-        {
-            foreach (var a in Affixes)
-            {
-                if (a.Id == AffixId.KnockbackIncrease)
-                    knockback += a.Magnitude / 100f;
-            }
-        }
-
         public override void ModifyShootStats(Item item, Player player, ref Vector2 position, ref Vector2 velocity, ref int type, ref int damage, ref float knockback)
         {
             foreach (var a in Affixes)
