@@ -15,50 +15,20 @@ namespace ARPGItemSystem.Common.GlobalItems.Armor
         protected override int RollPrefixCount() => utils.GetAmountOfPrefixesArmor();
         protected override int RollSuffixCount() => utils.GetAmountOfSuffixesArmor();
 
+        // Only the two defense affixes remain at the per-item path: they write to item.defense
+        // so the vanilla armor tooltip displays the correct number. All other player-stat affixes
+        // are applied by ARPGCharacterSystem.Common.Stats.Sources.EquipmentStatSource.Dispatch.
         public override void UpdateEquip(Item item, Player player)
         {
             foreach (var a in Affixes)
             {
                 switch (a.Id)
                 {
-                    case AffixId.FlatLifeIncrease:
-                        player.statLifeMax2 += a.Magnitude;
-                        break;
                     case AffixId.FlatDefenseIncrease:
                         item.defense = item.OriginalDefense + a.Magnitude;
                         break;
                     case AffixId.PercentageDefenseIncrease:
                         item.defense = (int)(item.OriginalDefense * (1 + a.Magnitude / 100f));
-                        break;
-                    case AffixId.FlatManaIncrease:
-                        player.statManaMax2 += a.Magnitude;
-                        break;
-                    case AffixId.PercentageGenericDamageIncrease:
-                        player.GetDamage<GenericDamageClass>() += a.Magnitude / 100f;
-                        break;
-                    case AffixId.PercentageMeleeDamageIncrease:
-                        player.GetDamage<MeleeDamageClass>() += a.Magnitude / 100f;
-                        break;
-                    case AffixId.PercentageRangedDamageIncrease:
-                        player.GetDamage<RangedDamageClass>() += a.Magnitude / 100f;
-                        break;
-                    case AffixId.PercentageMagicDamageIncrease:
-                        player.GetDamage<MagicDamageClass>() += a.Magnitude / 100f;
-                        break;
-                    case AffixId.PercentageSummonDamageIncrease:
-                        player.GetDamage<SummonDamageClass>() += a.Magnitude / 100f;
-                        break;
-                    case AffixId.FlatCritChance:
-                        player.GetCritChance(DamageClass.Generic) += a.Magnitude;
-                        break;
-                    case AffixId.ManaCostReduction:
-                        player.manaCost -= a.Magnitude / 100f;
-                        break;
-                    case AffixId.LifeRegeneration:
-                        player.lifeRegen += a.Magnitude;
-                        break;
-                    case AffixId.ManaRegeneration:
-                        player.manaRegen += a.Magnitude;
                         break;
                 }
             }

@@ -118,14 +118,14 @@ Affixes: {
 
 The key must exactly match the `AffixId` enum name. `{0}` is replaced with the rolled magnitude at draw time.
 
-**Step 4 — stat-apply hook:** Add a `case AffixId.YourNewAffix:` in the appropriate manager:
+**Step 4 — stat-apply hook:** Add a `case AffixId.YourNewAffix:` in the appropriate place:
 - Weapons → `WeaponManager.cs` (pick the right hook: `ModifyWeaponDamage`, `ModifyWeaponCrit`, `ModifyHitNPC`, etc.)
-- Armor → `ArmorManager.UpdateEquip`
-- Accessories → `AccessoryManager.UpdateAccessory`
+- Armor — defense-tooltip-affecting only (`FlatDefenseIncrease`, `PercentageDefenseIncrease`) → `ArmorManager.UpdateEquip`. **Every other player-stat affix on armor or accessories goes into `ARPGCharacterSystem.Common.Stats.Sources.EquipmentStatSource.Dispatch`** — see that mod's CLAUDE.md for the container field surface.
+- Accessories → `EquipmentStatSource.Dispatch` (in CharacterSystem). `AccessoryManager` no longer overrides `UpdateAccessory`.
 
 **Step 5 (projectiles only):** Add a case in `ProjectileManager.ModifyHitNPC`.
 
-**Exception — elemental affixes:** `GainPercentAsX`, `IncreasedXDamage`, `FlatArmorPen`, and `PercentageArmorPen` are handled entirely inside `ElementalDamageCalculator.ApplyToHit` via `GetMagnitude`. Do NOT add switch cases for these in `WeaponManager.ModifyHitNPC` or `ProjectileManager.ModifyHitNPC`. Resistance affixes (`PhysicalResistance`, `FireResistance`, `ColdResistance`, `LightningResistance`) are read in `PlayerElementalPlayer.PostUpdateEquips` — no switch cases needed in `ArmorManager` or `AccessoryManager`.
+**Exception — pipeline-applied affixes:** All player-stat affixes that previously had switch cases in `ArmorManager.UpdateEquip` or `AccessoryManager.UpdateAccessory` (FlatLifeIncrease, FlatManaIncrease, LifeRegeneration, ManaRegeneration, the four `Percentage*DamageIncrease` lines, FlatCritChance, ManaCostReduction, accessory `FlatDefenseIncrease`) — plus elemental resistances and penetration — are now applied by `ARPGCharacterSystem.Common.Stats.Sources.EquipmentStatSource.Dispatch`. Do NOT add switch cases for player-stat affixes in `ArmorManager` / `AccessoryManager`. Per-hit damage affixes (`GainPercentAsX`, `IncreasedXDamage`) still flow through `ElementalDamageCalculator.ApplyToHit` via `GetMagnitude`.
 
 **Exception — hurt-pipeline affixes** (`ThornDamage`, `DamageToManaBeforeLife`): Aggregated in `PlayerSurvivalPlayer.PostUpdateEquips` (Step 4 → `PlayerSurvivalPlayer.Apply`), applied in `PlayerHurtPipeline` (`ModifyHurt` for mana-absorb, `OnHurt` for thorns). Do NOT add cases in `ArmorManager`/`AccessoryManager`.
 

@@ -14,50 +14,7 @@ namespace ARPGItemSystem.Common.GlobalItems.Accessory
         protected override int RollPrefixCount() => utils.GetAmountOfPrefixesAccessory();
         protected override int RollSuffixCount() => utils.GetAmountOfSuffixesAccessory();
 
-        public override void UpdateAccessory(Item item, Player player, bool hideVisual)
-        {
-            foreach (var a in Affixes)
-            {
-                switch (a.Id)
-                {
-                    case AffixId.FlatLifeIncrease:
-                        player.statLifeMax2 += a.Magnitude;
-                        break;
-                    case AffixId.FlatDefenseIncrease:
-                        player.statDefense += a.Magnitude;
-                        break;
-                    case AffixId.FlatManaIncrease:
-                        player.statManaMax2 += a.Magnitude;
-                        break;
-                    case AffixId.PercentageGenericDamageIncrease:
-                        player.GetDamage<GenericDamageClass>() += a.Magnitude / 100f;
-                        break;
-                    case AffixId.PercentageMeleeDamageIncrease:
-                        player.GetDamage<MeleeDamageClass>() += a.Magnitude / 100f;
-                        break;
-                    case AffixId.PercentageRangedDamageIncrease:
-                        player.GetDamage<RangedDamageClass>() += a.Magnitude / 100f;
-                        break;
-                    case AffixId.PercentageMagicDamageIncrease:
-                        player.GetDamage<MagicDamageClass>() += a.Magnitude / 100f;
-                        break;
-                    case AffixId.PercentageSummonDamageIncrease:
-                        player.GetDamage<SummonDamageClass>() += a.Magnitude / 100f;
-                        break;
-                    case AffixId.FlatCritChance:
-                        player.GetCritChance(DamageClass.Generic) += a.Magnitude;
-                        break;
-                    case AffixId.ManaCostReduction:
-                        player.manaCost -= a.Magnitude / 100f;
-                        break;
-                    case AffixId.LifeRegeneration:
-                        player.lifeRegen += a.Magnitude;
-                        break;
-                    case AffixId.ManaRegeneration:
-                        player.manaRegen += a.Magnitude;
-                        break;
-                }
-            }
-        }
+        // UpdateAccessory removed — every player-stat affix that was here is now applied
+        // by ARPGCharacterSystem.Common.Stats.Sources.EquipmentStatSource.Dispatch.
     }
 }
