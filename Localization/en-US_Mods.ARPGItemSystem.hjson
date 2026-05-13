@@ -56,8 +56,8 @@ Affixes: {
 	LowHpDamageBonus: Up to +{0}% damage as Life decreases (max at 25%)
 	FullHpDamageBonus: +{0}% damage at full Life
 	// Hybrid affixes (2026-05-13)
-	FortifiedBody: "+{0} max life, {1} max mana"
-	BalancedGrowth: "+{0} max life, +{1} max mana"
+	FortifiedBody: +{0} max life, {1} max mana
+	BalancedGrowth: +{0} max life, +{1} max mana
 }
 
 WeaponTooltip: {
