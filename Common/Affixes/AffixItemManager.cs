@@ -129,7 +129,7 @@ namespace ARPGItemSystem.Common.Affixes
 
             Affixes.Clear();
             for (int i = 0; i < ids.Count; i++)
-                Affixes.Add(new Affix((AffixId)ids[i], magnitudes[i], tiers[i]));
+                Affixes.Add(new Affix((AffixId)ids[i], magnitudes[i], 0, tiers[i]));
 
             Affixes.RemoveAll(a => a.Id == AffixId.None || !AffixRegistry.All.ContainsKey(a.Id));
 
@@ -161,7 +161,7 @@ namespace ARPGItemSystem.Common.Affixes
                 int magnitude = reader.ReadInt32();
                 int tier = reader.ReadInt32();
                 _ = reader.ReadByte();
-                Affixes.Add(new Affix(id, magnitude, tier));
+                Affixes.Add(new Affix(id, magnitude, 0, tier));
             }
             Initialized = true;
         }

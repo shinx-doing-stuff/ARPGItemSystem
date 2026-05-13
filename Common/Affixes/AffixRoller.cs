@@ -28,7 +28,11 @@ namespace ARPGItemSystem.Common.Affixes
             var range = def.Tiers[category][tier];
             int magnitude = Main.rand.Next(range.Min, range.Max + 1);
 
-            return new Affix(def.Id, magnitude, tier);
+            int magnitude2 = 0;
+            if (def.SecondaryTiers != null && def.SecondaryTiers.TryGetValue(category, out var secTiers))
+                magnitude2 = Main.rand.Next(secTiers[tier].Min, secTiers[tier].Max + 1);
+
+            return new Affix(def.Id, magnitude, magnitude2, tier);
         }
     }
 }

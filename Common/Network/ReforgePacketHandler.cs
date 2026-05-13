@@ -147,6 +147,7 @@ namespace ARPGItemSystem.Common.Network
                 resultPacket.Write(r.index);
                 resultPacket.Write((int)r.id);
                 resultPacket.Write(r.magnitude);
+                resultPacket.Write(r.magnitude2);
                 resultPacket.Write(r.tier);
             }
             resultPacket.Send(whoAmI);
@@ -162,12 +163,13 @@ namespace ARPGItemSystem.Common.Network
             var indices = new List<int>(count);
             for (int i = 0; i < count; i++)
             {
-                byte index = reader.ReadByte();
-                var id = (AffixId)reader.ReadInt32();
-                int magnitude = reader.ReadInt32();
-                int tier = reader.ReadInt32();
+                byte index     = reader.ReadByte();
+                var id         = (AffixId)reader.ReadInt32();
+                int magnitude  = reader.ReadInt32();
+                int magnitude2 = reader.ReadInt32();
+                int tier       = reader.ReadInt32();
                 if (!item.IsAir)
-                    ApplyAffixReplacement(item, index, id, magnitude, tier);
+                    ApplyAffixReplacement(item, index, id, magnitude, magnitude2, tier);
                 indices.Add(index);
             }
 
@@ -200,7 +202,7 @@ namespace ARPGItemSystem.Common.Network
             var panel = ModContent.GetInstance<ReforgeUISystem>().Panel;
 
             foreach (var r in results)
-                ApplyAffixReplacement(item, r.index, r.id, r.magnitude, r.tier);
+                ApplyAffixReplacement(item, r.index, r.id, r.magnitude, r.magnitude2, r.tier);
 
             panel?.SetAllPending(false);
             foreach (var r in results)
@@ -214,7 +216,7 @@ namespace ARPGItemSystem.Common.Network
                          * ReforgeConfig.LockMultiplier(numLocked));
         }
 
-        private static List<(byte index, AffixId id, int magnitude, int tier)> RollMultipleReplacements(
+        private static List<(byte index, AffixId id, int magnitude, int magnitude2, int tier)> RollMultipleReplacements(
             ItemCategory cat, WeaponDamageCategory damCat,
             List<(byte index, AffixKind kind)> unlocked,
             List<(AffixKind kind, AffixId id)> locked)
@@ -230,15 +232,15 @@ namespace ARPGItemSystem.Common.Network
             foreach (var l in locked)
                 excludeByKind[l.kind].Add(l.id);
 
-            var results = new List<(byte index, AffixId id, int magnitude, int tier)>(unlocked.Count);
+            var results = new List<(byte index, AffixId id, int magnitude, int magnitude2, int tier)>(unlocked.Count);
 
             foreach (var u in unlocked)
             {
                 int newTier = utils.GetTier();
                 RollReplacement(cat, u.kind, damCat, excludeByKind[u.kind], newTier,
-                    out AffixId newId, out int newMagnitude);
+                    out AffixId newId, out int newMagnitude, out int newMagnitude2);
                 if (newId == AffixId.None) continue;
-                results.Add((u.index, newId, newMagnitude, newTier));
+                results.Add((u.index, newId, newMagnitude, newMagnitude2, newTier));
                 excludeByKind[u.kind].Add(newId);
             }
 
@@ -303,12 +305,13 @@ namespace ARPGItemSystem.Common.Network
 
             int newTier = utils.GetTier();
             RollReplacement(cat, kind, damCat, excludeIds, newTier,
-                out AffixId newId, out int newMagnitude);
+                out AffixId newId, out int newMagnitude, out int newMagnitude2);
 
             var resultPacket = ModContent.GetInstance<ARPGItemSystem>().GetPacket();
             resultPacket.Write((byte)ReforgePacketType.FillEmptySlotResult);
             resultPacket.Write((int)newId);
             resultPacket.Write(newMagnitude);
+            resultPacket.Write(newMagnitude2);
             resultPacket.Write(newTier);
             resultPacket.Send(whoAmI);
         }
@@ -318,8 +321,9 @@ namespace ARPGItemSystem.Common.Network
             if (Main.netMode == NetmodeID.Server) return;
 
             var newId = (AffixId)reader.ReadInt32();
-            int newMagnitude = reader.ReadInt32();
-            int newTier = reader.ReadInt32();
+            int newMagnitude  = reader.ReadInt32();
+            int newMagnitude2 = reader.ReadInt32();
+            int newTier       = reader.ReadInt32();
 
             var item = Main.reforgeItem;
             if (item.IsAir || newId == AffixId.None)
@@ -328,7 +332,7 @@ namespace ARPGItemSystem.Common.Network
                 return;
             }
 
-            AppendAffix(item, newId, newMagnitude, newTier);
+            AppendAffix(item, newId, newMagnitude, newMagnitude2, newTier);
             ModContent.GetInstance<ReforgeUISystem>().Panel?.RebuildRowsAfterFill();
         }
 
@@ -352,7 +356,7 @@ namespace ARPGItemSystem.Common.Network
 
             int newTier = utils.GetTier();
             RollReplacement(cat, kind, damCat, excludeIds, newTier,
-                out AffixId newId, out int newMagnitude);
+                out AffixId newId, out int newMagnitude, out int newMagnitude2);
 
             if (newId == AffixId.None)
             {
@@ -360,7 +364,7 @@ namespace ARPGItemSystem.Common.Network
                 return;
             }
 
-            AppendAffix(item, newId, newMagnitude, newTier);
+            AppendAffix(item, newId, newMagnitude, newMagnitude2, newTier);
             ModContent.GetInstance<ReforgeUISystem>().Panel?.RebuildRowsAfterFill();
         }
 
@@ -370,7 +374,7 @@ namespace ARPGItemSystem.Common.Network
                          * ReforgeConfig.EmptySlotMultiplier);
         }
 
-        private static void AppendAffix(Item item, AffixId id, int magnitude, int tier)
+        private static void AppendAffix(Item item, AffixId id, int magnitude, int magnitude2, int tier)
         {
             AffixItemManager mgr = item.damage > 0 && item.maxStack <= 1
                 ? (AffixItemManager)item.GetGlobalItem<WeaponManager>()
@@ -380,7 +384,7 @@ namespace ARPGItemSystem.Common.Network
 
             if (mgr == null || id == AffixId.None) return;
 
-            var affix = new Affix(id, magnitude, tier);
+            var affix = new Affix(id, magnitude, magnitude2, tier);
             if (AffixRegistry.Get(id).Kind == AffixKind.Prefix)
             {
                 int insertAt = mgr.Affixes.FindIndex(a => AffixRegistry.Get(a.Id).Kind == AffixKind.Suffix);
@@ -397,10 +401,11 @@ namespace ARPGItemSystem.Common.Network
 
         private static void RollReplacement(ItemCategory cat, AffixKind kind,
             WeaponDamageCategory damCat, List<AffixId> excludeIds, int tier,
-            out AffixId newId, out int newMagnitude)
+            out AffixId newId, out int newMagnitude, out int newMagnitude2)
         {
             newId = AffixId.None;
             newMagnitude = 0;
+            newMagnitude2 = 0;
 
             DamageClass weaponClass = cat == ItemCategory.Weapon ? GetDamageClass(damCat) : null;
 
@@ -415,10 +420,13 @@ namespace ARPGItemSystem.Common.Network
             var range = def.Tiers[cat][tier];
             newId = def.Id;
             newMagnitude = Main.rand.Next(range.Min, range.Max + 1);
+
+            if (def.SecondaryTiers != null && def.SecondaryTiers.TryGetValue(cat, out var secTiers))
+                newMagnitude2 = Main.rand.Next(secTiers[tier].Min, secTiers[tier].Max + 1);
         }
 
         private static void ApplyAffixReplacement(Item item, int affixIndex,
-            AffixId newId, int newMagnitude, int newTier)
+            AffixId newId, int newMagnitude, int newMagnitude2, int newTier)
         {
             if (newId == AffixId.None) return;
 
@@ -430,7 +438,7 @@ namespace ARPGItemSystem.Common.Network
 
             if (mgr == null || affixIndex < 0 || affixIndex >= mgr.Affixes.Count) return;
             var list = mgr.Affixes;
-            list[affixIndex] = new Affix(newId, newMagnitude, newTier);
+            list[affixIndex] = new Affix(newId, newMagnitude, newMagnitude2, newTier);
         }
 
         public static ItemCategory GetItemCategory(Item item)

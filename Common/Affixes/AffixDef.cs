@@ -14,5 +14,11 @@ namespace ARPGItemSystem.Common.Affixes
         // Restricts which weapon DamageClasses this affix can roll on.
         // null = unrestricted. Only consulted when category == ItemCategory.Weapon.
         public HashSet<DamageClass> AllowedDamageClasses { get; init; }
+
+        // Secondary stat tier tables for hybrid affixes. null = single-stat affix.
+        // Each list MUST contain exactly 10 Tier entries. Negative Min/Max = penalty.
+        public Dictionary<ItemCategory, List<Tier>>? SecondaryTiers { get; init; }
+
+        public bool IsHybrid => SecondaryTiers != null;
     }
 }
