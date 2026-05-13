@@ -59,6 +59,12 @@ namespace ARPGItemSystem.Common.Affixes
         NearbyDamageBonus,
         DistantDamageBonus,
         LowHpDamageBonus,
-        FullHpDamageBonus
+        FullHpDamageBonus,
+
+        // Chaos damage type (2026-05-13 — magnitudes ~50% of F/C/L per spec)
+        GainPercentAsChaos,
+        IncreasedChaosDamage,
+        ChaosResistance,
+        ChaosPenetration
     }
 }

@@ -686,6 +686,66 @@ namespace ARPGItemSystem.Common.Affixes
                         }
                     },
                     AllowedDamageClasses = null
+                },
+
+                // ============== CHAOS DAMAGE (2026-05-13) ==============
+                // Magnitudes intentionally ~50% of F/C/L counterparts per spec.
+
+                new AffixDef {
+                    Id = AffixId.GainPercentAsChaos,
+                    Kind = AffixKind.Prefix,
+                    Tiers = new Dictionary<ItemCategory, List<Tier>>
+                    {
+                        [ItemCategory.Weapon] = new List<Tier> {
+                            new(28,30), new(25,27), new(22,24), new(19,21), new(16,18),
+                            new(13,15), new(10,12), new(7,9),   new(4,6),   new(1,3)
+                        }
+                    },
+                    AllowedDamageClasses = null
+                },
+                new AffixDef {
+                    Id = AffixId.IncreasedChaosDamage,
+                    Kind = AffixKind.Prefix,
+                    Tiers = new Dictionary<ItemCategory, List<Tier>>
+                    {
+                        [ItemCategory.Weapon] = new List<Tier> {
+                            new(31,33), new(28,30), new(25,27), new(22,24), new(19,21),
+                            new(16,18), new(13,15), new(10,12), new(7,9),   new(3,6)
+                        }
+                    },
+                    AllowedDamageClasses = null
+                },
+                new AffixDef {
+                    Id = AffixId.ChaosResistance,
+                    Kind = AffixKind.Suffix,
+                    Tiers = new Dictionary<ItemCategory, List<Tier>>
+                    {
+                        [ItemCategory.Armor] = new List<Tier> {
+                            new(17,18), new(15,16), new(13,14), new(12,13), new(10,11),
+                            new(8,9),   new(6,7),   new(4,5),   new(3,4),   new(1,2)
+                        },
+                        [ItemCategory.Accessory] = new List<Tier> {
+                            new(4,6), new(4,5), new(4,4), new(4,4), new(3,4),
+                            new(3,3), new(2,3), new(2,2), new(1,2), new(1,1)
+                        }
+                    },
+                    AllowedDamageClasses = null
+                },
+                new AffixDef {
+                    Id = AffixId.ChaosPenetration,
+                    Kind = AffixKind.Suffix,
+                    Tiers = new Dictionary<ItemCategory, List<Tier>>
+                    {
+                        [ItemCategory.Weapon] = new List<Tier> {
+                            new(17,18), new(15,16), new(13,14), new(12,13), new(10,11),
+                            new(8,9),   new(6,7),   new(4,5),   new(3,4),   new(1,2)
+                        },
+                        [ItemCategory.Accessory] = new List<Tier> {
+                            new(4,6), new(4,5), new(4,4), new(3,4), new(3,3),
+                            new(2,3), new(2,2), new(1,2), new(1,1), new(1,1)
+                        }
+                    },
+                    AllowedDamageClasses = null
                 }
             };
 

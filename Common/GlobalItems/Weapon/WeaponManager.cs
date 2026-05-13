@@ -44,8 +44,8 @@ namespace ARPGItemSystem.Common.GlobalItems.Weapon
             if (!match.Success || !int.TryParse(match.Value, out int displayedDamage) || displayedDamage <= 0)
                 return;
 
-            int gainFire = 0, gainCold = 0, gainLight = 0;
-            int incFire = 0, incCold = 0, incLight = 0;
+            int gainFire = 0, gainCold = 0, gainLight = 0, gainChaos = 0;
+            int incFire = 0, incCold = 0, incLight = 0, incChaos = 0;
             foreach (var a in Affixes)
             {
                 switch (a.Id)
@@ -53,9 +53,11 @@ namespace ARPGItemSystem.Common.GlobalItems.Weapon
                     case AffixId.GainPercentAsFire:        gainFire  = a.Magnitude; break;
                     case AffixId.GainPercentAsCold:        gainCold  = a.Magnitude; break;
                     case AffixId.GainPercentAsLightning:   gainLight = a.Magnitude; break;
+                    case AffixId.GainPercentAsChaos:       gainChaos = a.Magnitude; break;
                     case AffixId.IncreasedFireDamage:      incFire   = a.Magnitude; break;
                     case AffixId.IncreasedColdDamage:      incCold   = a.Magnitude; break;
                     case AffixId.IncreasedLightningDamage: incLight  = a.Magnitude; break;
+                    case AffixId.IncreasedChaosDamage:     incChaos  = a.Magnitude; break;
                 }
             }
 
@@ -63,6 +65,7 @@ namespace ARPGItemSystem.Common.GlobalItems.Weapon
             idx = TryInsertElementalLine(tooltips, idx, displayedDamage, gainFire,  incFire,  "GainedFire",      new Color(255, 120,  50));
             idx = TryInsertElementalLine(tooltips, idx, displayedDamage, gainCold,  incCold,  "GainedCold",      new Color(100, 200, 255));
             idx = TryInsertElementalLine(tooltips, idx, displayedDamage, gainLight, incLight, "GainedLightning", new Color(255, 240,  80));
+            idx = TryInsertElementalLine(tooltips, idx, displayedDamage, gainChaos, incChaos, "GainedChaos",     new Color(180,  60, 220));
         }
 
         private int TryInsertElementalLine(List<TooltipLine> tooltips, int idx, int displayed, int gainPct, int incPct, string key, Color color)
