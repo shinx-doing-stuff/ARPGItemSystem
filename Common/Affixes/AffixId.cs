@@ -65,6 +65,10 @@ namespace ARPGItemSystem.Common.Affixes
         GainPercentAsChaos,
         IncreasedChaosDamage,
         ChaosResistance,
-        ChaosPenetration
+        ChaosPenetration,
+
+        // Hybrid affixes (2026-05-13)
+        FortifiedBody,    // +HP (boosted), −Mana
+        BalancedGrowth    // +HP, +Mana (both at ~65% of standalone)
     }
 }

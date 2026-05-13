@@ -746,13 +746,86 @@ namespace ARPGItemSystem.Common.Affixes
                         }
                     },
                     AllowedDamageClasses = null
+                },
+
+                // ============== HYBRID AFFIXES (2026-05-13) ==============
+
+                // FortifiedBody: Armor + Accessory, Prefix.
+                // Large HP gain at the cost of max mana. HP is ~125% of FlatLifeIncrease
+                // to compensate for the penalty. Secondary has a small range so both stats
+                // feel rolled, not calculated.
+                new AffixDef {
+                    Id = AffixId.FortifiedBody,
+                    Kind = AffixKind.Prefix,
+                    Tiers = new Dictionary<ItemCategory, List<Tier>>           // primary: +HP
+                    {
+                        [ItemCategory.Armor] = new List<Tier> {
+                            new(70,76), new(63,69), new(56,62), new(49,55), new(42,48),
+                            new(35,41), new(28,34), new(21,27), new(14,20), new(6,13)
+                        },
+                        [ItemCategory.Accessory] = new List<Tier> {
+                            new(30,33), new(27,29), new(23,26), new(20,22), new(17,19),
+                            new(14,16), new(11,13), new(8,10),  new(5,7),   new(2,4)
+                        }
+                    },
+                    SecondaryTiers = new Dictionary<ItemCategory, List<Tier>>  // secondary: −Mana
+                    {
+                        [ItemCategory.Armor] = new List<Tier> {
+                            new(-32,-28), new(-28,-25), new(-25,-22), new(-22,-19), new(-18,-16),
+                            new(-15,-13), new(-12,-10), new(-9,-7),   new(-6,-4),   new(-3,-2)
+                        },
+                        [ItemCategory.Accessory] = new List<Tier> {
+                            new(-15,-13), new(-13,-11), new(-11,-9), new(-10,-8), new(-8,-7),
+                            new(-7,-6),   new(-5,-4),   new(-4,-3),  new(-3,-2),  new(-2,-1)
+                        }
+                    },
+                    AllowedDamageClasses = null
+                },
+
+                // BalancedGrowth: Armor + Accessory, Prefix.
+                // Grants both HP and Mana. Each is ~65% of its standalone counterpart since
+                // one affix slot buys two stats. Accessory mana skews slightly higher to match
+                // the existing accessory FlatManaIncrease scale.
+                new AffixDef {
+                    Id = AffixId.BalancedGrowth,
+                    Kind = AffixKind.Prefix,
+                    Tiers = new Dictionary<ItemCategory, List<Tier>>           // primary: +HP
+                    {
+                        [ItemCategory.Armor] = new List<Tier> {
+                            new(37,40), new(33,36), new(29,32), new(25,28), new(21,24),
+                            new(17,20), new(13,16), new(9,12),  new(5,8),   new(1,4)
+                        },
+                        [ItemCategory.Accessory] = new List<Tier> {
+                            new(16,18), new(14,16), new(12,14), new(10,12), new(8,10),
+                            new(6,8),   new(5,6),   new(3,4),   new(2,3),   new(1,2)
+                        }
+                    },
+                    SecondaryTiers = new Dictionary<ItemCategory, List<Tier>>  // secondary: +Mana
+                    {
+                        [ItemCategory.Armor] = new List<Tier> {
+                            new(37,40), new(33,36), new(29,32), new(25,28), new(21,24),
+                            new(17,20), new(13,16), new(9,12),  new(5,8),   new(1,4)
+                        },
+                        [ItemCategory.Accessory] = new List<Tier> {
+                            new(32,35), new(28,31), new(25,27), new(21,24), new(18,20),
+                            new(15,17), new(11,14), new(8,10),  new(5,7),   new(1,4)
+                        }
+                    },
+                    AllowedDamageClasses = null
                 }
             };
 
             foreach (var def in defs)
+            {
                 foreach (var (cat, list) in def.Tiers)
                     if (list.Count != 10)
                         throw new Exception($"AffixDef {def.Id} category {cat} has {list.Count} tier entries, expected 10");
+
+                if (def.SecondaryTiers != null)
+                    foreach (var (cat, list) in def.SecondaryTiers)
+                        if (list.Count != 10)
+                            throw new Exception($"AffixDef {def.Id} SecondaryTiers category {cat} has {list.Count} tier entries, expected 10");
+            }
 
             return defs.ToDictionary(d => d.Id);
         }
