@@ -86,7 +86,10 @@ namespace ARPGItemSystem.Common.UI
             if (mgr == null || _affixIndex < 0 || _affixIndex >= mgr.Affixes.Count) return;
 
             var a = mgr.Affixes[_affixIndex];
-            string displayText = Language.GetTextValue($"Mods.ARPGItemSystem.Affixes.{a.Id}", a.Magnitude);
+            var def = AffixRegistry.Get(a.Id);
+            string displayText = def.IsHybrid
+                ? Language.GetTextValue($"Mods.ARPGItemSystem.Affixes.{a.Id}", a.Magnitude, a.Magnitude2)
+                : Language.GetTextValue($"Mods.ARPGItemSystem.Affixes.{a.Id}", a.Magnitude);
             _affixText.SetText(displayText);
 
             int bestMax = AffixRegistry.Get(a.Id).Tiers[mgr.Category][utils.GetBestTier()].Max;
