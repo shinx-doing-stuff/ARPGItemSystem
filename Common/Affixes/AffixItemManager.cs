@@ -80,9 +80,10 @@ namespace ARPGItemSystem.Common.Affixes
             for (int i = 0; i < Affixes.Count; i++)
             {
                 var affix = Affixes[i];
-                var def = AffixRegistry.Get(affix.Id);
-                var text = Language.GetTextValue(
-                    $"Mods.ARPGItemSystem.Affixes.{affix.Id}", affix.Magnitude);
+                var def   = AffixRegistry.Get(affix.Id);
+                var text  = def.IsHybrid
+                    ? Language.GetTextValue($"Mods.ARPGItemSystem.Affixes.{affix.Id}", affix.Magnitude, affix.Magnitude2)
+                    : Language.GetTextValue($"Mods.ARPGItemSystem.Affixes.{affix.Id}", affix.Magnitude);
                 var color = def.Kind == AffixKind.Prefix
                     ? Microsoft.Xna.Framework.Color.LightGreen
                     : Microsoft.Xna.Framework.Color.DeepSkyBlue;
@@ -93,23 +94,26 @@ namespace ARPGItemSystem.Common.Affixes
         public override void SaveData(Item item, TagCompound tag)
         {
             int n = Affixes.Count;
-            var ids = new List<int>(n);
-            var magnitudes = new List<int>(n);
-            var tiers = new List<int>(n);
-            var kinds = new List<byte>(n);
+            var ids         = new List<int>(n);
+            var magnitudes  = new List<int>(n);
+            var magnitudes2 = new List<int>(n);
+            var tiers       = new List<int>(n);
+            var kinds       = new List<byte>(n);
 
             foreach (var a in Affixes)
             {
                 ids.Add((int)a.Id);
                 magnitudes.Add(a.Magnitude);
+                magnitudes2.Add(a.Magnitude2);
                 tiers.Add(a.Tier);
                 kinds.Add((byte)AffixRegistry.Get(a.Id).Kind);
             }
 
-            tag["AffixIds"] = ids;
-            tag["Magnitudes"] = magnitudes;
-            tag["Tiers"] = tiers;
-            tag["Kinds"] = kinds;
+            tag["AffixIds"]    = ids;
+            tag["Magnitudes"]  = magnitudes;
+            tag["Magnitudes2"] = magnitudes2;
+            tag["Tiers"]       = tiers;
+            tag["Kinds"]       = kinds;
         }
 
         public override void LoadData(Item item, TagCompound tag)
@@ -121,15 +125,18 @@ namespace ARPGItemSystem.Common.Affixes
                 return;
             }
 
-            var ids = tag.GetList<int>("AffixIds").ToList();
-            var magnitudes = tag.GetList<int>("Magnitudes").ToList();
-            var tiers = tag.GetList<int>("Tiers").ToList();
+            var ids         = tag.GetList<int>("AffixIds").ToList();
+            var magnitudes  = tag.GetList<int>("Magnitudes").ToList();
+            var magnitudes2 = tag.ContainsKey("Magnitudes2")
+                                ? tag.GetList<int>("Magnitudes2").ToList()
+                                : Enumerable.Repeat(0, ids.Count).ToList();
+            var tiers       = tag.GetList<int>("Tiers").ToList();
             // Kinds written by SaveData for future-proofing; registry is authoritative for kind on load.
             _ = tag.GetList<byte>("Kinds");
 
             Affixes.Clear();
             for (int i = 0; i < ids.Count; i++)
-                Affixes.Add(new Affix((AffixId)ids[i], magnitudes[i], 0, tiers[i]));
+                Affixes.Add(new Affix((AffixId)ids[i], magnitudes[i], magnitudes2[i], tiers[i]));
 
             Affixes.RemoveAll(a => a.Id == AffixId.None || !AffixRegistry.All.ContainsKey(a.Id));
 
@@ -147,6 +154,7 @@ namespace ARPGItemSystem.Common.Affixes
                 writer.Write((int)a.Id);
                 writer.Write(a.Magnitude);
                 writer.Write(a.Tier);
+                writer.Write(a.Magnitude2);
                 writer.Write((byte)AffixRegistry.Get(a.Id).Kind);
             }
         }
@@ -157,11 +165,12 @@ namespace ARPGItemSystem.Common.Affixes
             Affixes.Clear();
             for (int i = 0; i < count; i++)
             {
-                var id = (AffixId)reader.ReadInt32();
-                int magnitude = reader.ReadInt32();
-                int tier = reader.ReadInt32();
+                var id        = (AffixId)reader.ReadInt32();
+                int magnitude  = reader.ReadInt32();
+                int tier       = reader.ReadInt32();
+                int magnitude2 = reader.ReadInt32();
                 _ = reader.ReadByte();
-                Affixes.Add(new Affix(id, magnitude, 0, tier));
+                Affixes.Add(new Affix(id, magnitude, magnitude2, tier));
             }
             Initialized = true;
         }
