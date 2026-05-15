@@ -57,7 +57,7 @@ OnCreated(item) → AffixItemManager.Reroll(item)
   → Affixes stored on GlobalItem instance (InstancePerEntity = true)
        ↓
 Applied each frame via:
-  ModifyTooltips                                                  (WeaponManager — display only)
+  ModifyTooltips (base class — affix-line append)                 (AffixItemManager)
   ModifyShootStats (VelocityIncrease only)                        (WeaponManager — exception: ModPlayer lacks this hook)
   UpdateEquip (Flat/PercentageDefenseIncrease only)               (ArmorManager — exception: writes item.defense for vanilla tooltip)
   OnSpawn (affix data plumbing for projectiles)                   (ProjectileManager)
@@ -78,9 +78,7 @@ Applied each frame via:
 
 ### Weapon Tooltip — Elemental Damage Breakdown
 
-`WeaponManager.ModifyTooltips` overrides the base to insert one colored line per active `GainPercentAsFire/Cold/Lightning` affix directly under the vanilla `"Damage"` line. The displayed gained number is derived by **regex-parsing the integer already shown on the Damage line** (`Mod=="Terraria", Name=="Damage"`) so the math is verifiable to the player — `displayed × gain% × (1 + increased%)`, rounded. The increased% factor mirrors `ElementalDamageCalculator`'s pre-resistance formula. Colors match the chat-debug palette: Fire `(255,120,50)`, Cold `(100,200,255)`, Lightning `(255,240,80)`. Localization keys live under `WeaponTooltip.GainedFire/Cold/Lightning` in `en-US_Mods.ARPGItemSystem.hjson`.
-
-Lines are skipped when `gain <= 0` or rounded `gained == 0`, so weapons without elemental affixes get no extra clutter. Tooltip rendering is per-client; multiplayer sync is already covered by `AffixItemManager.NetSend/NetReceive`. The base `ModifyTooltips` (which appends affix lines at the end) still runs first, so nothing about the affix-list rendering changes — only weapons get the inline elemental breakdown.
+The per-element "gained X" tooltip preview lives in **`ARPGCharacterSystem.Common.GlobalItems.WeaponElementalTooltip`**, NOT here. It was moved (2026-05-15) so it could combine item-rolled affixes with player-side aggregations (`PlayerElementalStats.Gain*Damage`, `Increased*Damage`, `ConvertTo*`). `WeaponManager` no longer overrides `ModifyTooltips` — the base class still appends affix lines.
 
 ### Persistence Pattern
 

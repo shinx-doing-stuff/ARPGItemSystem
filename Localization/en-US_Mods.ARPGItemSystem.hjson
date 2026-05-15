@@ -60,13 +60,6 @@ Affixes: {
 	BalancedGrowth: +{0} max life, +{1} max mana
 }
 
-WeaponTooltip: {
-	GainedFire: "{0} Fire damage"
-	GainedCold: "{0} Cold damage"
-	GainedLightning: "{0} Lightning damage"
-	GainedChaos: "{0} Chaos damage"
-}
-
 UI: {
 	ReforgePanel: {
 		Title: Modifier Reforge
