@@ -69,6 +69,12 @@ namespace ARPGItemSystem.Common.Affixes
 
         // Hybrid affixes (2026-05-13)
         FortifiedBody,    // +HP (boosted), −Mana
-        BalancedGrowth    // +HP, +Mana (both at ~65% of standalone)
+        BalancedGrowth,   // +HP, +Mana (both at ~65% of standalone)
+
+        // Ailment-infliction framework (2026-05-16)
+        BleedChanceOnHit,
+        BurningChanceOnHit,
+        IncreasedAilmentDamage,
+        IncreasedAilmentDuration,
     }
 }

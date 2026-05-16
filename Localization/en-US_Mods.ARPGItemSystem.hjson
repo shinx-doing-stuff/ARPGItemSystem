@@ -58,6 +58,11 @@ Affixes: {
 	// Hybrid affixes (2026-05-13)
 	FortifiedBody: +{0} max life, {1} max mana
 	BalancedGrowth: +{0} max life, +{1} max mana
+	// Ailment affixes (2026-05-16)
+	BleedChanceOnHit: "{0}% chance to inflict Bleed on hit"
+	BurningChanceOnHit: "{0}% chance to inflict Burning on hit"
+	IncreasedAilmentDamage: +{0}% increased Ailment damage
+	IncreasedAilmentDuration: +{0}% increased Ailment duration
 }
 
 UI: {

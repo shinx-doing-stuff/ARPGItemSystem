@@ -812,7 +812,74 @@ namespace ARPGItemSystem.Common.Affixes
                         }
                     },
                     AllowedDamageClasses = null
-                }
+                },
+
+                // BleedChanceOnHit: Weapon-only, Suffix. % chance to inflict Bleed on each hit.
+                new AffixDef {
+                    Id = AffixId.BleedChanceOnHit,
+                    Kind = AffixKind.Suffix,
+                    Tiers = new Dictionary<ItemCategory, List<Tier>>
+                    {
+                        [ItemCategory.Weapon] = new List<Tier> {
+                            new(22,25), new(19,21), new(16,18), new(13,15), new(10,12),
+                            new(8,9),   new(6,7),   new(4,5),   new(2,3),   new(1,1)
+                        }
+                    },
+                    AllowedDamageClasses = null
+                },
+
+                // BurningChanceOnHit: Weapon-only, Suffix. % chance to inflict Burning on each hit.
+                // Only procs if the hit dealt fire damage (SourceElement=Fire gate in ApplyAilmentProcs).
+                new AffixDef {
+                    Id = AffixId.BurningChanceOnHit,
+                    Kind = AffixKind.Suffix,
+                    Tiers = new Dictionary<ItemCategory, List<Tier>>
+                    {
+                        [ItemCategory.Weapon] = new List<Tier> {
+                            new(22,25), new(19,21), new(16,18), new(13,15), new(10,12),
+                            new(8,9),   new(6,7),   new(4,5),   new(2,3),   new(1,1)
+                        }
+                    },
+                    AllowedDamageClasses = null
+                },
+
+                // IncreasedAilmentDamage: Weapon + Accessory, Prefix. % increased ailment DoT damage.
+                // Magnitude is percent (30 = 30%); converted to fraction at dispatch.
+                new AffixDef {
+                    Id = AffixId.IncreasedAilmentDamage,
+                    Kind = AffixKind.Prefix,
+                    Tiers = new Dictionary<ItemCategory, List<Tier>>
+                    {
+                        [ItemCategory.Weapon] = new List<Tier> {
+                            new(30,35), new(25,29), new(21,24), new(17,20), new(13,16),
+                            new(10,12), new(7,9),   new(5,6),   new(3,4),   new(1,2)
+                        },
+                        [ItemCategory.Accessory] = new List<Tier> {
+                            new(15,18), new(12,14), new(10,11), new(8,9),  new(6,7),
+                            new(5,5),   new(4,4),   new(3,3),   new(2,2),  new(1,1)
+                        }
+                    },
+                    AllowedDamageClasses = null
+                },
+
+                // IncreasedAilmentDuration: Weapon + Accessory, Prefix. % increased ailment duration.
+                // Magnitude is percent (30 = 30%); converted to fraction at dispatch.
+                new AffixDef {
+                    Id = AffixId.IncreasedAilmentDuration,
+                    Kind = AffixKind.Prefix,
+                    Tiers = new Dictionary<ItemCategory, List<Tier>>
+                    {
+                        [ItemCategory.Weapon] = new List<Tier> {
+                            new(30,35), new(25,29), new(21,24), new(17,20), new(13,16),
+                            new(10,12), new(7,9),   new(5,6),   new(3,4),   new(1,2)
+                        },
+                        [ItemCategory.Accessory] = new List<Tier> {
+                            new(15,18), new(12,14), new(10,11), new(8,9),  new(6,7),
+                            new(5,5),   new(4,4),   new(3,3),   new(2,2),  new(1,1)
+                        }
+                    },
+                    AllowedDamageClasses = null
+                },
             };
 
             foreach (var def in defs)

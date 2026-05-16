@@ -131,6 +131,8 @@ Do NOT add stat-applying overrides to `WeaponManager`, `AccessoryManager`, or `P
 
 **Exception — hurt-pipeline affixes** (`ThornDamage`, `DamageToManaBeforeLife`): Aggregated in `PlayerSurvivalPlayer.PostUpdateEquips` (Step 4 → `PlayerSurvivalPlayer.Apply`), applied in `PlayerHurtPipeline` (`ModifyHurt` for mana-absorb, `OnHurt` for thorns). Do NOT add cases in `ArmorManager`/`AccessoryManager`.
 
+**Exception — ailment-infliction affixes** (`BleedChanceOnHit`, `BurningChanceOnHit`, `IncreasedAilmentDamage`, `IncreasedAilmentDuration`): Rolled at hit time by `ARPGCharacterSystem.Common.Players.OutgoingHitPlayer.ApplyAilmentProcs`. Weapon chance-on-hit affixes roll inside a `ModifyHitInfo` callback gated by weapon-base > 0 for the ailment's source element. `IncreasedAilmentDamage`/`IncreasedAilmentDuration` from **accessories** are dispatched by `EquipmentStatSource.Dispatch` into `PlayerAilmentProcStats`; the same affixes from **weapons** are folded into `PlayerAilmentProcStats` at hit time (before `TryApply` resolves bonuses). Do NOT add cases for these in `ArmorManager`/`AccessoryManager`/`WeaponManager`.
+
 That's it. The new affix automatically enters the roll pool, saves/loads by ID, and syncs over the network — no other files to touch.
 
 ## UI Architecture (Reforge Panel)
