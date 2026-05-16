@@ -11,6 +11,12 @@ namespace ARPGItemSystem.Common.GlobalItems
     public class ProjectileManager : GlobalProjectile
     {
         public List<Affix> Affixes = new();
+
+        // Raw base damage (item.OriginalDamage) of the weapon that spawned this projectile.
+        // Read by ARPGCharacterSystem's ElementalDamageCalculator to compute the weapon-base
+        // DoT scaling base. 0 if the projectile has no weapon source.
+        public int WeaponBaseDamage;
+
         public override bool InstancePerEntity => true;
 
         public override void OnSpawn(Projectile projectile, IEntitySource source)
@@ -21,21 +27,22 @@ namespace ARPGItemSystem.Common.GlobalItems
                 && itemSource.Item.fishingPole <= 0)
             {
                 if (itemSource.Item.TryGetGlobalItem<WeaponManager>(out var wm))
+                {
                     Affixes = wm.Affixes.ToList();
+                    WeaponBaseDamage = itemSource.Item.OriginalDamage;
+                }
                 return;
             }
 
-            // Projectiles fired BY a sentry or minion (EntitySource_Parent where the parent is a
-            // projectile that already has affix data). Propagates affixes to child shots so
-            // sentry bolts and minion sub-projectiles inherit the summoning weapon's affixes.
+            // Projectiles fired BY a sentry or minion — inherit parent's affix data.
             if (source is EntitySource_Parent parentSource
                 && parentSource.Entity is Projectile parentProj
                 && parentProj.TryGetGlobalProjectile<ProjectileManager>(out var parentPm)
                 && parentPm.Affixes.Count > 0)
             {
                 Affixes = parentPm.Affixes.ToList();
+                WeaponBaseDamage = parentPm.WeaponBaseDamage;
             }
         }
-
     }
 }
