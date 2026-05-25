@@ -76,5 +76,9 @@ namespace ARPGItemSystem.Common.Affixes
         BurningChanceOnHit,
         IncreasedAilmentDamage,
         IncreasedAilmentDuration,
+
+        // Player self-inflict framework (2026-05-25)
+        FervourChanceOnHit,        // Weapon + Accessory, Suffix
+        FervourChanceOnHurt,       // Accessory only, Suffix
     }
 }

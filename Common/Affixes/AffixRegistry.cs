@@ -880,6 +880,41 @@ namespace ARPGItemSystem.Common.Affixes
                     },
                     AllowedDamageClasses = null
                 },
+
+                // FervourChanceOnHit: Weapon + Accessory, Suffix. % chance to gain a Fervour stack
+                // when the player hits an enemy.
+                // Tier values mirror BleedChanceOnHit (22-25 down to 1-1).
+                new AffixDef {
+                    Id = AffixId.FervourChanceOnHit,
+                    Kind = AffixKind.Suffix,
+                    Tiers = new Dictionary<ItemCategory, List<Tier>>
+                    {
+                        [ItemCategory.Weapon] = new List<Tier> {
+                            new(22,25), new(19,21), new(16,18), new(13,15), new(10,12),
+                            new(8,9),   new(6,7),   new(4,5),   new(2,3),   new(1,1)
+                        },
+                        [ItemCategory.Accessory] = new List<Tier> {
+                            new(22,25), new(19,21), new(16,18), new(13,15), new(10,12),
+                            new(8,9),   new(6,7),   new(4,5),   new(2,3),   new(1,1)
+                        }
+                    },
+                    AllowedDamageClasses = null
+                },
+
+                // FervourChanceOnHurt: Accessory only, Suffix. % chance to gain a Fervour stack
+                // when the player takes damage.
+                new AffixDef {
+                    Id = AffixId.FervourChanceOnHurt,
+                    Kind = AffixKind.Suffix,
+                    Tiers = new Dictionary<ItemCategory, List<Tier>>
+                    {
+                        [ItemCategory.Accessory] = new List<Tier> {
+                            new(22,25), new(19,21), new(16,18), new(13,15), new(10,12),
+                            new(8,9),   new(6,7),   new(4,5),   new(2,3),   new(1,1)
+                        }
+                    },
+                    AllowedDamageClasses = null
+                },
             };
 
             foreach (var def in defs)

@@ -63,6 +63,8 @@ Affixes: {
 	BurningChanceOnHit: "{0}% chance to inflict Burning on hit"
 	IncreasedAilmentDamage: +{0}% increased Ailment damage
 	IncreasedAilmentDuration: +{0}% increased Ailment duration
+	FervourChanceOnHit: "{0}% chance to gain Fervour on hit"
+	FervourChanceOnHurt: "{0}% chance to gain Fervour when hit"
 }
 
 UI: {
