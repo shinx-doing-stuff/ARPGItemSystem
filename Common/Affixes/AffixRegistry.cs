@@ -610,20 +610,20 @@ namespace ARPGItemSystem.Common.Affixes
                 },
 
                 // A.4 — DamageToManaBeforeLife: Armor + Accessory, PREFIX (per spec §4.1).
-                // Aggregate cap 40% (§4.2). Magnitudes ≈0.22× parent (§4.3).
-                // Per-hit cap = 25% of statManaMax2 applied at hit time (see PlayerHurtPipeline).
+                // Aggregate cap 70%, clamped in ARPGCharacterSystem's PlayerSurvivalStats.ClampCaps.
+                // No per-hit ceiling — the whole share of post-resistance damage routes to mana.
                 new AffixDef {
                     Id = AffixId.DamageToManaBeforeLife,
                     Kind = AffixKind.Prefix,
                     Tiers = new Dictionary<ItemCategory, List<Tier>>
                     {
                         [ItemCategory.Armor] = new List<Tier> {
-                            new(8,9), new(7,8), new(6,7), new(5,6), new(4,5),
-                            new(4,4), new(3,4), new(2,3), new(2,2), new(1,2)
+                            new(5,6), new(5,5), new(4,5), new(4,4), new(3,4),
+                            new(3,3), new(2,3), new(2,2), new(1,2), new(1,1)
                         },
                         [ItemCategory.Accessory] = new List<Tier> {
-                            new(5,6), new(4,5), new(3,4), new(2,3), new(2,2),
-                            new(2,2), new(1,2), new(1,1), new(1,1), new(1,1)
+                            new(2,3), new(2,2), new(2,2), new(1,2), new(1,2),
+                            new(1,1), new(1,1), new(1,1), new(1,1), new(1,1)
                         }
                     },
                     AllowedDamageClasses = null
