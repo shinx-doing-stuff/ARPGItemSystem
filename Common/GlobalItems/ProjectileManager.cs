@@ -37,11 +37,11 @@ namespace ARPGItemSystem.Common.GlobalItems
             // Projectiles fired BY a sentry or minion — inherit parent's affix data.
             if (source is EntitySource_Parent parentSource
                 && parentSource.Entity is Projectile parentProj
-                && parentProj.TryGetGlobalProjectile<ProjectileManager>(out var parentPm)
-                && parentPm.Affixes.Count > 0)
+                && parentProj.TryGetGlobalProjectile<ProjectileManager>(out var parentPm))
             {
-                Affixes = parentPm.Affixes.ToList();
                 WeaponBaseDamage = parentPm.WeaponBaseDamage;
+                if (parentPm.Affixes.Count > 0)
+                    Affixes = parentPm.Affixes.ToList();
             }
         }
     }
