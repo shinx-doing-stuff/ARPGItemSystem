@@ -53,7 +53,7 @@ namespace ARPGItemSystem.Common.Affixes
 
         // Batch-1 (2026-05-03): hurt-pipeline + conditional + distance affixes
         LifeRegeneration,
-        ManaRegeneration,
+        IncreasedManaRegeneration,
         ThornDamage,
         DamageToManaBeforeLife,
         NearbyDamageBonus,

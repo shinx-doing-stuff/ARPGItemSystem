@@ -48,7 +48,7 @@ Affixes: {
 	ChaosPenetration: "{0}% Chaos Penetration"
 	// Batch-1 (2026-05-03)
 	LifeRegeneration: +{0} Life Regen
-	ManaRegeneration: +{0} Mana Regen
+	IncreasedManaRegeneration: "{0}% Increased Mana Regeneration"
 	ThornDamage: Reflects {0}% of contact damage taken
 	DamageToManaBeforeLife: "{0}% of damage absorbed by mana first (cap 70%)"
 	NearbyDamageBonus: +{0}% damage to nearby enemies

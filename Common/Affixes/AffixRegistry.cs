@@ -571,20 +571,20 @@ namespace ARPGItemSystem.Common.Affixes
                     AllowedDamageClasses = null
                 },
 
-                // A.2 — ManaRegeneration: Armor + Accessory, Prefix.
-                // Magnitude is in vanilla Player.manaRegen units.
+                // A.2 — IncreasedManaRegeneration: Armor + Accessory, Prefix.
+                // Magnitude is percent increased mana regeneration.
                 new AffixDef {
-                    Id = AffixId.ManaRegeneration,
+                    Id = AffixId.IncreasedManaRegeneration,
                     Kind = AffixKind.Prefix,
                     Tiers = new Dictionary<ItemCategory, List<Tier>>
                     {
                         [ItemCategory.Armor] = new List<Tier> {
-                            new(10,12), new(8,10), new(7,9), new(6,8), new(5,7),
-                            new(4,6),   new(3,5),  new(2,4), new(1,2), new(1,1)
+                            new(28,32), new(25,28), new(22,25), new(19,22), new(16,19),
+                            new(13,16), new(10,13), new(7,10),  new(4,7),   new(2,4)
                         },
                         [ItemCategory.Accessory] = new List<Tier> {
-                            new(6,8), new(5,7), new(4,6), new(3,5), new(3,4),
-                            new(2,3), new(2,3), new(1,2), new(1,2), new(1,1)
+                            new(20,24), new(18,20), new(16,18), new(14,16), new(12,14),
+                            new(10,12), new(8,10),  new(6,8),   new(4,6),   new(2,4)
                         }
                     },
                     AllowedDamageClasses = null
