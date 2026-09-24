@@ -530,7 +530,7 @@ namespace ARPGItemSystem.Common.Affixes
                     AllowedDamageClasses = null
                 },
                 new AffixDef {
-                    Id = AffixId.ManaCostReduction,
+                    Id = AffixId.ManaEfficiency,
                     Kind = AffixKind.Prefix,
                     Tiers = new Dictionary<ItemCategory, List<Tier>>
                     {

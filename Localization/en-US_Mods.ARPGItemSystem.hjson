@@ -24,7 +24,7 @@ Affixes: {
 	PercentageSummonDamageIncrease: "{0}% Increased Summon Damage"
 	// All categories
 	FlatCritChance: "{0}% Additional Critical Strike Chance"
-	ManaCostReduction: "{0}% Reduced Mana Cost"
+	ManaEfficiency: "{0}% Increased Mana Efficiency"
 	// Weapon elemental damage
 	GainPercentAsFire: Gain {0}% of base damage as Fire
 	GainPercentAsCold: Gain {0}% of base damage as Cold

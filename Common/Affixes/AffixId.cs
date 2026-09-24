@@ -49,7 +49,7 @@ namespace ARPGItemSystem.Common.Affixes
 
         // All categories
         FlatCritChance,
-        ManaCostReduction,
+        ManaEfficiency,
 
         // Batch-1 (2026-05-03): hurt-pipeline + conditional + distance affixes
         LifeRegeneration,
