@@ -80,5 +80,17 @@ namespace ARPGItemSystem.Common.Affixes
         // Player self-inflict framework (2026-05-25)
         FervourChanceOnHit,        // Weapon + Accessory, Suffix
         FervourChanceOnHurt,       // Accessory only, Suffix
+        // Attribute points (2026-09-25) — Armor suffix. Names match ARPGCharacterSystem's AttributeKind.
+        Constitution,
+        Fortitude,
+        Wisdom,
+        Perception,
+        Affliction,
+        Alacrity,
+        Lethality,
+        Precision,
+        Attunement,
+        Blight,
+        Resilience,
     }
 }

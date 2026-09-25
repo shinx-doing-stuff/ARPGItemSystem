@@ -917,6 +917,29 @@ namespace ARPGItemSystem.Common.Affixes
                 },
             };
 
+            // Attribute points: Armor, Suffix. One line per Proficiency attribute, all on the same tiers.
+            var attributeAffixes = new[]
+            {
+                AffixId.Constitution, AffixId.Fortitude, AffixId.Wisdom, AffixId.Perception,
+                AffixId.Affliction, AffixId.Alacrity, AffixId.Lethality, AffixId.Precision,
+                AffixId.Attunement, AffixId.Blight, AffixId.Resilience,
+            };
+            foreach (var id in attributeAffixes)
+            {
+                defs.Add(new AffixDef {
+                    Id = id,
+                    Kind = AffixKind.Suffix,
+                    Tiers = new Dictionary<ItemCategory, List<Tier>>
+                    {
+                        [ItemCategory.Armor] = new List<Tier> {
+                            new(15,17), new(13,15), new(12,13), new(10,12), new(9,10),
+                            new(7,9),   new(6,7),   new(4,6),   new(3,4),   new(1,3)
+                        }
+                    },
+                    AllowedDamageClasses = null
+                });
+            }
+
             foreach (var def in defs)
             {
                 foreach (var (cat, list) in def.Tiers)

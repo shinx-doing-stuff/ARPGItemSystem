@@ -65,6 +65,18 @@ Affixes: {
 	IncreasedAilmentDuration: +{0}% increased Ailment duration
 	FervourChanceOnHit: "{0}% chance to gain Fervour on hit"
 	FervourChanceOnHurt: "{0}% chance to gain Fervour when hit"
+	// Attribute points (2026-09-25) — Armor suffix
+	Constitution: +{0} to Constitution
+	Fortitude: +{0} to Fortitude
+	Wisdom: +{0} to Wisdom
+	Perception: +{0} to Perception
+	Affliction: +{0} to Affliction
+	Alacrity: +{0} to Alacrity
+	Lethality: +{0} to Lethality
+	Precision: +{0} to Precision
+	Attunement: +{0} to Attunement
+	Blight: +{0} to Blight
+	Resilience: +{0} to Resilience
 }
 
 UI: {
