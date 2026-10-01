@@ -140,6 +140,29 @@ namespace ARPGItemSystem.Common.Affixes
 
             Affixes.RemoveAll(a => a.Id == AffixId.None || !AffixRegistry.All.ContainsKey(a.Id));
 
+            // Armor and accessories can no longer roll FlatCritChance; carry old items over to the
+            // same tier of PercentageCritChance so the reforge panel never meets a missing tier list.
+            if (!AffixRegistry.Get(AffixId.FlatCritChance).Tiers.ContainsKey(Category)
+                && AffixRegistry.Get(AffixId.PercentageCritChance).Tiers.TryGetValue(Category, out var critRows))
+            {
+                bool hasPercentCrit = Affixes.Any(a => a.Id == AffixId.PercentageCritChance);
+                for (int i = Affixes.Count - 1; i >= 0; i--)
+                {
+                    var old = Affixes[i];
+                    if (old.Id != AffixId.FlatCritChance) continue;
+
+                    if (hasPercentCrit)
+                    {
+                        Affixes.RemoveAt(i);
+                        continue;
+                    }
+
+                    var row = critRows[System.Math.Clamp(old.Tier, 0, critRows.Count - 1)];
+                    Affixes[i] = new Affix(AffixId.PercentageCritChance, row.Min + (row.Max - row.Min + 1) / 2, 0, old.Tier);
+                    hasPercentCrit = true;
+                }
+            }
+
             if (Affixes.Count == 0 && (RollPrefixCount() > 0 || RollSuffixCount() > 0))
                 Initialized = false;
             else

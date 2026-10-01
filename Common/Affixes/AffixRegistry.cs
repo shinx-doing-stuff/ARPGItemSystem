@@ -172,7 +172,7 @@ namespace ARPGItemSystem.Common.Affixes
                     AllowedDamageClasses = null
                 },
 
-                // ============== WEAPON SUFFIXES ==============
+                // ============== WEAPON SUFFIXES (PercentageCritChance also rolls on armor and accessories) ==============
                 new AffixDef {
                     Id = AffixId.PercentageCritChance,
                     Kind = AffixKind.Suffix,
@@ -181,6 +181,14 @@ namespace ARPGItemSystem.Common.Affixes
                         [ItemCategory.Weapon] = new List<Tier> {
                             new(47,53), new(41,45), new(33,39), new(30,32), new(24,27),
                             new(20,23), new(14,18), new(9,12),  new(6,8),   new(2,5)
+                        },
+                        [ItemCategory.Armor] = new List<Tier> {
+                            new(20,22), new(17,19), new(13,15), new(9,11), new(6,7),
+                            new(5,6),   new(4,5),   new(3,4),   new(2,3),  new(1,2)
+                        },
+                        [ItemCategory.Accessory] = new List<Tier> {
+                            new(13,15), new(11,13), new(8,10), new(6,8), new(5,6),
+                            new(4,5),   new(3,4),   new(2,3),  new(1,2), new(1,1)
                         }
                     },
                     AllowedDamageClasses = null
@@ -508,7 +516,7 @@ namespace ARPGItemSystem.Common.Affixes
                     AllowedDamageClasses = null
                 },
 
-                // ============== ALL CATEGORIES ==============
+                // ============== ALL CATEGORIES (FlatCritChance is weapon-only) ==============
                 new AffixDef {
                     Id = AffixId.FlatCritChance,
                     Kind = AffixKind.Suffix,
@@ -517,14 +525,6 @@ namespace ARPGItemSystem.Common.Affixes
                         [ItemCategory.Weapon] = new List<Tier> {
                             new(10,11), new(9,10), new(8,8),  new(7,8), new(6,7),
                             new(5,5),   new(4,5),  new(3,3),  new(2,3), new(1,1)
-                        },
-                        [ItemCategory.Armor] = new List<Tier> {
-                            new(3,5), new(3,5), new(3,4), new(3,4), new(2,3),
-                            new(2,3), new(1,2), new(1,2), new(1,1), new(1,1)
-                        },
-                        [ItemCategory.Accessory] = new List<Tier> {
-                            new(3,3), new(3,3), new(3,3), new(2,3), new(2,3),
-                            new(2,3), new(1,2), new(1,2), new(1,2), new(1,2)
                         }
                     },
                     AllowedDamageClasses = null
