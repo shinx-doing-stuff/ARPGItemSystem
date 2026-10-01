@@ -263,7 +263,7 @@ namespace ARPGItemSystem.Common.Affixes
                     Tiers = new Dictionary<ItemCategory, List<Tier>>
                     {
                         [ItemCategory.Armor] = new List<Tier> {
-                            new(15,15), new(14,15), new(14,14), new(13,14), new(14,15),
+                            new(15,15), new(14,15), new(14,15), new(14,15), new(14,15),
                             new(13,14), new(12,13), new(11,12), new(9,11),  new(6,9)
                         }
                     },
@@ -278,11 +278,11 @@ namespace ARPGItemSystem.Common.Affixes
                     {
                         [ItemCategory.Armor] = new List<Tier> {
                             new(36,37), new(35,36), new(35,36), new(34,35), new(30,31),
-                            new(29,30), new(28,29), new(27,28), new(26,29), new(20,26)
+                            new(29,30), new(28,29), new(27,28), new(25,27), new(20,26)
                         },
                         [ItemCategory.Accessory] = new List<Tier> {
                             new(18,18), new(18,18), new(15,15), new(15,15), new(15,15),
-                            new(15,15), new(15,15), new(15,15), new(14,16), new(10,14)
+                            new(15,15), new(15,15), new(15,15), new(13,14), new(10,14)
                         }
                     },
                     AllowedDamageClasses = null
@@ -294,7 +294,7 @@ namespace ARPGItemSystem.Common.Affixes
                     {
                         [ItemCategory.Armor] = new List<Tier> {
                             new(17,18), new(17,18), new(17,17), new(16,17), new(15,16),
-                            new(15,15), new(14,15), new(13,14), new(13,15), new(10,13)
+                            new(15,15), new(14,15), new(13,14), new(12,13), new(10,13)
                         },
                         [ItemCategory.Accessory] = new List<Tier> {
                             new(6,6), new(6,6), new(6,6), new(6,6), new(6,6),
