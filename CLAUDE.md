@@ -133,7 +133,7 @@ Weapon ladders for the pen and crit affixes, top tier first (ten tiers each; `Fl
 
 | Affix | Weapon ladder |
 |---|---|
-| `FlatArmorPen`, `PercentageArmorPen` | `11-12`, `10-11`, `9-10`, `8-9`, `5-6`, `2-2`, `0-1`, `1-1`, `1-1`, `1-1` |
+| `FlatArmorPen`, `PercentageArmorPen` | `11-12`, `9-10`, `9-10`, `8-9`, `5-6`, `2-2`, `0-1`, `1-1`, `1-1`, `1-1` |
 | `FlatCritChance` | `14-15`, `13-14`, `13-14`, `13-14`, `13-14`, `12-13`, `11-12`, `8-10`, `6-7`, `3-4` |
 | `CritMultiplier` | `66-72`, `60-66`, `56-60`, `52-56`, `48-52`, `44-48`, `40-44`, `30-40`, `20-30`, `5-20` |
 | `PercentageCritChance` | `47-53`, `41-45`, `33-39`, `30-32`, `24-27`, `20-23`, `14-18`, `9-12`, `6-8`, `2-5` |
