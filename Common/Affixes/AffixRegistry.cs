@@ -83,12 +83,12 @@ namespace ARPGItemSystem.Common.Affixes
                     Tiers = new Dictionary<ItemCategory, List<Tier>>
                     {
                         [ItemCategory.Weapon] = new List<Tier> {
-                            new(13,15), new(11,13), new(10,11), new(8,10),  new(7,8),
-                            new(5,6),   new(3,4),   new(3,3),   new(2,3),   new(1,2)
+                            new(11,12), new(10,11), new(9,10),  new(8,9),   new(5,6),
+                            new(2,2),   new(0,1),   new(1,1),   new(1,1),   new(1,1)
                         },
                         [ItemCategory.Accessory] = new List<Tier> {
-                            new(4,5), new(4,4), new(3,4), new(3,3), new(2,3),
-                            new(2,2), new(1,2), new(1,1), new(1,1), new(1,1)
+                            new(3,3), new(3,3), new(2,3), new(2,2), new(2,2),
+                            new(1,2), new(1,1), new(1,1), new(1,1), new(1,1)
                         }
                     },
                     AllowedDamageClasses = null
@@ -99,12 +99,12 @@ namespace ARPGItemSystem.Common.Affixes
                     Tiers = new Dictionary<ItemCategory, List<Tier>>
                     {
                         [ItemCategory.Weapon] = new List<Tier> {
-                            new(34,36), new(30,32), new(26,29), new(23,25), new(19,22),
-                            new(16,18), new(12,14), new(8,11),  new(5,7),   new(1,4)
+                            new(11,12), new(10,11), new(9,10),  new(8,9),   new(5,6),
+                            new(2,2),   new(0,1),   new(1,1),   new(1,1),   new(1,1)
                         },
                         [ItemCategory.Accessory] = new List<Tier> {
-                            new(8,11), new(8,8), new(7,8), new(7,7), new(5,7),
-                            new(5,5),  new(4,5), new(4,4), new(1,1), new(1,1)
+                            new(3,4), new(3,3), new(3,3), new(2,3), new(2,2),
+                            new(2,2), new(1,2), new(1,1), new(1,1), new(1,1)
                         }
                     },
                     AllowedDamageClasses = null
