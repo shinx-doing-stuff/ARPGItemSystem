@@ -199,8 +199,8 @@ namespace ARPGItemSystem.Common.Affixes
                     Tiers = new Dictionary<ItemCategory, List<Tier>>
                     {
                         [ItemCategory.Weapon] = new List<Tier> {
-                            new(71,78), new(63,70), new(55,62), new(47,54), new(40,46),
-                            new(32,39), new(24,31), new(16,23), new(8,15),  new(1,7)
+                            new(66,72), new(60,66), new(56,60), new(52,56), new(48,52),
+                            new(44,48), new(40,44), new(30,40), new(20,30), new(5,20)
                         }
                     },
                     AllowedDamageClasses = null
@@ -523,8 +523,8 @@ namespace ARPGItemSystem.Common.Affixes
                     Tiers = new Dictionary<ItemCategory, List<Tier>>
                     {
                         [ItemCategory.Weapon] = new List<Tier> {
-                            new(10,11), new(9,10), new(8,8),  new(7,8), new(6,7),
-                            new(5,5),   new(4,5),  new(3,3),  new(2,3), new(1,1)
+                            new(14,15), new(13,14), new(13,14), new(13,14), new(13,14),
+                            new(12,13), new(11,12), new(8,10),  new(6,7),   new(3,4)
                         }
                     },
                     AllowedDamageClasses = null
