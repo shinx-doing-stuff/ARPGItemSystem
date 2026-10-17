@@ -83,11 +83,11 @@ namespace ARPGItemSystem.Common.Affixes
                     Tiers = new Dictionary<ItemCategory, List<Tier>>
                     {
                         [ItemCategory.Weapon] = new List<Tier> {
-                            new(11,12), new(9,10), new(9,10),  new(8,9),   new(5,6),
-                            new(2,2),   new(0,1),   new(1,1),   new(1,1),   new(1,1)
+                            new(7,7), new(7,7), new(6,7), new(6,6), new(5,6),
+                            new(2,2), new(0,1), new(1,1), new(1,1), new(1,1)
                         },
                         [ItemCategory.Accessory] = new List<Tier> {
-                            new(3,3), new(3,3), new(2,3), new(2,2), new(2,2),
+                            new(2,2), new(2,2), new(2,2), new(2,2), new(2,2),
                             new(1,2), new(1,1), new(1,1), new(1,1), new(1,1)
                         }
                     },
