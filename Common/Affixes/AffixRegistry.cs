@@ -179,16 +179,16 @@ namespace ARPGItemSystem.Common.Affixes
                     Tiers = new Dictionary<ItemCategory, List<Tier>>
                     {
                         [ItemCategory.Weapon] = new List<Tier> {
-                            new(47,53), new(41,45), new(33,39), new(30,32), new(24,27),
-                            new(20,23), new(14,18), new(9,12),  new(6,8),   new(2,5)
+                            new(22,25), new(19,21), new(15,18), new(14,15), new(11,13),
+                            new(9,11),  new(7,8),   new(4,6),   new(3,4),   new(1,2)
                         },
                         [ItemCategory.Armor] = new List<Tier> {
-                            new(20,22), new(17,19), new(13,15), new(9,11), new(6,7),
-                            new(5,6),   new(4,5),   new(3,4),   new(2,3),  new(1,2)
+                            new(13,15), new(11,13), new(8,10), new(6,8), new(4,5),
+                            new(3,4),   new(3,3),   new(2,3),  new(1,2), new(1,1)
                         },
                         [ItemCategory.Accessory] = new List<Tier> {
-                            new(13,15), new(11,13), new(8,10), new(6,8), new(5,6),
-                            new(4,5),   new(3,4),   new(2,3),  new(1,2), new(1,1)
+                            new(9,11), new(8,10), new(6,7), new(4,6), new(3,4),
+                            new(3,4),  new(2,3),  new(1,2), new(1,1), new(1,1)
                         }
                     },
                     AllowedDamageClasses = null
@@ -523,8 +523,8 @@ namespace ARPGItemSystem.Common.Affixes
                     Tiers = new Dictionary<ItemCategory, List<Tier>>
                     {
                         [ItemCategory.Weapon] = new List<Tier> {
-                            new(14,15), new(13,14), new(13,14), new(13,14), new(13,14),
-                            new(12,13), new(11,12), new(8,10),  new(6,7),   new(3,4)
+                            new(8,10), new(7,9), new(7,9), new(7,9), new(7,9),
+                            new(7,9),  new(6,8), new(5,7), new(3,5), new(2,3)
                         }
                     },
                     AllowedDamageClasses = null
