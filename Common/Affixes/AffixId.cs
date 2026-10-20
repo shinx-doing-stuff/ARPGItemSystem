@@ -92,5 +92,10 @@ namespace ARPGItemSystem.Common.Affixes
         Attunement,
         Blight,
         Resilience,
+        // Conversion suffixes (2026-10-20) — Weapon + Accessory. Physical damage converted to one element.
+        ConvertToFire,
+        ConvertToCold,
+        ConvertToLightning,
+        ConvertToChaos,
     }
 }

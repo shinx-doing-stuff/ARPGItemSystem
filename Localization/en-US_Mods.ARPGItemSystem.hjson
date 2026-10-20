@@ -46,6 +46,11 @@ Affixes: {
 	IncreasedChaosDamage: +{0}% increased Chaos damage
 	ChaosResistance: +{0}% Chaos resistance
 	ChaosPenetration: "{0}% Chaos Penetration"
+	// Conversion suffixes (2026-10-20)
+	ConvertToFire: "{0}% of physical damage converted to Fire"
+	ConvertToCold: "{0}% of physical damage converted to Cold"
+	ConvertToLightning: "{0}% of physical damage converted to Lightning"
+	ConvertToChaos: "{0}% of physical damage converted to Chaos"
 	// Batch-1 (2026-05-03)
 	LifeRegeneration: +{0} Life Regen
 	IncreasedManaRegeneration: "{0}% Increased Mana Regeneration"

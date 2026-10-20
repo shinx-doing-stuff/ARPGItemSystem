@@ -457,12 +457,12 @@ namespace ARPGItemSystem.Common.Affixes
                     Tiers = new Dictionary<ItemCategory, List<Tier>>
                     {
                         [ItemCategory.Weapon] = new List<Tier> {
-                            new(34,36), new(30,32), new(26,29), new(23,25), new(19,22),
-                            new(16,18), new(12,14), new(8,11),  new(5,7),   new(1,4)
+                            new(12,14), new(11,12), new(10,11), new(9,10), new(7,8),
+                            new(6,7),   new(4,5),   new(3,4),   new(2,2), new(1,1)
                         },
                         [ItemCategory.Accessory] = new List<Tier> {
-                            new(8,11), new(8,8), new(7,8), new(7,7), new(5,7),
-                            new(5,5),  new(4,5), new(4,4), new(1,1), new(1,1)
+                            new(4,5), new(4,4), new(3,4), new(3,3), new(2,3),
+                            new(2,2), new(1,2), new(1,1), new(1,1), new(1,1)
                         }
                     },
                     AllowedDamageClasses = null
@@ -473,12 +473,12 @@ namespace ARPGItemSystem.Common.Affixes
                     Tiers = new Dictionary<ItemCategory, List<Tier>>
                     {
                         [ItemCategory.Weapon] = new List<Tier> {
-                            new(34,36), new(30,32), new(26,29), new(23,25), new(19,22),
-                            new(16,18), new(12,14), new(8,11),  new(5,7),   new(1,4)
+                            new(12,14), new(11,12), new(10,11), new(9,10), new(7,8),
+                            new(6,7),   new(4,5),   new(3,4),   new(2,2), new(1,1)
                         },
                         [ItemCategory.Accessory] = new List<Tier> {
-                            new(8,11), new(8,8), new(7,8), new(7,7), new(5,7),
-                            new(5,5),  new(4,5), new(4,4), new(1,1), new(1,1)
+                            new(4,5), new(4,4), new(3,4), new(3,3), new(2,3),
+                            new(2,2), new(1,2), new(1,1), new(1,1), new(1,1)
                         }
                     },
                     AllowedDamageClasses = null
@@ -489,12 +489,12 @@ namespace ARPGItemSystem.Common.Affixes
                     Tiers = new Dictionary<ItemCategory, List<Tier>>
                     {
                         [ItemCategory.Weapon] = new List<Tier> {
-                            new(34,36), new(30,32), new(26,29), new(23,25), new(19,22),
-                            new(16,18), new(12,14), new(8,11),  new(5,7),   new(1,4)
+                            new(12,14), new(11,12), new(10,11), new(9,10), new(7,8),
+                            new(6,7),   new(4,5),   new(3,4),   new(2,2), new(1,1)
                         },
                         [ItemCategory.Accessory] = new List<Tier> {
-                            new(8,11), new(8,8), new(7,8), new(7,7), new(5,7),
-                            new(5,5),  new(4,5), new(4,4), new(1,1), new(1,1)
+                            new(4,5), new(4,4), new(3,4), new(3,3), new(2,3),
+                            new(2,2), new(1,2), new(1,1), new(1,1), new(1,1)
                         }
                     },
                     AllowedDamageClasses = null
@@ -505,12 +505,12 @@ namespace ARPGItemSystem.Common.Affixes
                     Tiers = new Dictionary<ItemCategory, List<Tier>>
                     {
                         [ItemCategory.Weapon] = new List<Tier> {
-                            new(19,22), new(17,18), new(14,16), new(12,14), new(11,12),
-                            new(8,10),  new(6,7),   new(5,6),   new(2,4),   new(1,2)
+                            new(7,8), new(6,7), new(5,6), new(5,5), new(4,4),
+                            new(3,4), new(2,3), new(2,2), new(1,1), new(1,1)
                         },
                         [ItemCategory.Accessory] = new List<Tier> {
-                            new(5,5), new(4,5), new(4,5), new(4,4), new(4,4),
-                            new(1,4), new(1,4), new(1,1), new(1,1), new(1,1)
+                            new(2,3), new(2,2), new(2,2), new(2,2), new(1,2),
+                            new(1,1), new(1,1), new(1,1), new(1,1), new(1,1)
                         }
                     },
                     AllowedDamageClasses = null
@@ -737,12 +737,76 @@ namespace ARPGItemSystem.Common.Affixes
                     Tiers = new Dictionary<ItemCategory, List<Tier>>
                     {
                         [ItemCategory.Weapon] = new List<Tier> {
-                            new(17,18), new(15,16), new(13,14), new(12,13), new(10,11),
-                            new(8,9),   new(6,7),   new(4,5),   new(3,4),   new(1,2)
+                            new(10,12), new(9,10), new(8,9), new(7,8), new(6,7),
+                            new(5,6),   new(4,4), new(3,3), new(2,2), new(1,1)
                         },
                         [ItemCategory.Accessory] = new List<Tier> {
-                            new(4,6), new(4,5), new(4,4), new(3,4), new(3,3),
-                            new(2,3), new(2,2), new(1,2), new(1,1), new(1,1)
+                            new(3,4), new(3,3), new(2,3), new(2,2), new(2,2),
+                            new(1,2), new(1,1), new(1,1), new(1,1), new(1,1)
+                        }
+                    },
+                    AllowedDamageClasses = null
+                },
+                new AffixDef {
+                    Id = AffixId.ConvertToFire,
+                    Kind = AffixKind.Suffix,
+                    Tiers = new Dictionary<ItemCategory, List<Tier>>
+                    {
+                        [ItemCategory.Weapon] = new List<Tier> {
+                            new(20,25), new(18,20), new(15,17), new(13,14), new(11,12),
+                            new(9,10),  new(7,8),   new(5,6),   new(3,4),   new(1,2)
+                        },
+                        [ItemCategory.Accessory] = new List<Tier> {
+                            new(6,8), new(5,6), new(5,5), new(4,5), new(4,4),
+                            new(3,4), new(2,3), new(2,2), new(1,2), new(1,1)
+                        }
+                    },
+                    AllowedDamageClasses = null
+                },
+                new AffixDef {
+                    Id = AffixId.ConvertToCold,
+                    Kind = AffixKind.Suffix,
+                    Tiers = new Dictionary<ItemCategory, List<Tier>>
+                    {
+                        [ItemCategory.Weapon] = new List<Tier> {
+                            new(20,25), new(18,20), new(15,17), new(13,14), new(11,12),
+                            new(9,10),  new(7,8),   new(5,6),   new(3,4),   new(1,2)
+                        },
+                        [ItemCategory.Accessory] = new List<Tier> {
+                            new(6,8), new(5,6), new(5,5), new(4,5), new(4,4),
+                            new(3,4), new(2,3), new(2,2), new(1,2), new(1,1)
+                        }
+                    },
+                    AllowedDamageClasses = null
+                },
+                new AffixDef {
+                    Id = AffixId.ConvertToLightning,
+                    Kind = AffixKind.Suffix,
+                    Tiers = new Dictionary<ItemCategory, List<Tier>>
+                    {
+                        [ItemCategory.Weapon] = new List<Tier> {
+                            new(20,25), new(18,20), new(15,17), new(13,14), new(11,12),
+                            new(9,10),  new(7,8),   new(5,6),   new(3,4),   new(1,2)
+                        },
+                        [ItemCategory.Accessory] = new List<Tier> {
+                            new(6,8), new(5,6), new(5,5), new(4,5), new(4,4),
+                            new(3,4), new(2,3), new(2,2), new(1,2), new(1,1)
+                        }
+                    },
+                    AllowedDamageClasses = null
+                },
+                new AffixDef {
+                    Id = AffixId.ConvertToChaos,
+                    Kind = AffixKind.Suffix,
+                    Tiers = new Dictionary<ItemCategory, List<Tier>>
+                    {
+                        [ItemCategory.Weapon] = new List<Tier> {
+                            new(20,25), new(18,20), new(15,17), new(13,14), new(11,12),
+                            new(9,10),  new(7,8),   new(5,6),   new(3,4),   new(1,2)
+                        },
+                        [ItemCategory.Accessory] = new List<Tier> {
+                            new(6,8), new(5,6), new(5,5), new(4,5), new(4,4),
+                            new(3,4), new(2,3), new(2,2), new(1,2), new(1,1)
                         }
                     },
                     AllowedDamageClasses = null

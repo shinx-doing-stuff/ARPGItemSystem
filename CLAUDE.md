@@ -138,6 +138,14 @@ Weapon ladders for the pen and crit affixes, top tier first (ten tiers each):
 | `FlatCritChance` | `8-10`, `7-9`, `7-9`, `7-9`, `7-9`, `7-9`, `6-8`, `5-7`, `3-5`, `2-3` |
 | `CritMultiplier` | `66-72`, `60-66`, `56-60`, `52-56`, `48-52`, `44-48`, `40-44`, `30-40`, `20-30`, `5-20` |
 | `PercentageCritChance` | `22-25`, `19-21`, `15-18`, `14-15`, `11-13`, `9-11`, `7-8`, `4-6`, `3-4`, `1-2` |
+| `FirePenetration`, `ColdPenetration`, `LightningPenetration` | `12-14`, `11-12`, `10-11`, `9-10`, `7-8`, `6-7`, `4-5`, `3-4`, `2-2`, `1-1` |
+| `AllElementalPenetration` | `7-8`, `6-7`, `5-6`, `5-5`, `4-4`, `3-4`, `2-3`, `2-2`, `1-1`, `1-1` |
+| `ChaosPenetration` | `10-12`, `9-10`, `8-9`, `7-8`, `6-7`, `5-6`, `4-4`, `3-3`, `2-2`, `1-1` |
+| `ConvertToFire`, `ConvertToCold`, `ConvertToLightning`, `ConvertToChaos` | `20-25`, `18-20`, `15-17`, `13-14`, `11-12`, `9-10`, `7-8`, `5-6`, `3-4`, `1-2` |
+
+Accessory ladders, top tier first: `FirePenetration`, `ColdPenetration`, `LightningPenetration` `4-5`, `4-4`, `3-4`, `3-3`, `2-3`, `2-2`, `1-2`, `1-1`, `1-1`, `1-1`; `AllElementalPenetration` `2-3`, `2-2`, `2-2`, `2-2`, `1-2`, `1-1`, `1-1`, `1-1`, `1-1`, `1-1`; `ChaosPenetration` `3-4`, `3-3`, `2-3`, `2-2`, `2-2`, `1-2`, `1-1`, `1-1`, `1-1`, `1-1`; the four `ConvertTo*` `6-8`, `5-6`, `5-5`, `4-5`, `4-4`, `3-4`, `2-3`, `2-2`, `1-2`, `1-1`.
+
+The four elemental penetration lines are in armour points of the target's elemental rating (the `{0}%` in the text is the player-facing convention, as for class stats), not percent of resistance. The `ConvertTo*` suffixes (Weapon and Accessory, appended after `Resilience` 2026-10-20) convert that percent of physical damage to one element; the character mod's `EquipmentStatSource` (accessory) and `ElementalDamageCalculator` (weapon, via `GetMagnitude`) feed them into `PlayerElementalStats.ConvertTo*` as fractions (magnitude / 100), and the elemental split normalises the total at 100%.
 
 The `FlatArmorPen` top rows were lowered (2026-10-15) so stacking flat penetration pays about 1.2x at the Moon Lord, not 1.34x; accessory top rows 3 to 2.
 
