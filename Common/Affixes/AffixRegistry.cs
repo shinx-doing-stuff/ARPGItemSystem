@@ -180,7 +180,7 @@ namespace ARPGItemSystem.Common.Affixes
                     AllowedDamageClasses = null
                 },
 
-                // ============== WEAPON SUFFIXES (PercentageCritChance also rolls on armor and accessories) ==============
+                // ============== WEAPON SUFFIXES (PercentageCritChance and CritMultiplier also roll on armor and accessories) ==============
                 new AffixDef {
                     Id = AffixId.PercentageCritChance,
                     Kind = AffixKind.Suffix,
@@ -705,7 +705,7 @@ namespace ARPGItemSystem.Common.Affixes
                 },
 
                 // ============== CHAOS DAMAGE (2026-05-13) ==============
-                // Magnitudes intentionally ~50% of F/C/L counterparts per spec.
+                // Damage and resistance magnitudes intentionally ~50% of F/C/L counterparts per spec; ChaosPenetration and ConvertToChaos use the F/C/L ladders.
 
                 new AffixDef {
                     Id = AffixId.GainPercentAsChaos,
