@@ -118,8 +118,8 @@ Affixes: {
 The key must exactly match the `AffixId` enum name. `{0}` is replaced with the rolled magnitude at draw time.
 
 **Step 4 — stat-apply hook:** Add a `case AffixId.YourNewAffix:` in the appropriate place:
-- Per-swing or per-hit (damage/crit/knockback/atkspd/manacost/conditional-damage/CritMultiplier) → `ARPGCharacterSystem.Common.Players.OutgoingHitPlayer` in the relevant override (`ModifyWeaponDamage`, `ModifyWeaponCrit`, `ModifyWeaponKnockback`, `UseSpeedMultiplier`, `ModifyManaCost`, `ModifyHitNPCWithItem`/`Proj`).
-- Equip-time player-wide stats (max HP, max mana, defense, life regen, mana regen, crit chance, elemental res/pen) → `EquipmentStatSource.Dispatch` (writes to a container; orchestrator pushes to vanilla in `StatPipelinePlayer.PostUpdateEquips`).
+- Per-swing or per-hit (damage/crit/knockback/atkspd/manacost/conditional-damage/weapon CritMultiplier) → `ARPGCharacterSystem.Common.Players.OutgoingHitPlayer` in the relevant override (`ModifyWeaponDamage`, `ModifyWeaponCrit`, `ModifyWeaponKnockback`, `UseSpeedMultiplier`, `ModifyManaCost`, `ModifyHitNPCWithItem`/`Proj`).
+- Equip-time player-wide stats (max HP, max mana, defense, life regen, mana regen, crit chance, armor and accessory CritMultiplier, elemental res/pen) → `EquipmentStatSource.Dispatch` (writes to a container; orchestrator pushes to vanilla in `StatPipelinePlayer.PostUpdateEquips`).
 - Velocity → `WeaponManager.ModifyShootStats` (exception — `ModPlayer` lacks this hook).
 - Armor defense (`Flat/PercentageDefenseIncrease` on armor only) → `ArmorManager.UpdateEquip` (exception — writes `item.defense` for the vanilla tooltip).
 
@@ -133,21 +133,21 @@ Weapon ladders for the pen and crit affixes, top tier first (ten tiers each):
 
 | Affix | Weapon ladder |
 |---|---|
-| `FlatArmorPen` | `7-7`, `7-7`, `6-7`, `6-6`, `5-6`, `2-2`, `0-1`, `1-1`, `1-1`, `1-1` |
-| `PercentageArmorPen` | `11-12`, `9-10`, `9-10`, `8-9`, `5-6`, `2-2`, `0-1`, `1-1`, `1-1`, `1-1` |
-| `FlatCritChance` | `8-10`, `7-9`, `7-9`, `7-9`, `7-9`, `7-9`, `6-8`, `5-7`, `3-5`, `2-3` |
+| `FlatArmorPen` | `13-13`, `13-13`, `13-13`, `13-13`, `13-13`, `13-13`, `2-2`, `2-2`, `2-2`, `2-2` |
+| `PercentageArmorPen` | `2-2`, `2-2`, `2-2`, `2-2`, `2-2`, `2-2`, `1-1`, `1-1`, `1-1`, `1-1` |
+| `FlatCritChance` | `2-3`, `2-3`, `2-3`, `2-3`, `2-3`, `2-3`, `2-2`, `2-2`, `1-2`, `1-1` |
 | `CritMultiplier` | `66-72`, `60-66`, `56-60`, `52-56`, `48-52`, `44-48`, `40-44`, `30-40`, `20-30`, `5-20` |
-| `PercentageCritChance` | `22-25`, `19-21`, `15-18`, `14-15`, `11-13`, `9-11`, `7-8`, `4-6`, `3-4`, `1-2` |
-| `FirePenetration`, `ColdPenetration`, `LightningPenetration` | `12-14`, `11-12`, `10-11`, `9-10`, `7-8`, `6-7`, `4-5`, `3-4`, `2-2`, `1-1` |
-| `AllElementalPenetration` | `7-8`, `6-7`, `5-6`, `5-5`, `4-4`, `3-4`, `2-3`, `2-2`, `1-1`, `1-1` |
-| `ChaosPenetration` | `10-12`, `9-10`, `8-9`, `7-8`, `6-7`, `5-6`, `4-4`, `3-3`, `2-2`, `1-1` |
-| `ConvertToFire`, `ConvertToCold`, `ConvertToLightning`, `ConvertToChaos` | `20-25`, `18-20`, `15-17`, `13-14`, `11-12`, `9-10`, `7-8`, `5-6`, `3-4`, `1-2` |
+| `PercentageCritChance` | `7-8`, `6-6`, `5-5`, `4-5`, `3-4`, `3-3`, `2-2`, `1-2`, `1-1`, `1-1` |
+| `FirePenetration`, `ColdPenetration`, `LightningPenetration` | `4-5`, `4-4`, `4-4`, `3-4`, `2-3`, `2-2`, `1-2`, `1-1`, `1-1`, `1-1` |
+| `AllElementalPenetration` | `2-3`, `2-2`, `2-2`, `2-2`, `1-1`, `1-1`, `1-1`, `1-1`, `1-1`, `1-1` |
+| `ChaosPenetration` | `4-4`, `3-4`, `3-3`, `2-3`, `2-2`, `2-2`, `1-1`, `1-1`, `1-1`, `1-1` |
+| `ConvertToFire`, `ConvertToCold`, `ConvertToLightning`, `ConvertToChaos` | `23-29`, `21-23`, `17-20`, `15-16`, `13-14`, `10-12`, `8-9`, `6-7`, `3-5`, `1-2` |
 
-Accessory ladders, top tier first: `FirePenetration`, `ColdPenetration`, `LightningPenetration` `4-5`, `4-4`, `3-4`, `3-3`, `2-3`, `2-2`, `1-2`, `1-1`, `1-1`, `1-1`; `AllElementalPenetration` `2-3`, `2-2`, `2-2`, `2-2`, `1-2`, `1-1`, `1-1`, `1-1`, `1-1`, `1-1`; `ChaosPenetration` `3-4`, `3-3`, `2-3`, `2-2`, `2-2`, `1-2`, `1-1`, `1-1`, `1-1`, `1-1`; the four `ConvertTo*` `6-8`, `5-6`, `5-5`, `4-5`, `4-4`, `3-4`, `2-3`, `2-2`, `1-2`, `1-1`.
+Accessory ladders, top tier first: `FirePenetration`, `ColdPenetration`, `LightningPenetration` `1-2`, `1-1`, `1-1`, `1-1`, `1-1`, `1-1`, `1-1`, `1-1`, `1-1`, `1-1`; `AllElementalPenetration` `1-1`, `1-1`, `1-1`, `1-1`, `1-1`, `1-1`, `1-1`, `1-1`, `1-1`, `1-1`; `ChaosPenetration` `1-1`, `1-1`, `1-1`, `1-1`, `1-1`, `1-1`, `1-1`, `1-1`, `1-1`, `1-1`; the four `ConvertTo*` `7-9`, `6-7`, `6-6`, `5-6`, `5-5`, `3-5`, `2-3`, `2-2`, `1-2`, `1-1`; armour and accessory `CritMultiplier` (one ladder for both) `26-28`, `23-26`, `22-23`, `20-22`, `19-20`, `17-19`, `16-17`, `12-16`, `8-12`, `2-8`; armour `PercentageCritChance` `4-5`, `3-4`, `2-3`, `2-2`, `1-2`, `1-1`, `1-1`, `1-1`, `1-1`, `1-1`; accessory `PercentageCritChance` `3-3`, `2-3`, `2-2`, `1-2`, `1-1`, `1-1`, `1-1`, `1-1`, `1-1`, `1-1`.
 
 The four elemental penetration lines are in armour points of the target's elemental rating (the `{0}%` in the text is the player-facing convention, as for class stats), not percent of resistance. The `ConvertTo*` suffixes (Weapon and Accessory, appended after `Resilience` 2026-10-20) convert that percent of physical damage to one element; the character mod's `EquipmentStatSource` (accessory) and `ElementalDamageCalculator` (weapon, via `GetMagnitude`) feed them into `PlayerElementalStats.ConvertTo*` as fractions (magnitude / 100), and the elemental split normalises the total at 100%.
 
-The `FlatArmorPen` top rows were lowered (2026-10-15) so stacking flat penetration pays about 1.2x at the Moon Lord, not 1.34x; accessory top rows 3 to 2.
+The `FlatArmorPen` and `PercentageArmorPen` ladders were priced against the crit lane (2026-10-21, one-armour-law Task 6 round 6, re-solved when armour began to roll them, when crit damage did and when the crit chance sources were scaled down): today's Plantera-tier values times 2.2, with the percent ladders at an eighth of that. Weapon, armour and accessory ladders are flat from the Mechs tier up to tier 1 (weapon `FlatArmorPen` 13, `PercentageArmorPen` 2; armour and accessory 4 and 1) and keep today's earlier values times 2.2 below it (times 2.2 and an eighth for the percent ladders, never below 1): weapon `2-2` and `1-1`, armour and accessory `2-2` and `1-1`. The armour ladder is the accessory ladder, and `EquipmentStatSource` feeds both into the container. The slot count (weapon and armour 1/2/2/3/3 suffixes, accessory 1/1/1/2/2) supplies the era shape. `CritMultiplier` is priced against the pen roll the same way (2026-10-21, spec ruling 22): its armour and accessory ladders are the weapon ladder times 0.39, each tier rounded to a whole percent and never below 1, so one accessory crit damage roll on the all-rounder is worth about one accessory `FlatArmorPen` roll at Plantera. `EquipmentStatSource` feeds them into `PlayerOffensiveStats.CritDamageBonus`; the weapon ladder applies at hit time as before. The crit chance ladders (`PercentageCritChance` on weapon, armour and accessory, `FlatCritChance` on weapon) are today's values times 0.30 (2026-10-22, spec ruling 27: the all-rounder crits 55% at Plantera), each tier rounded to a whole point and never below 1; the character mod scales Perception, its milestones and `petal_critical`'s crit chance by the same 0.30.
 
 **Exception — hurt-pipeline affixes** (`ThornDamage`, `DamageToManaBeforeLife`): Aggregated in `PlayerSurvivalPlayer.PostUpdateEquips` (Step 4 → `PlayerSurvivalPlayer.Apply`), applied in `PlayerHurtPipeline` (`ModifyHurt` for mana-absorb, `OnHurt` for thorns). Do NOT add cases in `ArmorManager`/`AccessoryManager`.
 
